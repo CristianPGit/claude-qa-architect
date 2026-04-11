@@ -4,10 +4,14 @@
   "description": "search-test-scenario",
   "main": "index.js",
   "scripts": {
-    "test:e2e": "playwright test",
-    "test:login": "playwright test e2e/login.spec.ts",
-    "test:search": "playwright test e2e/search.spec.ts",
-    "test:ui": "playwright test --ui",
+    "test:generate": "bddgen",
+    "test:e2e": "bddgen && playwright test",
+    "test:login": "bddgen && playwright test --grep @login",
+    "test:search": "bddgen && playwright test --grep @search",
+    "test:edge-case": "bddgen && playwright test --grep @edge-case",
+    "test:smoke": "bddgen && playwright test --grep @smoke",
+    "test:tag": "bddgen && playwright test --grep",
+    "test:ui": "bddgen && playwright test --ui",
     "test:codegen": "playwright codegen https://george.fat3.sparkasse.at/"
   },
   "repository": {
@@ -24,6 +28,7 @@
   "homepage": "https://github.com/CristianPGit/search-test-scenario#readme",
   "devDependencies": {
     "@playwright/test": "^1.59.1",
-    "@types/node": "^25.6.0"
+    "@types/node": "^25.6.0",
+    "playwright-bdd": "^8.5.0"
   }
 }

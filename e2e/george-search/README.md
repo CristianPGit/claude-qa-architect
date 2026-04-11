@@ -1,6 +1,6 @@
 # search-test-scenario
 
-Playwright E2E test suite targeting the George AT FAT banking app (`https://george.fat3.sparkasse.at/`).
+Playwright + Cucumber/Gherkin (BDD) E2E test suite targeting the George AT FAT banking app (`https://george.fat3.sparkasse.at/`).
 
 ## Setup
 
@@ -12,14 +12,14 @@ npx playwright install
 ## Running tests
 
 ```bash
-npm run test:e2e          # Run all tests
-npm run test:login        # Run only the login smoke test
-npm run test:search       # Run all search scenarios
+npm run test:e2e          # Run all features
+npm run test:login        # Run @login tagged scenarios
+npm run test:search       # Run @search tagged scenarios
+npm run test:edge-case    # Run @edge-case tagged scenarios
+npm run test:smoke        # Run @smoke tagged scenarios
+npm run test:tag -- @ui   # Run any specific tag
 npm run test:ui           # Open Playwright UI mode
 npm run test:codegen      # Launch Playwright codegen against the target app
-
-# Run a single test by title
-npx playwright test --grep "search Fashion"
 
 # Run against a single browser
 npx playwright test --project=chromium
@@ -27,49 +27,89 @@ npx playwright test --project=chromium
 
 ## Architecture
 
-**Pattern:** Page Object Model — all selectors and interactions live in `e2e/pages/george.page.ts` (`GeorgePage`). Test files instantiate `GeorgePage` and call its methods. No raw selectors appear in spec files.
+### BDD with Cucumber/Gherkin
 
-**Session handling:** The George FAT app uses OAuth implicit flow — the access token is stored in `sessionStorage` (not cookies or localStorage), so Playwright's `storageState` file cannot capture it. Instead, `e2e/pages/fixtures.ts` provides a worker-scoped `george` fixture that logs in once, keeps the browser context alive, and shares it across all tests. With `workers: 1` this means a single login per full test run.
+Tests are written in Gherkin syntax (`.feature` files) and wired to Playwright via [playwright-bdd](https://github.com/vitalets/playwright-bdd). The `bddgen` command generates Playwright spec files from the features before each test run.
 
-**Key constraints:**
+### Page Object Model
+
+All selectors and interactions live in `e2e/pages/george.page.ts` (`GeorgePage`). Step definitions call `GeorgePage` methods — no raw selectors appear in steps or features.
+
+### Session handling
+
+The George FAT app uses OAuth implicit flow — the access token is stored in `sessionStorage` (not cookies or localStorage), so Playwright's `storageState` cannot capture it. Instead, `e2e/steps/fixtures.ts` provides a worker-scoped `authenticatedPage` fixture that logs in once, keeps the browser context alive, and shares it across all tests. With `workers: 1` this means a single login per full test run.
+
+### Key constraints
+
 - `workers: 1` — tests run serially because they share a single FAT demo account
 - Credentials are hardcoded in `george.page.ts` (`GEORGE_CREDENTIALS`) — the FAT environment uses fixed demo credentials
-- Tests set `test.setTimeout(120_000)` due to slow FAT environment responses
+- Tests use 120s timeout due to slow FAT environment responses
 - The search keyword input is located by a CSS module class (`keywordContainer--YGQKcpvu`); if the app is rebuilt this hash may change
 - Login uses a two-step submit flow with deliberate 1-second pauses between steps
 
 ## Directory layout
 
 ```
+features/                        # Gherkin feature files
+  login.feature                  #   @login @smoke
+  search.feature                 #   @search — core search scenarios
+  edge-cases.feature             #   @search @edge-case — edge case scenarios
 e2e/
+  steps/                         # BDD step definitions
+    fixtures.ts                  #   BDD test fixtures (createBdd + worker-scoped auth)
+    login.steps.ts               #   Given/When/Then for login
+    search.steps.ts              #   Given/When/Then for search + edge cases
   pages/
-    george.page.ts   # Page Object — all selectors, login, navigation, search interactions, assertions
-    fixtures.ts      # Worker-scoped login fixture — login once per run, reuse session across tests
-  login.spec.ts      # Smoke test: verifies login succeeds
-  search.spec.ts     # Core transaction search scenarios
-  edge-case.spec.ts  # Edge case scenarios: result validation, nav resilience, debounce
-playwright.config.ts
+    george.page.ts               #   Page Object — selectors, login, navigation, search, assertions
+    fixtures.ts                  #   Original Playwright fixtures (kept for reference)
+.features-gen/                   # Auto-generated specs from .feature files (gitignored)
+playwright.config.ts             # Playwright + BDD config
 tsconfig.json
 ```
 
-## Test scenarios — Transaction Search (`search.spec.ts`)
+## Tags
 
-Login happens once via the worker-scoped `george` fixture. `beforeEach` navigates back to the dashboard and opens the search panel so each scenario starts from an identical known state.
+Tags can be applied at Feature or Scenario level in `.feature` files and used to filter test runs.
 
-| Scenario | Description |
-|----------|-------------|
-| Search panel opens | Asserts the keyword input is visible after clicking the Search icon |
-| Happy path — "Fashion" | Searches for "Fashion" and asserts matching transactions appear |
-| Case-insensitive | Searches lowercase "fashion" and asserts the same results appear |
-| Empty state | Searches a non-existent keyword and asserts no results are shown |
+| Tag | Scope | Description |
+|-----|-------|-------------|
+| `@login` | Feature | Login scenarios |
+| `@smoke` | Feature | Smoke tests for quick validation |
+| `@search` | Feature | All transaction search scenarios |
+| `@edge-case` | Feature | Edge case scenarios |
+| `@ui` | Scenario | UI visibility checks |
+| `@happy-path` | Scenario | Expected positive flows |
+| `@negative` | Scenario | Negative / empty-state flows |
+| `@data-integrity` | Scenario | Result content validation |
+| `@navigation` | Scenario | Navigation resilience |
+| `@debounce` | Scenario | Input debounce behavior |
 
-## Edge case scenarios (`edge-case.spec.ts`)
+## Feature files
 
-| Scenario | Description |
-|----------|-------------|
-| Result content validation | Asserts the first result row contains a date, merchant name, and amount with currency indicator (`€`/`EUR`) |
-| Navigate away and back | Searches "Fashion", navigates to Overview, returns to Search — verifies the keyword input is empty and no stale results remain |
-| Rapid typing / debounce | Types "Fashion" character-by-character without pressing Enter — verifies no transaction tables are rendered prematurely |
+### Login (`login.feature`)
+
+| Scenario | Tags |
+|----------|------|
+| Successful login with valid credentials | `@login @smoke` |
+
+### Transaction Search (`search.feature`)
+
+All scenarios share a `Background` that navigates to the dashboard and opens the search panel.
+
+| Scenario | Tags |
+|----------|------|
+| Search panel opens and keyword input is visible | `@search @ui` |
+| Search "Fashion" returns matching transaction results | `@search @happy-path` |
+| Search is case-insensitive | `@search @happy-path` |
+| No matching keyword shows empty state | `@search @negative` |
+
+### Edge Cases (`edge-cases.feature`)
+
+| Scenario | Tags |
+|----------|------|
+| Result rows contain date, merchant name, and amount | `@search @edge-case @data-integrity` |
+| Search resets after navigating away and back | `@search @edge-case @navigation` |
+| Rapid typing without Enter does not trigger search results | `@search @edge-case @debounce` |
 
 ## Manual test steps — Transaction Search
 
