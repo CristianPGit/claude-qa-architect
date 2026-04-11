@@ -8,7 +8,7 @@ export const GEORGE_CREDENTIALS = {
 } as const;
 
 export class GeorgePage {
-  constructor(private readonly page: Page) {}
+  constructor(readonly page: Page) {}
 
   async login() {
     const { baseUrl, username, password, otp } = GEORGE_CREDENTIALS;
@@ -72,6 +72,54 @@ export class GeorgePage {
       .locator('[class*="keywordContainer--YGQKcpvu"]')
       .or(this.page.locator('[class*="keywordContainer"]'));
     await expect(keywordBox).toBeVisible({ timeout: 20_000 });
+  }
+
+  async navigateToOverview() {
+    await this.page.getByRole('link', { name: 'Overview' }).click();
+    await this.page.waitForURL('**/overview**', { timeout: 20_000 });
+  }
+
+  async expectResultRowsHaveRequiredFields() {
+    const tables = this.page.locator('table.g-table');
+    await expect(tables.first()).toBeVisible({ timeout: 25_000 });
+
+    const firstRow = tables.first().locator('tbody tr').first();
+    const cells = firstRow.locator('td');
+
+    // Date cell (index 0) — e.g. "31. Mar"
+    await expect(cells.nth(0)).toHaveText(/.+/);
+    // Title/Merchant cell (index 2)
+    await expect(cells.nth(2)).toHaveText(/.+/);
+    // Amount cell (index 7) — must contain a currency indicator
+    await expect(cells.nth(7)).toContainText(/€|EUR/);
+  }
+
+  async typeKeywordWithoutSubmitting(keyword: string) {
+    const keywordBox = this.page
+      .locator('[class*="keywordContainer--YGQKcpvu"]')
+      .or(this.page.locator('[class*="keywordContainer"]'));
+    await keywordBox.waitFor({ state: 'visible', timeout: 20_000 });
+    const keywordInput = keywordBox.locator('input, textarea').first();
+    await keywordInput.click({ timeout: 5_000 }).catch(() => keywordBox.click());
+    // Type each character rapidly without pressing Enter
+    await keywordInput.pressSequentially(keyword, { delay: 50 });
+  }
+
+  async expectNoTransactionTables() {
+    const tables = this.page.locator('table.g-table');
+    expect(await tables.count()).toBe(0);
+  }
+
+  async expectSearchFieldClean() {
+    const searchInput = this.page
+      .getByRole('combobox', { name: /search for text/i })
+      .or(
+        this.page
+          .locator('[class*="keywordContainer"]')
+          .locator('input, textarea')
+          .first()
+      );
+    await expect(searchInput.first()).toHaveValue('', { timeout: 10_000 });
   }
 
   async expectNoResults() {

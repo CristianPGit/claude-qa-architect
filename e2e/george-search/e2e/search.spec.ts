@@ -1,4 +1,4 @@
-import { test } from './fixtures';
+import { test } from './pages/fixtures';
 
 /**
  * Transaction Search — automated test suite

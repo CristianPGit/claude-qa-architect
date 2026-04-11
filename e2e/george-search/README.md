@@ -29,7 +29,7 @@ npx playwright test --project=chromium
 
 **Pattern:** Page Object Model — all selectors and interactions live in `e2e/pages/george.page.ts` (`GeorgePage`). Test files instantiate `GeorgePage` and call its methods. No raw selectors appear in spec files.
 
-**Session handling:** The George FAT app uses OAuth implicit flow — the access token is stored in `sessionStorage` (not cookies or localStorage), so Playwright's `storageState` file cannot capture it. Instead, `e2e/fixtures.ts` provides a worker-scoped `george` fixture that logs in once, keeps the browser context alive, and shares it across all tests. With `workers: 1` this means a single login per full test run.
+**Session handling:** The George FAT app uses OAuth implicit flow — the access token is stored in `sessionStorage` (not cookies or localStorage), so Playwright's `storageState` file cannot capture it. Instead, `e2e/pages/fixtures.ts` provides a worker-scoped `george` fixture that logs in once, keeps the browser context alive, and shares it across all tests. With `workers: 1` this means a single login per full test run.
 
 **Key constraints:**
 - `workers: 1` — tests run serially because they share a single FAT demo account

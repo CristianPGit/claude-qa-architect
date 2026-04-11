@@ -1,5 +1,5 @@
 import { test as base, type Browser, type Page } from '@playwright/test';
-import { GeorgePage } from './pages/george.page';
+import { GeorgePage } from './george.page';
 
 /**
  * Worker-scoped fixture that logs in once per worker and reuses the same
