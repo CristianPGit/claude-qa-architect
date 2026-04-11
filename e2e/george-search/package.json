@@ -1,0 +1,28 @@
+{
+  "name": "search-test-scenario",
+  "version": "1.0.0",
+  "description": "search-test-scenario",
+  "main": "index.js",
+  "scripts": {
+    "test:e2e": "playwright test",
+    "test:login": "playwright test e2e/login.spec.ts",
+    "test:ui": "playwright test --ui",
+    "test:codegen": "playwright codegen https://george.fat3.sparkasse.at/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CristianPGit/search-test-scenario.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/CristianPGit/search-test-scenario/issues"
+  },
+  "homepage": "https://github.com/CristianPGit/search-test-scenario#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0"
+  }
+}
