@@ -44,9 +44,10 @@ npx playwright test --project=chromium
 e2e/
   pages/
     george.page.ts   # Page Object — all selectors, login, navigation, search interactions, assertions
-  fixtures.ts        # Worker-scoped login fixture — login once per run, reuse session across tests
+    fixtures.ts      # Worker-scoped login fixture — login once per run, reuse session across tests
   login.spec.ts      # Smoke test: verifies login succeeds
-  search.spec.ts     # Transaction search scenarios
+  search.spec.ts     # Core transaction search scenarios
+  edge-case.spec.ts  # Edge case scenarios: result validation, nav resilience, debounce
 playwright.config.ts
 tsconfig.json
 ```
@@ -61,6 +62,14 @@ Login happens once via the worker-scoped `george` fixture. `beforeEach` navigate
 | Happy path — "Fashion" | Searches for "Fashion" and asserts matching transactions appear |
 | Case-insensitive | Searches lowercase "fashion" and asserts the same results appear |
 | Empty state | Searches a non-existent keyword and asserts no results are shown |
+
+## Edge case scenarios (`edge-case.spec.ts`)
+
+| Scenario | Description |
+|----------|-------------|
+| Result content validation | Asserts the first result row contains a date, merchant name, and amount with currency indicator (`€`/`EUR`) |
+| Navigate away and back | Searches "Fashion", navigates to Overview, returns to Search — verifies the keyword input is empty and no stale results remain |
+| Rapid typing / debounce | Types "Fashion" character-by-character without pressing Enter — verifies no transaction tables are rendered prematurely |
 
 ## Manual test steps — Transaction Search
 

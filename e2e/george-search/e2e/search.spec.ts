@@ -1,63 +1,57 @@
 import { test } from './pages/fixtures';
 
 /**
- * Transaction Search — automated test suite
+ * Feature: Transaction Search
  *
- * Structure: Page Object Model (GeorgePage) + test.describe grouping.
- * All tests share a serial worker (workers: 1) because the FAT environment
- * uses a single demo account that cannot handle concurrent logins.
+ * As a George banking customer
+ * I want to search my transaction history by keyword
+ * So that I can quickly find specific payments
  *
  * Login happens once per run via the worker-scoped `george` fixture.
- * beforeEach navigates back to the dashboard and opens the search panel
+ * beforeEach navigates to the dashboard and opens the search panel
  * so each scenario starts from an identical known state.
  */
-test.describe('Transaction Search', () => {
+test.describe('Feature: Transaction Search', () => {
   test.beforeEach(async ({ george }) => {
     test.setTimeout(120_000);
-    await george.navigateToDashboard();
-    await george.openSearchFromMainNav();
+    await test.step('Given the user is logged in and on the dashboard', async () => {
+      await george.navigateToDashboard();
+    });
+    await test.step('And the user opens the search panel', async () => {
+      await george.openSearchFromMainNav();
+    });
   });
 
-  /**
-   * Scenario 1 — UI opens correctly
-   * Verifies that clicking the Search icon exposes the keyword input field.
-   * Assertion: keyword container is visible in the DOM.
-   */
-  test('search panel opens and keyword input is visible', async ({ george }) => {
-    await george.expectSearchInputVisible();
+  test('Scenario: Search panel opens and keyword input is visible', async ({ george }) => {
+    await test.step('Then the keyword input field should be visible', async () => {
+      await george.expectSearchInputVisible();
+    });
   });
 
-  /**
-   * Scenario 2 — Happy path: known keyword returns matching transactions
-   * The core acceptance criterion from the assignment.
-   * Assertions:
-   *   - At least one result containing "Fashion" is visible
-   *   - Multiple matching items are present (count > 0)
-   */
-  test('search "Fashion" returns matching transaction results', async ({ george }) => {
-    await george.searchTransactionsByKeyword('Fashion');
-    await george.expectResultsContainKeyword('Fashion');
+  test('Scenario: Search "Fashion" returns matching transaction results', async ({ george }) => {
+    await test.step('When the user searches for "Fashion"', async () => {
+      await george.searchTransactionsByKeyword('Fashion');
+    });
+    await test.step('Then transaction results containing "Fashion" should be visible', async () => {
+      await george.expectResultsContainKeyword('Fashion');
+    });
   });
 
-  /**
-   * Scenario 3 — Case-insensitive search
-   * Banking search should not be case-sensitive; users may type in any casing.
-   * Assertion: same results appear when searching lowercase "fashion".
-   */
-  test('search is case-insensitive — "fashion" returns Fashion results', async ({ george }) => {
-    await george.searchTransactionsByKeyword('fashion');
-    await george.expectResultsContainKeyword('Fashion');
+  test('Scenario: Search is case-insensitive', async ({ george }) => {
+    await test.step('When the user searches for "fashion" in lowercase', async () => {
+      await george.searchTransactionsByKeyword('fashion');
+    });
+    await test.step('Then transaction results containing "Fashion" should still appear', async () => {
+      await george.expectResultsContainKeyword('Fashion');
+    });
   });
 
-  /**
-   * Scenario 4 — No-match / empty state
-   * A keyword that has no matching transactions should show an empty state,
-   * not a crash or a stale list of unrelated results.
-   * Assertion: either a "no results" message is visible OR zero transaction
-   * rows are rendered.
-   */
-  test('search with no matching keyword shows empty state', async ({ george }) => {
-    await george.searchTransactionsByKeyword('XYZNOTEXIST99999');
-    await george.expectNoResults();
+  test('Scenario: No matching keyword shows empty state', async ({ george }) => {
+    await test.step('When the user searches for a non-existent keyword', async () => {
+      await george.searchTransactionsByKeyword('XYZNOTEXIST99999');
+    });
+    await test.step('Then no results should be displayed', async () => {
+      await george.expectNoResults();
+    });
   });
 });
