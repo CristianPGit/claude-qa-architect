@@ -12,7 +12,9 @@
     "test:smoke": "bddgen && playwright test --grep @smoke",
     "test:tag": "bddgen && playwright test --grep",
     "test:ui": "bddgen && playwright test --ui",
-    "test:codegen": "playwright codegen https://george.fat3.sparkasse.at/"
+    "test:codegen": "playwright codegen https://george.fat3.sparkasse.at/",
+    "report:allure": "allure generate allure-results --clean -o allure-report && allure open allure-report",
+    "report:allure:open": "allure open allure-report"
   },
   "repository": {
     "type": "git",
@@ -29,6 +31,8 @@
   "devDependencies": {
     "@playwright/test": "^1.59.1",
     "@types/node": "^25.6.0",
+    "allure-commandline": "^2.38.1",
+    "allure-playwright": "^3.7.1",
     "playwright-bdd": "^8.5.0"
   }
 }

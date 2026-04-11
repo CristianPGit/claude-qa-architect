@@ -5,6 +5,10 @@
 # Generated BDD specs
 /.features-gen/
 
+# Allure reports
+/allure-results/
+/allure-report/
+
 # Playwright
 node_modules/
 /.playwright-cli/

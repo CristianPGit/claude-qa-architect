@@ -25,6 +25,27 @@ npm run test:codegen      # Launch Playwright codegen against the target app
 npx playwright test --project=chromium
 ```
 
+## Reporting
+
+The project includes both Playwright HTML and Allure reporters.
+
+### Allure Dashboard
+
+After running tests, generate and open the Allure dashboard:
+
+```bash
+npm run report:allure        # Generate report + open in browser
+npm run report:allure:open   # Re-open an already generated report
+```
+
+The Allure dashboard provides:
+- **Overview** — pass/fail summary with trend charts
+- **Suites** — tests grouped by feature file
+- **Graphs** — status distribution, duration, severity
+- **Timeline** — execution timeline per test
+- **Tags** — filter results by Gherkin tags (`@smoke`, `@search`, etc.)
+- **Per-test details** — each Given/When/Then step with duration
+
 ## Architecture
 
 ### BDD with Cucumber/Gherkin
@@ -63,6 +84,8 @@ e2e/
     george.page.ts               #   Page Object — selectors, login, navigation, search, assertions
     fixtures.ts                  #   Original Playwright fixtures (kept for reference)
 .features-gen/                   # Auto-generated specs from .feature files (gitignored)
+allure-results/                  # Raw Allure JSON results (gitignored)
+allure-report/                   # Generated Allure HTML dashboard (gitignored)
 playwright.config.ts             # Playwright + BDD config
 tsconfig.json
 ```

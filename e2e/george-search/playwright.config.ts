@@ -13,7 +13,10 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   /* One worker: shared George FAT user cannot handle concurrent multi-browser logins. */
   workers: 1,
-  reporter: 'html',
+  reporter: [
+    ['html'],
+    ['allure-playwright'],
+  ],
   use: {
     trace: 'on-first-retry',
   },
