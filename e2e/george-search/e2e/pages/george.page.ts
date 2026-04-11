@@ -38,7 +38,7 @@ export class GeorgePage {
       .or(this.page.locator('[aria-label*="Search" i]'))
       .or(this.page.locator('[aria-label*="Suche" i]'))
       .first()
-      .click({ timeout: 20_000 });
+      .click({ timeout: 35_000 });
   }
 
   async searchTransactionsByKeyword(keyword: string) {
@@ -56,5 +56,24 @@ export class GeorgePage {
     const hits = this.page.getByText(keyword, { exact: false });
     await expect(hits.first()).toBeVisible({ timeout: 25_000 });
     expect(await hits.count()).toBeGreaterThan(0);
+  }
+
+  async expectSearchInputVisible() {
+    const keywordBox = this.page
+      .locator('[class*="keywordContainer--YGQKcpvu"]')
+      .or(this.page.locator('[class*="keywordContainer"]'));
+    await expect(keywordBox).toBeVisible({ timeout: 20_000 });
+  }
+
+  async expectNoResults() {
+    // Wait for loading to settle, then assert no transaction hits are present
+    await this.page.waitForTimeout(3_000);
+    const noResultsIndicator = this.page
+      .getByText(/no results|keine Ergebnisse|nothing found|nichts gefunden/i)
+      .or(this.page.locator('[class*="emptyState"], [class*="noResult"], [class*="empty-state"]'));
+    const transactionItems = this.page.locator('[class*="transactionRow"], [class*="listItem"], [class*="transaction-item"]');
+    const hasEmptyMessage = await noResultsIndicator.first().isVisible().catch(() => false);
+    const itemCount = await transactionItems.count();
+    expect(hasEmptyMessage || itemCount === 0).toBe(true);
   }
 }

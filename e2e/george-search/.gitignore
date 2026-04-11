@@ -1,4 +1,7 @@
 
+# Markdown
+*.md
+
 # Playwright
 node_modules/
 /test-results/
