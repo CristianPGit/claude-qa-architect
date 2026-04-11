@@ -31,6 +31,15 @@ export class GeorgePage {
     await submitButton.click();
   }
 
+  async navigateToDashboard() {
+    await this.page.goto(GEORGE_CREDENTIALS.baseUrl);
+    await this.page
+      .getByRole('dialog', { name: 'Cookie Banner' })
+      .getByRole('button', { name: 'Close' })
+      .click({ timeout: 5_000 })
+      .catch(() => {});
+  }
+
   async openSearchFromMainNav() {
     await this.page
       .getByRole('button', { name: /^(Search|Suche)$/i })

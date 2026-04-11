@@ -1,5 +1,4 @@
-import { test } from '@playwright/test';
-import { GeorgePage } from './pages/george.page';
+import { test } from './fixtures';
 
 /**
  * Transaction Search — automated test suite
@@ -8,14 +7,14 @@ import { GeorgePage } from './pages/george.page';
  * All tests share a serial worker (workers: 1) because the FAT environment
  * uses a single demo account that cannot handle concurrent logins.
  *
- * beforeEach handles login + opening the search panel so each scenario
- * starts from the same known state without repeating setup code.
+ * Login happens once per run via the worker-scoped `george` fixture.
+ * beforeEach navigates back to the dashboard and opens the search panel
+ * so each scenario starts from an identical known state.
  */
 test.describe('Transaction Search', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ george }) => {
     test.setTimeout(120_000);
-    const george = new GeorgePage(page);
-    await george.login();
+    await george.navigateToDashboard();
     await george.openSearchFromMainNav();
   });
 
@@ -24,8 +23,7 @@ test.describe('Transaction Search', () => {
    * Verifies that clicking the Search icon exposes the keyword input field.
    * Assertion: keyword container is visible in the DOM.
    */
-  test('search panel opens and keyword input is visible', async ({ page }) => {
-    const george = new GeorgePage(page);
+  test('search panel opens and keyword input is visible', async ({ george }) => {
     await george.expectSearchInputVisible();
   });
 
@@ -36,8 +34,7 @@ test.describe('Transaction Search', () => {
    *   - At least one result containing "Fashion" is visible
    *   - Multiple matching items are present (count > 0)
    */
-  test('search "Fashion" returns matching transaction results', async ({ page }) => {
-    const george = new GeorgePage(page);
+  test('search "Fashion" returns matching transaction results', async ({ george }) => {
     await george.searchTransactionsByKeyword('Fashion');
     await george.expectResultsContainKeyword('Fashion');
   });
@@ -47,8 +44,7 @@ test.describe('Transaction Search', () => {
    * Banking search should not be case-sensitive; users may type in any casing.
    * Assertion: same results appear when searching lowercase "fashion".
    */
-  test('search is case-insensitive — "fashion" returns Fashion results', async ({ page }) => {
-    const george = new GeorgePage(page);
+  test('search is case-insensitive — "fashion" returns Fashion results', async ({ george }) => {
     await george.searchTransactionsByKeyword('fashion');
     await george.expectResultsContainKeyword('Fashion');
   });
@@ -60,8 +56,7 @@ test.describe('Transaction Search', () => {
    * Assertion: either a "no results" message is visible OR zero transaction
    * rows are rendered.
    */
-  test('search with no matching keyword shows empty state', async ({ page }) => {
-    const george = new GeorgePage(page);
+  test('search with no matching keyword shows empty state', async ({ george }) => {
     await george.searchTransactionsByKeyword('XYZNOTEXIST99999');
     await george.expectNoResults();
   });

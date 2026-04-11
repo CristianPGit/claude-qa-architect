@@ -29,6 +29,8 @@ npx playwright test --project=chromium
 
 **Pattern:** Page Object Model — all selectors and interactions live in `e2e/pages/george.page.ts` (`GeorgePage`). Test files instantiate `GeorgePage` and call its methods. No raw selectors appear in spec files.
 
+**Session handling:** The George FAT app uses OAuth implicit flow — the access token is stored in `sessionStorage` (not cookies or localStorage), so Playwright's `storageState` file cannot capture it. Instead, `e2e/fixtures.ts` provides a worker-scoped `george` fixture that logs in once, keeps the browser context alive, and shares it across all tests. With `workers: 1` this means a single login per full test run.
+
 **Key constraints:**
 - `workers: 1` — tests run serially because they share a single FAT demo account
 - Credentials are hardcoded in `george.page.ts` (`GEORGE_CREDENTIALS`) — the FAT environment uses fixed demo credentials
@@ -41,15 +43,17 @@ npx playwright test --project=chromium
 ```
 e2e/
   pages/
-    george.page.ts   # Page Object — all selectors, login, search interactions, assertions
+    george.page.ts   # Page Object — all selectors, login, navigation, search interactions, assertions
+  fixtures.ts        # Worker-scoped login fixture — login once per run, reuse session across tests
   login.spec.ts      # Smoke test: verifies login succeeds
   search.spec.ts     # Transaction search scenarios
 playwright.config.ts
+tsconfig.json
 ```
 
 ## Test scenarios — Transaction Search (`search.spec.ts`)
 
-All scenarios share a `beforeEach` that logs in and opens the search panel.
+Login happens once via the worker-scoped `george` fixture. `beforeEach` navigates back to the dashboard and opens the search panel so each scenario starts from an identical known state.
 
 | Scenario | Description |
 |----------|-------------|
