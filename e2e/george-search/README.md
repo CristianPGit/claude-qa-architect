@@ -4,7 +4,7 @@ Playwright + Cucumber/Gherkin (BDD) end-to-end test suite targeting the **George
 
 ---
 
-## ⚡ Tech Stack
+## Tech Stack
 
 | Tool | Purpose |
 |------|---------|
@@ -16,7 +16,7 @@ Playwright + Cucumber/Gherkin (BDD) end-to-end test suite targeting the **George
 
 ---
 
-## ✨ Key Features
+## Key Features
 
 - 🔐 **Single login per run** — worker-scoped fixture logs in once and shares the session across all tests
 - 📄 **BDD with Gherkin** — scenarios written in plain English, readable by non-developers
@@ -71,7 +71,7 @@ npm run report:allure:open   # Re-open an existing report
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 search-test-scenario/
@@ -100,7 +100,7 @@ search-test-scenario/
 
 ---
 
-## 🧪 Test Structure Overview
+## Test Structure Overview
 
 ### Test Flow
 
@@ -142,7 +142,7 @@ All scenarios share a `Background`: navigate to dashboard → open search panel.
 | Search is case-insensitive | `@search` `@happy-path` |
 | No matching keyword shows empty state | `@search` `@negative` |
 
-#### ⚠️ Edge Cases (`edge-cases.feature`)
+#### Edge Cases (`edge-cases.feature`)
 
 | Scenario | Tags |
 |----------|------|
@@ -194,7 +194,7 @@ All scenarios share a `Background`: navigate to dashboard → open search panel.
 7. Verify a list of Fashion-related transactions appears
 8. *(Optional)* Switch to English via **Settings → Language**
 
-### 🔬 Additional Exploratory Scenarios
+### Additional Exploratory Scenarios
 
 | Scenario | What to verify |
 |----------|----------------|
