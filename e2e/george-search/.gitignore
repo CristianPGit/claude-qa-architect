@@ -1,4 +1,7 @@
 
+# Environment / secrets
+.env
+
 # Markdown
 *.md
 

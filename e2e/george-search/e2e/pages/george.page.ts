@@ -1,11 +1,11 @@
 import { expect, type Page } from '@playwright/test';
 
 export const GEORGE_CREDENTIALS = {
-  baseUrl: 'https://george.fat3.sparkasse.at/',
-  username: '101177144',
-  password: '1111111',
-  otp: '1111111',
-} as const;
+  baseUrl: process.env.GEORGE_BASE_URL ?? '',
+  username: process.env.GEORGE_USERNAME ?? '',
+  password: process.env.GEORGE_PASSWORD ?? '',
+  otp: process.env.GEORGE_OTP ?? '',
+};
 
 export class GeorgePage {
   constructor(readonly page: Page) {}

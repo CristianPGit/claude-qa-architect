@@ -1,5 +1,18 @@
 import { defineConfig, devices } from '@playwright/test';
 import { defineBddConfig } from 'playwright-bdd';
+import { readFileSync } from 'fs';
+import { resolve } from 'path';
+
+// Load .env file (Playwright's auto-loading is unreliable with bddgen pipelines)
+try {
+  const envFile = readFileSync(resolve(__dirname, '.env'), 'utf-8');
+  for (const line of envFile.split('\n')) {
+    const match = line.match(/^([^#][^=]*)=(.*)$/);
+    if (match && !process.env[match[1].trim()]) {
+      process.env[match[1].trim()] = match[2].trim();
+    }
+  }
+} catch { /* .env is optional */ }
 
 const testDir = defineBddConfig({
   features: './features/**/*.feature',

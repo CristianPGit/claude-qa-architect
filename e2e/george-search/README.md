@@ -1,103 +1,177 @@
-# search-test-scenario
+# 🏦 George AT — E2E Test Suite
 
-Playwright + Cucumber/Gherkin (BDD) E2E test suite targeting the George AT FAT banking app (`https://george.fat3.sparkasse.at/`).
+Playwright + Cucumber/Gherkin (BDD) end-to-end test suite targeting the **George AT FAT** banking app. Tests cover login, transaction search, edge cases, and data integrity using the Page Object Model pattern.
 
-## Setup
+---
+
+## ⚡ Tech Stack
+
+| Tool | Purpose |
+|------|---------|
+| [Playwright](https://playwright.dev) | Browser automation & assertions |
+| [playwright-bdd](https://github.com/vitalets/playwright-bdd) | BDD bridge — Gherkin → Playwright |
+| Cucumber / Gherkin | Human-readable `.feature` files |
+| TypeScript | Type-safe tests and page objects |
+| Allure | Rich HTML test reports |
+
+---
+
+## ✨ Key Features
+
+- 🔐 **Single login per run** — worker-scoped fixture logs in once and shares the session across all tests
+- 📄 **BDD with Gherkin** — scenarios written in plain English, readable by non-developers
+- 🧩 **Page Object Model** — all selectors and interactions in one place (`george.page.ts`)
+- 📊 **Dual reporting** — Playwright HTML report + Allure dashboard with trend charts
+- 🏷️ **Tag-based filtering** — run any subset of tests by tag (`@smoke`, `@search`, etc.)
+- 🌐 **Cross-browser** — Chromium, Firefox, WebKit
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+
+### Install
 
 ```bash
 npm install
 npx playwright install
+cp .env.example .env   # add your credentials to .env
 ```
 
-## Running tests
+### Run Tests
 
 ```bash
-npm run test:e2e          # Run all features
-npm run test:login        # Run @login tagged scenarios
-npm run test:search       # Run @search tagged scenarios
-npm run test:edge-case    # Run @edge-case tagged scenarios
-npm run test:smoke        # Run @smoke tagged scenarios
-npm run test:tag -- @ui   # Run any specific tag
-npm run test:ui           # Open Playwright UI mode
-npm run test:codegen      # Launch Playwright codegen against the target app
-
-# Run against a single browser
-npx playwright test --project=chromium
+npm run test:e2e          # All features (all browsers)
+npm run test:login        # @login scenarios only
+npm run test:search       # @search scenarios only
+npm run test:edge-case    # @edge-case scenarios only
+npm run test:smoke        # @smoke scenarios only
+npm run test:tag -- @ui   # Any specific tag
+npm run test:ui           # Interactive Playwright UI mode
+npm run test:codegen      # Launch codegen recorder
 ```
 
-## Reporting
-
-The project includes both Playwright HTML and Allure reporters.
-
-### Allure Dashboard
-
-After running tests, generate and open the Allure dashboard:
+### Run on a single browser
 
 ```bash
-npm run report:allure        # Generate report + open in browser
-npm run report:allure:open   # Re-open an already generated report
+npm run test:e2e -- --project=chromium
+npm run test:e2e -- --project=chromium --headed   # with visible browser
 ```
 
-The Allure dashboard provides:
-- **Overview** — pass/fail summary with trend charts
-- **Suites** — tests grouped by feature file
-- **Graphs** — status distribution, duration, severity
-- **Timeline** — execution timeline per test
-- **Tags** — filter results by Gherkin tags (`@smoke`, `@search`, etc.)
-- **Per-test details** — each Given/When/Then step with duration
+### Reports
 
-## Architecture
-
-### BDD with Cucumber/Gherkin
-
-Tests are written in Gherkin syntax (`.feature` files) and wired to Playwright via [playwright-bdd](https://github.com/vitalets/playwright-bdd). The `bddgen` command generates Playwright spec files from the features before each test run.
-
-### Page Object Model
-
-All selectors and interactions live in `e2e/pages/george.page.ts` (`GeorgePage`). Step definitions call `GeorgePage` methods — no raw selectors appear in steps or features.
-
-### Session handling
-
-The George FAT app uses OAuth implicit flow — the access token is stored in `sessionStorage` (not cookies or localStorage), so Playwright's `storageState` cannot capture it. Instead, `e2e/steps/fixtures.ts` provides a worker-scoped `authenticatedPage` fixture that logs in once, keeps the browser context alive, and shares it across all tests. With `workers: 1` this means a single login per full test run.
-
-### Key constraints
-
-- `workers: 1` — tests run serially because they share a single FAT demo account
-- Credentials are hardcoded in `george.page.ts` (`GEORGE_CREDENTIALS`) — the FAT environment uses fixed demo credentials
-- Tests use 120s timeout due to slow FAT environment responses
-- The search keyword input is located by a CSS module class (`keywordContainer--YGQKcpvu`); if the app is rebuilt this hash may change
-- Login uses a two-step submit flow with deliberate 1-second pauses between steps
-
-## Directory layout
-
-```
-features/                        # Gherkin feature files
-  login.feature                  #   @login @smoke
-  search.feature                 #   @search — core search scenarios
-  edge-cases.feature             #   @search @edge-case — edge case scenarios
-e2e/
-  steps/                         # BDD step definitions
-    fixtures.ts                  #   BDD test fixtures (createBdd + worker-scoped auth)
-    login.steps.ts               #   Given/When/Then for login
-    search.steps.ts              #   Given/When/Then for search + edge cases
-  pages/
-    george.page.ts               #   Page Object — selectors, login, navigation, search, assertions
-    fixtures.ts                  #   Original Playwright fixtures (kept for reference)
-.features-gen/                   # Auto-generated specs from .feature files (gitignored)
-allure-results/                  # Raw Allure JSON results (gitignored)
-allure-report/                   # Generated Allure HTML dashboard (gitignored)
-playwright.config.ts             # Playwright + BDD config
-tsconfig.json
+```bash
+npm run report:allure        # Generate + open Allure dashboard
+npm run report:allure:open   # Re-open an existing report
 ```
 
-## Tags
+---
 
-Tags can be applied at Feature or Scenario level in `.feature` files and used to filter test runs.
+## 📁 Project Structure
+
+```
+search-test-scenario/
+├── features/                        # Gherkin feature files
+│   ├── login.feature                #   @login @smoke
+│   ├── search.feature               #   @search — core search scenarios
+│   └── edge-cases.feature           #   @search @edge-case — edge cases
+│
+├── e2e/
+│   ├── pages/
+│   │   ├── george.page.ts           #   Page Object — all selectors & interactions
+│   │   └── fixtures.ts              #   Original Playwright fixtures (reference)
+│   └── steps/
+│       ├── fixtures.ts              #   BDD fixtures + worker-scoped auth session
+│       ├── login.steps.ts           #   Given/When/Then — login
+│       └── search.steps.ts          #   Given/When/Then — search & edge cases
+│
+├── .env                             # 🔒 Secrets — gitignored, copy from .env.example
+├── .env.example                     # Credential template
+├── playwright.config.ts             # Playwright + BDD configuration
+├── tsconfig.json
+└── package.json
+```
+
+> `.features-gen/` (auto-generated specs), `allure-results/`, and `allure-report/` are gitignored.
+
+---
+
+## 🧪 Test Structure Overview
+
+### Test Flow
+
+```
+Login (once per run, worker-scoped)
+    │
+    ├─► Login Feature
+    │       └── Successful login with valid credentials
+    │
+    └─► Search Feature (Background: navigate + open search panel)
+            ├── Core Search Scenarios
+            │       ├── Search panel UI is visible
+            │       ├── Search "Fashion" returns results
+            │       ├── Search is case-insensitive
+            │       └── No match → empty state shown
+            │
+            └── Edge Case Scenarios
+                    ├── Result rows contain date, merchant, and amount
+                    ├── Search resets after navigating away and back
+                    └── Rapid typing without Enter does not trigger search
+```
+
+### Automated Scenarios
+
+#### 🔑 Login (`login.feature`)
+
+| Scenario | Tags |
+|----------|------|
+| Successful login with valid credentials | `@login` `@smoke` |
+
+#### 🔍 Transaction Search (`search.feature`)
+
+All scenarios share a `Background`: navigate to dashboard → open search panel.
+
+| Scenario | Tags |
+|----------|------|
+| Search panel opens and keyword input is visible | `@search` `@ui` |
+| Search "Fashion" returns matching transaction results | `@search` `@happy-path` |
+| Search is case-insensitive | `@search` `@happy-path` |
+| No matching keyword shows empty state | `@search` `@negative` |
+
+#### ⚠️ Edge Cases (`edge-cases.feature`)
+
+| Scenario | Tags |
+|----------|------|
+| Result rows contain date, merchant name, and amount | `@search` `@edge-case` `@data-integrity` |
+| Search resets after navigating away and back | `@search` `@edge-case` `@navigation` |
+| Rapid typing without Enter does not trigger search | `@search` `@edge-case` `@debounce` |
+
+---
+
+## ✅ Assertion Types Implemented
+
+| Assertion | Method | Scenario |
+|-----------|--------|----------|
+| Element is visible | `toBeVisible()` | Search input visible, result rows present |
+| Text matches pattern | `toHaveText(/.+/)` | Date and merchant cells are not empty |
+| Text contains currency | `toContainText(/€\|EUR/)` | Amount cell shows currency symbol |
+| Result count > 0 | `toBeGreaterThan(0)` | At least one hit returned for valid keyword |
+| No tables rendered | `toBe(0)` | Debounce — typing without Enter shows nothing |
+| Field is empty | `toHaveValue('')` | Search input cleared after navigation reset |
+| Empty state shown | `toBe(true)` | No results indicator OR zero transaction items |
+
+---
+
+## 🏷️ Tags Reference
 
 | Tag | Scope | Description |
 |-----|-------|-------------|
 | `@login` | Feature | Login scenarios |
-| `@smoke` | Feature | Smoke tests for quick validation |
+| `@smoke` | Feature | Quick sanity / smoke validation |
 | `@search` | Feature | All transaction search scenarios |
 | `@edge-case` | Feature | Edge case scenarios |
 | `@ui` | Scenario | UI visibility checks |
@@ -105,61 +179,28 @@ Tags can be applied at Feature or Scenario level in `.feature` files and used to
 | `@negative` | Scenario | Negative / empty-state flows |
 | `@data-integrity` | Scenario | Result content validation |
 | `@navigation` | Scenario | Navigation resilience |
-| `@debounce` | Scenario | Input debounce behavior |
+| `@debounce` | Scenario | Input debounce / submit gating |
 
-## Feature files
+---
 
-### Login (`login.feature`)
+## 🖐️ Manual Test Steps — Transaction Search
 
-| Scenario | Tags |
-|----------|------|
-| Successful login with valid credentials | `@login @smoke` |
+1. Copy `.env.example` → `.env` and fill in your credentials
+2. Navigate to the app URL from `.env`
+3. Dismiss the cookie banner
+4. Enter your username → click **Next** → enter your password → click **Submit**
+5. Click the **Search** icon in the main navigation bar
+6. Type `Fashion` in the keyword input and press **Enter**
+7. Verify a list of Fashion-related transactions appears
+8. *(Optional)* Switch to English via **Settings → Language**
 
-### Transaction Search (`search.feature`)
+### 🔬 Additional Exploratory Scenarios
 
-All scenarios share a `Background` that navigates to the dashboard and opens the search panel.
-
-| Scenario | Tags |
-|----------|------|
-| Search panel opens and keyword input is visible | `@search @ui` |
-| Search "Fashion" returns matching transaction results | `@search @happy-path` |
-| Search is case-insensitive | `@search @happy-path` |
-| No matching keyword shows empty state | `@search @negative` |
-
-### Edge Cases (`edge-cases.feature`)
-
-| Scenario | Tags |
-|----------|------|
-| Result rows contain date, merchant name, and amount | `@search @edge-case @data-integrity` |
-| Search resets after navigating away and back | `@search @edge-case @navigation` |
-| Rapid typing without Enter does not trigger search results | `@search @edge-case @debounce` |
-
-## Manual test steps — Transaction Search
-
-1. Navigate to `https://george.fat3.sparkasse.at/`
-2. Dismiss the cookie banner
-3. Enter username `101177144`, click Next, enter password `1111111`, click Submit
-4. Click the **Search** icon in the main navigation bar
-5. Type `Fashion` in the keyword input and press Enter
-6. Verify a list of Fashion-related transactions appears
-7. (Optional) Switch the interface to English via **Settings > Language**
-
-### Additional manual scenarios
-
-**Partial keyword match**
-Search for `"Fash"` — verify whether the app supports partial matching or requires the full word. Documents the feature boundary.
-
-**Special characters / SQL-like input**
-Try `%`, `'`, `--`, `<script>` — confirms the app handles them gracefully without errors or XSS.
-
-**Very long input**
-Paste a 500-character string — verify no crash, no layout break, and a sensible response.
-
-**No network / slow network**
-Throttle the connection in DevTools to 3G and search — confirm a loading indicator appears and the UI doesn't hang silently.
-
-**Accessibility**
-Tab through the search flow using keyboard only, check that the input has a visible focus ring and that a screen reader label is present (`aria-label` or `<label>`).
-
-**Different account / no matching data**
-If a second test account is available, log in as that user and search `"Fashion"` — confirm the results are account-scoped and not leaking data across accounts.
+| Scenario | What to verify |
+|----------|----------------|
+| Partial keyword — search `Fash` | Does the app support partial matching? Documents the feature boundary |
+| Special characters — `%`, `'`, `--`, `<script>` | No crash, no XSS, graceful handling |
+| Very long input — 500-char string | No layout break, no crash, sensible response |
+| Slow network — throttle to 3G in DevTools | Loading indicator appears, UI doesn't hang silently |
+| Keyboard-only navigation | Focus ring visible, `aria-label` present for screen readers |
+| Second test account — search `Fashion` | Results are account-scoped, no data leaking across accounts |
