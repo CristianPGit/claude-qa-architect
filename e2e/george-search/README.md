@@ -1,4 +1,4 @@
-# 🏦 George AT — E2E Test Suite
+# George AT — E2E Test Suite
 
 Playwright + Cucumber/Gherkin (BDD) end-to-end test suite targeting the **George AT FAT** banking app. Tests cover login, transaction search, edge cases, and data integrity using the Page Object Model pattern.
 
