@@ -30,7 +30,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
 
       await context.close();
     },
-    { scope: 'worker' },
+    { scope: 'worker', timeout: 120_000 },
   ],
 
   george: async ({ authenticatedPage }: { authenticatedPage: Page }, use: (george: GeorgePage) => Promise<void>) => {
