@@ -24,7 +24,7 @@ export const test = base.extend<TestFixtures, WorkerFixtures>({
       const george = new GeorgePage(page);
       await george.login();
       // Wait for the OAuth redirect to complete and the SPA to initialise
-      await page.waitForURL('**/george.fat3.sparkasse.at/**', { timeout: 60_000 });
+      await page.waitForURL('**/george.fat3.sparkasse.at/**', { timeout: 60_000, waitUntil: 'domcontentloaded' });
 
       await use(page);
 
