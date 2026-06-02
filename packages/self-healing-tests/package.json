@@ -1,0 +1,32 @@
+{
+  "name": "self-healing-tests",
+  "version": "1.0.0",
+  "description": "Auto-fix broken Playwright selectors by inspecting the live DOM",
+  "type": "module",
+  "bin": {
+    "self-heal": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "playwright",
+    "self-healing",
+    "selectors",
+    "test-automation",
+    "auto-fix",
+    "e2e"
+  ],
+  "author": "Cristian Pandele",
+  "license": "MIT",
+  "dependencies": {
+    "playwright": "^1.52.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
