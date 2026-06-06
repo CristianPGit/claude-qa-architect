@@ -1,5 +1,6 @@
 # self-healing-tests
 
+<!-- Auto-heals broken Playwright selectors by inspecting the live DOM at runtime. -->
 Auto-fix broken Playwright selectors by inspecting the live DOM. When a CSS class hash changes, an element gets renamed, or a `data-testid` disappears, this tool finds the right replacement and patches your test files.
 
 ```
