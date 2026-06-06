@@ -1,5 +1,6 @@
 # flaky
 
+<!-- Run your test suite N times, find the flaky tests, and fix them. -->
 Run your test suite N times. Find the flaky tests. Fix them.
 
 ```
