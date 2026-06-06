@@ -1,5 +1,6 @@
 # visual-regression-cli
 
+<!-- Local-first visual regression testing for Playwright — baselines, diffs, and HTML reports without a SaaS dependency. -->
 Visual regression testing for Playwright. Take baseline screenshots, compare on every run, get a beautiful HTML report with side-by-side diffs. Free, local, no external services.
 
 Like Percy or Chromatic, but it lives in your repo.
