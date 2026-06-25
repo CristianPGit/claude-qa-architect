@@ -30,8 +30,6 @@ QA Architect turns Claude Code into a senior QA engineer that lives in your repo
 | 🎚️ **Calibration that sticks** | Tell it "too many cases" or "you always miss accessibility" **once**. It writes the lesson to `.qa/preferences.md` and applies it forever. |
 | 🏗️ **Three-phase project setup** | Deep codebase analysis → interactive questionnaire → a tailored, committable QA setup for your repo. |
 
-> Inspired by the workflow in [Factory.ai's Automated QA guide](https://docs.factory.ai/guides/skills/automated-qa) — rebuilt as a native Claude Code plugin.
-
 ---
 
 ## 🚀 Install
