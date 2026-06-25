@@ -3,6 +3,16 @@
 All notable changes to QA Architect are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.1.1] — 2026-06-25
+
+### Changed
+- **Test-case output now defaults to a compact emoji table** (ID · Type · Scenario · Input →
+  Expected · Pri) instead of verbose Given/When/Then blocks. Type emoji (✅ Happy · ❌ Sad ·
+  ⚠️ Edge · 🔒 Security · ♻️ Regression · 📊 Non-functional) and priority emoji (🔴/🟡/🔵).
+  Rows expand to full Given/When/Then only when a case needs the extra context.
+- Reinforced "don't over-think — trim to high-value cases" across the `test-cases` skill,
+  the preferences template, and the test-plan template.
+
 ## [0.1.0] — 2026-06-25
 
 Initial release.

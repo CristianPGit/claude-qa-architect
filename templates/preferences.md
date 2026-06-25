@@ -9,8 +9,11 @@
 - Default: balanced — ~6–12 focused cases per typical PR; lead with P1.
 
 ## Style
-<!-- Output style. e.g. "Terse Given/When/Then, no preamble." -->
-- Concise Given/When/Then, observable assertions, concrete example data.
+<!-- Output style. e.g. "Compact table with emoji; expand to G/W/T only when needed." -->
+- Default to a **compact emoji table** (ID · Type · Scenario · Input → Expected · Pri).
+- Scenario = one short clarifying phrase; expand to full Given/When/Then only when a case needs it.
+- Concrete example data, observable expected results, gotchas in italics. Don't over-think —
+  trim to the high-value cases.
 
 ## Always-include
 <!-- Categories/checks to always add. e.g. "Sad-Path case for every new error branch." -->

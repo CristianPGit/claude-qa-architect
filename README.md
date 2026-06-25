@@ -108,16 +108,16 @@ QA Architect:
   • offers: explore in browser · automate · post to the PR
 ```
 
-Each case looks like:
+Output is a compact, scannable table by default (it expands to full Given/When/Then only when a
+case needs it):
 
-```
-### TC-03 · [Sad Path] Expired coupon is rejected with a clear message
-Given a cart with one item and coupon "SUMMER" (expired 2025-01-01)
-When the user applies the coupon at checkout
-Then the total is unchanged and an inline error "This coupon has expired" is shown
-- Priority: P1
-- Traces to: checkout/coupon.ts:88  ·  AC-2
-```
+| ID | Type | Scenario | Input → Expected | Pri |
+|----|------|----------|------------------|-----|
+| 1 | ✅ Happy | Valid coupon discounts the total | `SUMMER10` on `€50` cart → `€45.00` | 🔴 |
+| 2 | ❌ Sad | Expired coupon is rejected clearly | `SUMMER` (expired) → total unchanged + *"This coupon has expired"* | 🔴 |
+| 3 | ⚠️ Edge | Half-cent rounds up, not down | `2.005` → `2.01` *(not `2.00`)* | 🔴 |
+
+Legend: ✅ Happy · ❌ Sad · ⚠️ Edge · 🔒 Security · ♻️ Regression · 📊 Non-functional · 🔴 P1 · 🟡 P2 · 🔵 P3
 
 ### 2. Browser exploration + automation + auto-fix
 

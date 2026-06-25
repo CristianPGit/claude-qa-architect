@@ -63,23 +63,36 @@ Let calibration prune this. If preferences say "skip accessibility unless I ask,
 
 ## Step 3 — Write the test cases
 
-Use this format (it's in `templates/test-cases.md` — read it for the full template). Each case:
+**Default to a compact, scannable table** (this is the preferred format — see
+`templates/test-cases.md`). One row per case, highest-value first:
 
 ```
-### TC-01 · [Happy Path] Short, specific title
-**Given** preconditions / state
-**When** the action
-**Then** the expected, observable result
-- Priority: P1 | P2 | P3
-- Traces to: <acceptance criterion / file:line / requirement>
+| ID | Type | Scenario | Input → Expected | Pri |
+|----|------|----------|------------------|-----|
+| 1 | ✅ Happy | Clean sum needs no rounding | `19.99 + 5.00` → `24.99` | 🔴 |
+| 2 | ⚠️ Edge | Half-cent rounds up, not down | `2.005` → `2.01` *(not `2.00`)* | 🔴 |
+| 3 | ❌ Sad | Empty cart shows zero, not garbage | no items → `0.00` *(not `NaN`)* | 🔴 |
 ```
+
+Legend: ✅ Happy · ❌ Sad · ⚠️ Edge · 🔒 Security · ♻️ Regression · 📊 Non-functional.
+Priority: 🔴 P1 (must pass) · 🟡 P2 (important) · 🔵 P3 (nice-to-have).
+
+Column rules:
+- **Scenario** — a short clarifying phrase (the "what/why"), one line. Not a bare label, not a
+  full Given/When/Then.
+- **Input → Expected** — concrete example values and the observable expected result. Put the
+  gotcha in italics, e.g. *(not `NaN`)*.
+
+Only expand a row into full **Given / When / Then** when a case genuinely needs the extra
+context (complex preconditions, multi-step flow). Don't pad simple cases.
 
 Rules for good cases:
-- **One behavior per case.** If a case has two "Then"s testing different things, split it.
-- **Observable assertions.** "Then the order total updates to €42.00" — not "Then it works."
-- **Concrete data.** Use real example values, not "some input."
+- **One behavior per case.** If a case tests two different things, split it.
+- **Observable assertions.** "→ total updates to €42.00" — not "→ it works."
+- **Concrete data.** Real example values, not "some input."
 - **No duplication.** Edge cases shouldn't re-test the happy path with cosmetic changes.
-- **Prioritize.** P1 = must pass to ship; P2 = important; P3 = nice-to-have. Lead with P1.
+- **Prioritize.** Lead with 🔴 P1. Don't over-think — trim to the high-value cases rather than
+  chasing exhaustive coverage.
 
 ## Step 4 — Self-review (calibration-aware)
 

@@ -1,6 +1,6 @@
 {
   "name": "qa-architect",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "AI QA engineer for Claude Code. Generates Happy/Sad/Edge-case test cases from Linear tasks and GitHub PRs, drives a real browser to explore behavior, writes and auto-fixes automated tests, and learns your calibration over time.",
   "author": {
     "name": "Cristian Pandele",

@@ -1,52 +1,38 @@
-# Test Plan — <Feature / Ticket / PR>
+# 🧪 Test Plan — <Feature / Ticket / PR>
 
 **Source:** <Linear ID / PR # / branch / description>
-**Scope:** <one line on what's in and out of scope>
-**Calibration applied:** <e.g. "lean depth; accessibility on; staging only"> (from `.qa/preferences.md`)
+**Assumes:** <key assumptions made when the source was ambiguous — keep to 1 line>
+**Calibration applied:** <e.g. "compact table; lean depth; staging only"> (from `.qa/preferences.md`)
+
+| ID | Type | Scenario | Input → Expected | Pri |
+|----|------|----------|------------------|-----|
+| 1 | ✅ Happy | <short clarifying phrase> | `<input>` → `<expected>` | 🔴 |
+| 2 | ❌ Sad | <expected failure handled gracefully> | `<bad input>` → `<clear error>` *(not `<gotcha>`)* | 🔴 |
+| 3 | ⚠️ Edge | <boundary / unusual-but-valid> | `<edge input>` → `<expected>` | 🟡 |
+| 4 | 📊 Non-functional | <a11y / perf / i18n / responsive> | `<condition>` → `<expected>` | 🔵 |
+
+**Legend** — Type: ✅ Happy · ❌ Sad · ⚠️ Edge · 🔒 Security · ♻️ Regression · 📊 Non-functional
+**Priority** — 🔴 P1 (must pass to ship) · 🟡 P2 (important) · 🔵 P3 (nice-to-have)
+
+> **Tip:** lead with 🔴 P1. Call out which 2–3 cases are most likely to break and should be
+> automated first.
 
 ---
 
-## P1 — Must pass to ship
-
-### TC-01 · [Happy Path] <short, specific title>
-**Given** <preconditions / state>
-**When** <the action, with concrete data>
-**Then** <the expected, observable result>
-- Priority: P1
-- Traces to: <acceptance criterion / file:line / requirement>
-
-### TC-02 · [Sad Path] <short, specific title>
-**Given** …
-**When** … (invalid input / denied permission / failed dependency)
-**Then** … (graceful, specific failure — exact message / state)
-- Priority: P1
-- Traces to: …
-
----
-
-## P2 — Important
-
-### TC-03 · [Edge Case] <short, specific title>
-**Given** …  **When** … (boundary / empty / max / unicode / concurrency)  **Then** …
-- Priority: P2
-- Traces to: …
-
----
-
-## P3 — Nice to have
-
-### TC-04 · [Non-functional] <accessibility / performance / i18n / responsive>
-**Given** …  **When** …  **Then** …
-- Priority: P3
-- Traces to: …
-
----
+<!-- Expand a row to full Given/When/Then ONLY when it genuinely needs more context: -->
+<!--
+### TC-0X · [Type] <title>
+**Given** <complex preconditions>
+**When** <multi-step action with concrete data>
+**Then** <observable result>
+- Traces to: <acceptance criterion / file:line>
+-->
 
 ## Notes & assumptions
 - <any assumption made because the source was ambiguous>
 - <anything explicitly NOT covered and why>
 
 ## Suggested next steps
-- [ ] Explore P1 flows in a browser to confirm selectors/behavior
-- [ ] Automate P1/P2 in <framework>
+- [ ] Automate the highest-risk cases first
+- [ ] Explore the flow in a browser to confirm selectors/behavior
 - [ ] Post plan to <Linear issue / GitHub PR>
