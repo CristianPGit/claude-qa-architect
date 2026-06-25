@@ -63,6 +63,23 @@ Let calibration prune this. If preferences say "skip accessibility unless I ask,
 
 ## Step 3 — Write the test cases
 
+**Always open with this header shape**, then the tables:
+
+```
+# 🧪 QA Test Plan — <short title>
+
+Grounded in the ticket: <one sentence tying the plan to the real source — the bug/behavior,
+the file(s) involved, and the acceptance criteria>.
+```
+
+The "Grounded in the ticket" line is required — it proves the plan came from the actual source of
+truth, not a guess. Example:
+
+> Grounded in the ticket: bug in `js/cart.js` (float artifacts like `19.989999…`); ACs = exactly
+> 2 decimal places + no regression to add-to-cart flow.
+
+Keep it concise and clear — lead with the header, skip preamble, let the tables carry the detail.
+
 **Default to a compact, scannable table** (this is the preferred format — see
 `templates/test-cases.md`). One row per case, highest-value first:
 
