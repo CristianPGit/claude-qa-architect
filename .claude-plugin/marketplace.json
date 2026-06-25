@@ -1,0 +1,24 @@
+{
+  "name": "qa-architect",
+  "owner": {
+    "name": "Cristian Pandele",
+    "url": "https://github.com/CristianPGit"
+  },
+  "metadata": {
+    "description": "QA Architect — an AI QA engineer plugin for Claude Code.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "qa-architect",
+      "source": "./",
+      "description": "Generate Happy/Sad/Edge-case test cases from Linear tasks & GitHub PRs, drive a real browser, and write + auto-fix automated tests. Learns your QA calibration over time.",
+      "version": "0.1.0",
+      "author": {
+        "name": "Cristian Pandele",
+        "url": "https://github.com/CristianPGit"
+      },
+      "keywords": ["qa", "testing", "linear", "github", "playwright", "e2e"]
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# Test & build artifacts
+test-results/
+playwright-report/
+cypress/screenshots/
+cypress/videos/
+coverage/
+dist/
+build/
+*.log

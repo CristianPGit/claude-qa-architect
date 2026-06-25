@@ -1,0 +1,24 @@
+{
+  "name": "qa-architect",
+  "version": "0.1.0",
+  "description": "AI QA engineer for Claude Code. Generates Happy/Sad/Edge-case test cases from Linear tasks and GitHub PRs, drives a real browser to explore behavior, writes and auto-fixes automated tests, and learns your calibration over time.",
+  "author": {
+    "name": "Cristian Pandele",
+    "url": "https://github.com/CristianPGit"
+  },
+  "homepage": "https://github.com/CristianPGit/claude-qa-architect",
+  "repository": "https://github.com/CristianPGit/claude-qa-architect",
+  "license": "MIT",
+  "keywords": [
+    "qa",
+    "testing",
+    "test-cases",
+    "playwright",
+    "cypress",
+    "linear",
+    "github",
+    "e2e",
+    "automation",
+    "browser"
+  ]
+}
