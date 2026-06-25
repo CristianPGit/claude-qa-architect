@@ -147,6 +147,38 @@ QA Architect:
 
 ---
 
+## 🔁 Automate it — generate test cases on a Linear label
+
+Don't want to run a command each time? Wire QA Architect to fire **automatically when you add a
+label** (e.g. `qa-needed`) to a Linear issue — it generates the test plan and posts it back to
+the ticket (and the linked GitHub PR) on its own.
+
+Claude Code is an interactive CLI, so it doesn't poll Linear by itself — you connect the label
+event to a headless Claude run. Three ways, from simplest to most native:
+
+| Approach | Trigger | What you host | Best for |
+|---|---|---|---|
+| **C · Scheduled poller** *(easiest)* | A Claude routine runs every N min, finds issues labeled `qa-needed` with no QA comment yet, generates + posts | Nothing — runs in Claude Code's cloud | Getting it working today; a few-min delay is fine |
+| **A · Webhook → serverless** | Linear webhook on *Issue label added* → your endpoint runs Claude headless → posts back | A tiny function (Vercel / Cloudflare / Lambda) | Real-time, event-driven, production |
+| **B · Linear Agent app** | A native Linear *Agent* assigned/mentioned/labeled replies in-thread | A small app + OAuth (actor=app) | Feeling native — a real Linear agent, not a bot comment |
+
+**The mechanics are the same in all three:**
+
+1. **Trigger** — Linear → *Settings → API → Webhooks*, subscribed to `Issue` updates (fires on
+   label changes). Native Linear *Automations* can't call an LLM, so the webhook is the seam.
+2. **Brain** — the [Claude Agent SDK](https://docs.claude.com/en/api/agent-sdk) or
+   `claude -p "<prompt>"` headless, fed the issue data + this plugin's `test-cases` skill, so the
+   output is identical to running it by hand.
+3. **Write-back** — the Linear API `commentCreate` mutation (and `gh pr comment` for the linked
+   PR), authed with a Linear API key or the Agent OAuth token.
+
+> **Recommended path:** prototype with **C** (a scheduled poller — zero hosting, reuses your
+> connected Linear MCP), then graduate to **A** or **B** when you want it instant and native.
+> Because the PR is already attached to the issue, one label can post the plan to **both** Linear
+> and GitHub — turning the label into a single "QA this" button.
+
+---
+
 ## 📁 What gets written to your repo
 
 QA Architect keeps everything **project-local and committable** so your whole team inherits it:
