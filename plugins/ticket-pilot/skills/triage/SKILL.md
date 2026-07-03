@@ -20,7 +20,9 @@ only thing you may write is the triage report under `.ticket-work/`.
 2. **Analyze**: spawn the `requirements-analyst` agent. Save its brief to
    `.ticket-work/<KEY>/requirements.md`.
 3. **Size and sketch** — produce, grounded in the analyst's findings and your
-   own reading of the affected code:
+   own reading of the affected code. First consult `.ticket-work/memory.md`
+   if it exists — especially the "Estimate calibration" section (past misses
+   adjust today's estimate) and "Repo gotchas":
    - **Effort**: S / M / L / XL with a one-paragraph justification tied to the
      actual code (number of modules touched, test surface, migration needs) —
      not generic reasoning. If effort is dominated by one risky unknown, say

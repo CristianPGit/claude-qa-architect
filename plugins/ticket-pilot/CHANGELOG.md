@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.4.0 — 2026-07-03
+
+CrewAI-inspired release: manager-style arbitration, persistent memory, and a
+learning loop (see Acknowledgments in the README).
+
+- **`tech-lead` agent:** the Phase 4 review panel's raw reports now go to an
+  arbiter that dedupes, resolves reviewer conflicts by reading the code,
+  rejects findings with evidence (no silent drops), and issues one ordered
+  fix list plus a completion assessment. Security STOP verdicts cannot be
+  overruled downward.
+- **Pipeline memory** (`.ticket-work/memory.md`): repo gotchas, conventions,
+  reviewer calibration, estimate calibration, and human preferences persist
+  across runs — importance-tagged, recency-weighted, pruned on retro. Read
+  at Phase 0 by `ticket` and by `triage`; updated at wrap-up.
+- **`/retro` skill:** after a PR merges, compares pipeline output with what
+  actually shipped, diagnoses each difference, writes durable lessons to the
+  memory, calibrates estimates, and proposes CLAUDE.md/config edits when the
+  same assumption fails twice.
+
 ## 0.3.1 — 2026-07-03
 
 - Repo made public; author contact switched to GitHub noreply address.

@@ -87,6 +87,11 @@ unless the user explicitly asks for a fresh start.
    ticket key, or a slug of the title if no key). Save the raw ticket text to
    `.ticket-work/<KEY>/ticket.md`.
 4. Ensure `.ticket-work/` is in `.gitignore`; add it if missing.
+5. **Load pipeline memory**: if `.ticket-work/memory.md` exists, read it and
+   carry its lessons through every phase — repo gotchas, conventions,
+   reviewer calibration, estimate calibration, human preferences. Weight by
+   importance tag and recency. Pass the relevant sections to every agent you
+   spawn (analyst gets conventions; reviewers get reviewer calibration; etc.).
 
 ## Phase 1 — Analyze requirements
 
@@ -164,15 +169,21 @@ and the path to `requirements.md`:
 2. `acceptance-reviewer` — does the diff satisfy each acceptance criterion?
 3. `security-auditor` — unless config sets `"security_audit": false`.
 
-Then merge the results:
-- Deduplicate overlapping findings; keep the most severe framing.
-- Fix all BLOCKER/CRITICAL/HIGH findings and any acceptance criterion rated
-  NOT MET or PARTIAL. Re-run tests after fixes. If fixes were substantial,
-  re-run the affected reviewer once on the new diff.
-- A security verdict of STOP halts the pipeline at any autonomy level —
-  surface it to the human; do not merge-and-hope.
-- Record findings you chose NOT to fix, with reasons, in
-  `.ticket-work/<KEY>/review-notes.md`, along with each reviewer's verdict.
+Then hand ALL three raw reports to the `tech-lead` agent for arbitration
+(hierarchical review: specialists find, the tech lead decides). It returns
+one decided work order: fix-now (ordered, ambiguities resolved), deferred
+(with follow-up ticket text), rejected (with evidence), and a completion
+assessment. Save the full arbitration to `.ticket-work/<KEY>/review-notes.md`.
+
+Execute it:
+- Implement the fix-now list in order; re-run tests after fixes.
+- Re-run a single reviewer on the new diff only if the tech lead's
+  completion assessment asked for it.
+- A security verdict of STOP halts the pipeline at any autonomy level — the
+  tech lead cannot overrule it downward; surface it (plus any tech-lead
+  dissent) to the human. Do not merge-and-hope.
+- If the completion assessment is ESCALATE TO HUMAN, stop and present it
+  regardless of autonomy level.
 
 ## Phase 5 — QA & wrap-up
 
@@ -184,11 +195,17 @@ Then merge the results:
    - How it was tested (commands run, results)
    - Review findings fixed and deferred
    - Open questions / follow-ups
-3. Final message to the user: branch name, commit list (`git log --oneline`),
+3. **Update pipeline memory** (`.ticket-work/memory.md`, format defined in
+   the retro skill): append only lessons from THIS run that would change a
+   future run — a gotcha discovered the hard way, a convention that wasn't
+   in CLAUDE.md, a reviewer finding pre-cleared by the human. No diary
+   entries; if the run taught nothing new, write nothing.
+4. Final message to the user: branch name, commit list (`git log --oneline`),
    test results, where the PR description lives — and, at levels 2–3, the
    contents of `assumptions.md` (the judgment calls made without asking),
    with any `⚠ HIGH RISK` assumption first. Suggest running
-   `/ticket-pilot:preflight <KEY>` when they are ready to push.
+   `/ticket-pilot:preflight <KEY>` when they are ready to push, and
+   `/ticket-pilot:retro <KEY>` after the PR merges.
 
 ## Hard rules
 

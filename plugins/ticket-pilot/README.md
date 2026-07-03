@@ -25,6 +25,7 @@ Jira ticket ──▶ analyze ──▶ plan ──▶ implement ──▶ revie
   - [`/inbox` — what should I pick up?](#inbox--what-should-i-pick-up)
   - [`/preflight` — last check before you push](#preflight--last-check-before-you-push)
   - [`/triage` — size a ticket without coding](#triage--size-a-ticket-without-coding)
+  - [`/retro` — close the learning loop](#retro--close-the-learning-loop)
   - [`/standup` — prep your daily update](#standup--prep-your-daily-update)
 - [Auto-trigger on assignment (optional)](#auto-trigger-on-assignment-optional)
 - [Configuration](#configuration)
@@ -43,11 +44,13 @@ Jira ticket ──▶ analyze ──▶ plan ──▶ implement ──▶ revie
 | `/ticket-pilot:inbox` | All tickets assigned to you, quick-triaged, with a recommended pickup order |
 | `/ticket-pilot:preflight PROJ-123` | Right before *you* push: rebase onto latest main, drift check, full re-verification → GO / NO-GO |
 | `/ticket-pilot:standup` | Yesterday / today / blockers, compiled from pipeline artifacts and git history |
+| `/ticket-pilot:retro PROJ-123` | After the PR merges: learn from what you changed post-pipeline, feed lessons into the pipeline memory |
 | `requirements-analyst` agent | Turns a vague ticket into numbered, testable requirements grounded in your actual codebase |
 | `test-designer` agent | TDD mode: designs the test suite from acceptance criteria *before* implementation |
 | `code-reviewer` agent | Correctness/edge-case/contract review with severity-ranked, evidence-backed findings |
 | `security-auditor` agent | Injection, authz, secrets, data-exposure audit of the diff — findings need a concrete attack path |
 | `acceptance-reviewer` agent | Checks the finished diff against *each acceptance criterion* — a different question than code review |
+| `tech-lead` agent | Arbitrates the review panel: dedupes, resolves reviewer conflicts by reading the code, issues one decided fix list |
 | `hooks/guard.sh` | Blocks `git push`, `gh pr create/merge`, and Jira writes at the tool level |
 | `scripts/poll-jira.sh` | Optional: watch Jira for newly assigned tickets and launch the pipeline headlessly, with desktop notifications |
 
@@ -119,7 +122,7 @@ What happens, phase by phase:
 2. **Analyze** — the `requirements-analyst` agent restates the ticket as numbered, testable requirements with acceptance criteria, maps the affected code, and lists ambiguities. **If an ambiguity would change the implementation, it stops and asks you** — with a recommended default so answering takes seconds.
 3. **Plan** — files to change, approach, test strategy, definition of done. **Waits for your approval.** Nothing is written until you say go.
 4. **Implement** — branch `feature/PROJ-123-<slug>`, code matching your repo's conventions, tests for every acceptance criterion, incremental commits referencing the key.
-5. **Review panel** — three reviewers run *in parallel* on the diff: `code-reviewer` (correctness), `acceptance-reviewer` (does each criterion have an implementation *and a test that would fail if it broke?*), and `security-auditor` (attack paths, not checkbox hygiene). Findings are deduplicated, serious ones fixed, disagreements recorded.
+5. **Review panel + arbitration** — three reviewers run *in parallel* on the diff: `code-reviewer` (correctness), `acceptance-reviewer` (does each criterion have an implementation *and a test that would fail if it broke?*), and `security-auditor` (attack paths, not checkbox hygiene). Their raw reports go to the `tech-lead` agent, which deduplicates, resolves conflicts by reading the code, rejects findings that don't survive scrutiny (with evidence — no silent drops), and issues one ordered fix list plus a completion assessment. A security STOP can't be overruled; it goes to you.
 6. **QA & wrap-up** — full test suite (results reported honestly, red included), then a summary: branch name, commits, and `.ticket-work/PROJ-123/pr-description.md` ready to paste.
 
 Then you review the branch and push. That part is yours by design.
@@ -159,6 +162,16 @@ Main has moved since the pipeline ran. Preflight rebases the branch onto latest 
 ```
 
 Runs the analysis half only, then adds: an **S/M/L/XL estimate** justified by the actual code it would touch (not vibes), a 3–6 bullet approach sketch, **ready-to-paste questions for the ticket author** (each with a recommended default), and any dependencies. Writes no code, creates no branch. If you later run the full pipeline on the same key, the analysis is reused.
+
+### `/retro` — close the learning loop
+
+```
+> /ticket-pilot:retro PROJ-123      # after the PR merged
+```
+
+Compares what the pipeline produced with what actually shipped (post-pipeline commits, your amendments, and your own answer to "what did you have to fix?"), diagnoses each difference (wrong assumption? missed requirement? unwritten convention?), and writes the durable lessons into the **pipeline memory** — `.ticket-work/memory.md`. Every later `/ticket` and `/triage` run reads that memory at startup: repo gotchas, conventions, reviewer calibration ("security-auditor always flags our URL-builder — pre-cleared, ADR-14"), estimate calibration, your preferences. Lessons are importance-tagged, recency-weighted, and pruned on every retro so the file stays worth reading. The memory lives in gitignored `.ticket-work/`, so it stays on your machine.
+
+If the same assumption goes wrong twice, retro proposes the fix upstream: the exact `CLAUDE.md` or `.ticket-pilot.json` edit that would prevent it.
 
 ### `/standup` — prep your daily update
 
@@ -320,6 +333,14 @@ setup at work, treat the other tools as read-only companions (`triage`,
 **Headless run produced nothing** — check `~/.ticket-pilot/run-<KEY>.log`. Most common cause: a Phase 1 ambiguity that needed a human; run interactively to answer it, and it resumes where it stopped.
 
 ---
+
+## Acknowledgments
+
+The hierarchical review arbitration (`tech-lead` agent), persistent pipeline
+memory, and the retro learning loop are patterns adapted from
+[CrewAI](https://crewai.com/open-source)'s manager-agent process, unified
+Memory system, and training loop — reimplemented here as plain markdown
+skills instead of a Python runtime.
 
 ## License
 
