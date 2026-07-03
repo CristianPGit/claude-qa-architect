@@ -22,6 +22,8 @@ Jira ticket ──▶ analyze ──▶ plan ──▶ implement ──▶ revie
 - [Installation](#installation)
 - [Usage](#usage)
   - [`/ticket` — the full pipeline](#ticket--the-full-pipeline)
+  - [`/inbox` — what should I pick up?](#inbox--what-should-i-pick-up)
+  - [`/preflight` — last check before you push](#preflight--last-check-before-you-push)
   - [`/triage` — size a ticket without coding](#triage--size-a-ticket-without-coding)
   - [`/standup` — prep your daily update](#standup--prep-your-daily-update)
 - [Auto-trigger on assignment (optional)](#auto-trigger-on-assignment-optional)
@@ -35,13 +37,30 @@ Jira ticket ──▶ analyze ──▶ plan ──▶ implement ──▶ revie
 
 | Command / component | What it does |
 |---|---|
-| `/ticket-pilot:ticket PROJ-123` | Full pipeline: requirements → plan (approval gate) → code → review → QA → local branch |
+| `/ticket-pilot:ticket PROJ-123` | Full pipeline: requirements → plan → code → parallel review panel → QA → local branch. Autonomy set by `--level 1/2/3`. |
 | `/ticket-pilot:triage PROJ-123` | Analysis + S/M/L/XL estimate + questions for the ticket author. **Writes no code.** Perfect before grooming. |
+| `/ticket-pilot:inbox` | All tickets assigned to you, quick-triaged, with a recommended pickup order |
+| `/ticket-pilot:preflight PROJ-123` | Right before *you* push: rebase onto latest main, drift check, full re-verification → GO / NO-GO |
 | `/ticket-pilot:standup` | Yesterday / today / blockers, compiled from pipeline artifacts and git history |
 | `requirements-analyst` agent | Turns a vague ticket into numbered, testable requirements grounded in your actual codebase |
+| `test-designer` agent | TDD mode: designs the test suite from acceptance criteria *before* implementation |
+| `code-reviewer` agent | Correctness/edge-case/contract review with severity-ranked, evidence-backed findings |
+| `security-auditor` agent | Injection, authz, secrets, data-exposure audit of the diff — findings need a concrete attack path |
 | `acceptance-reviewer` agent | Checks the finished diff against *each acceptance criterion* — a different question than code review |
 | `hooks/guard.sh` | Blocks `git push`, `gh pr create/merge`, and Jira writes at the tool level |
-| `scripts/poll-jira.sh` | Optional: watch Jira for newly assigned tickets and launch the pipeline headlessly |
+| `scripts/poll-jira.sh` | Optional: watch Jira for newly assigned tickets and launch the pipeline headlessly, with desktop notifications |
+
+### Autonomy levels
+
+The pipeline has a dial, not a switch — set per run (`--level 2`) or per repo (`.ticket-pilot.json`):
+
+| Level | Ambiguities | Plan | Isolation | Use for |
+|---|---|---|---|---|
+| **1 — pair** *(default)* | asks you | waits for approval | your checkout | day-to-day interactive work |
+| **2 — autopilot** | asks only when blocking; logs the rest as assumptions | logged, not gated | opt-in worktree | ticket types you've learned to trust |
+| **3 — headless** | never asks — every judgment call logged in `assumptions.md` | logged | always a worktree | the poller / unattended runs |
+
+Safety stops (dirty tree, unrunnable build, destructive requests, tests that can't pass honestly, a security **STOP** verdict) halt the pipeline at **every** level — autonomy governs judgment calls, never safety. At levels 2–3 the final summary leads with the assumptions it made, so you review the judgment calls together with the diff.
 
 Every run leaves an audit trail in `.ticket-work/<KEY>/` (gitignored): the raw ticket, the requirements brief, the approved plan, review notes, and a ready-to-paste PR description.
 
@@ -99,7 +118,7 @@ What happens, phase by phase:
 2. **Analyze** — the `requirements-analyst` agent restates the ticket as numbered, testable requirements with acceptance criteria, maps the affected code, and lists ambiguities. **If an ambiguity would change the implementation, it stops and asks you** — with a recommended default so answering takes seconds.
 3. **Plan** — files to change, approach, test strategy, definition of done. **Waits for your approval.** Nothing is written until you say go.
 4. **Implement** — branch `feature/PROJ-123-<slug>`, code matching your repo's conventions, tests for every acceptance criterion, incremental commits referencing the key.
-5. **Review** — code review on the diff, then the `acceptance-reviewer` agent verifies each criterion has both an implementation *and a test that would fail if it broke*.
+5. **Review panel** — three reviewers run *in parallel* on the diff: `code-reviewer` (correctness), `acceptance-reviewer` (does each criterion have an implementation *and a test that would fail if it broke?*), and `security-auditor` (attack paths, not checkbox hygiene). Findings are deduplicated, serious ones fixed, disagreements recorded.
 6. **QA & wrap-up** — full test suite (results reported honestly, red included), then a summary: branch name, commits, and `.ticket-work/PROJ-123/pr-description.md` ready to paste.
 
 Then you review the branch and push. That part is yours by design.
@@ -107,11 +126,30 @@ Then you review the branch and push. That part is yours by design.
 **Variants:**
 
 ```
+> /ticket-pilot:ticket PROJ-123 --level 2      # autopilot: no plan gate, assumptions logged
+> /ticket-pilot:ticket PROJ-123 --level 3      # headless mode: never asks, always in a worktree
+> /ticket-pilot:ticket PROJ-123 --tdd          # test-designer writes failing tests first, then implement to green
 > /ticket-pilot:ticket PROJ-123 --worktree     # runs in ../my-service-PROJ-123/ — keep working, or run a 2nd ticket in parallel
-> /ticket-pilot:ticket PROJ-123 --auto         # skips the plan-approval gate (used by the headless poller)
 > /ticket-pilot:ticket docs/ticket.md          # no Jira access? feed it a file
 > /ticket-pilot:ticket PROJ-123                # re-run after an interruption → resumes from the last completed phase
 ```
+
+### `/inbox` — what should I pick up?
+
+```
+> /ticket-pilot:inbox              # everything assigned to you, quick-triaged
+> /ticket-pilot:inbox sprint      # active sprint only
+```
+
+One compact table: size guess, readiness (READY / NEEDS INFO / BLOCKED), local in-flight work, and a recommended pickup order — with the one question to ask per underspecified ticket, paste-ready. Read-only; starting a pipeline stays your call.
+
+### `/preflight` — last check before you push
+
+```
+> /ticket-pilot:preflight PROJ-123
+```
+
+Main has moved since the pipeline ran. Preflight rebases the branch onto latest main (aborting on non-trivial conflicts — those are yours), re-reviews if main touched the same modules, re-runs the **full** suite, sweeps for leftover debug artifacts and stale PR descriptions, then gives a ✅ GO / ⚠️ GO WITH NOTES / ❌ NO-GO with the exact `git push` + `gh pr create` commands *for you to run*.
 
 ### `/triage` — size a ticket without coding
 
@@ -147,7 +185,7 @@ Or via cron (weekdays, working hours):
 */10 9-18 * * 1-5  cd /path/to/repo && /path/to/poll-jira.sh >> ~/.ticket-pilot/poll.log 2>&1
 ```
 
-Environment knobs: `TRIGGER_STATUS` (default `To Do`), `POLL_INTERVAL`, `REPO_DIR`, `STATE_DIR`. Logs land in `~/.ticket-pilot/run-<KEY>.log`.
+Environment knobs: `TRIGGER_STATUS` (default `To Do`), `POLL_INTERVAL`, `REPO_DIR`, `STATE_DIR`, `PILOT_LEVEL` (default `3` — headless runs always work in an isolated git worktree, so they never touch your checkout). On macOS you get a desktop notification when a run starts, finishes (✅ branch ready), or fails (❌ with the log path); exit codes land in `~/.ticket-pilot/run-<KEY>.exit`, logs in `run-<KEY>.log`.
 
 **Two pieces of earned advice:**
 
@@ -160,6 +198,7 @@ Environment knobs: `TRIGGER_STATUS` (default `To Do`), `POLL_INTERVAL`, `REPO_DI
 
 | What | Where | Notes |
 |---|---|---|
+| Autonomy, TDD, commands per repo | `.ticket-pilot.json` at your repo root | start from `templates/ticket-pilot.example.json`; flags override it |
 | Build/test allowlist | your repo's `.claude/settings.local.json` | start from `templates/settings.example.json` |
 | Repo conventions | your repo's `CLAUDE.md` | the single biggest quality lever |
 | Poller behavior | env vars on `poll-jira.sh` | `TRIGGER_STATUS`, `POLL_INTERVAL`, `REPO_DIR` |
