@@ -1,0 +1,14 @@
+{
+  "name": "cristian-tools",
+  "owner": {
+    "name": "Cristian Pandele",
+    "email": "pandelecristian11@gmail.com"
+  },
+  "plugins": [
+    {
+      "name": "ticket-pilot",
+      "source": "./",
+      "description": "Jira ticket → analyzed requirements → approved plan → implemented branch → reviewed & QA'd diff. Human gates at plan approval and before push."
+    }
+  ]
+}
