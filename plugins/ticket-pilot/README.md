@@ -10,9 +10,12 @@ you stay the author of record.
 
 | Piece | Path | Role |
 |-------|------|------|
-| `/ticket-pilot:ticket` skill | `skills/ticket/SKILL.md` | The 6-phase pipeline |
+| `/ticket-pilot:ticket` skill | `skills/ticket/SKILL.md` | The 6-phase pipeline (resumable, `--worktree` for parallel tickets) |
+| `/ticket-pilot:triage` skill | `skills/triage/SKILL.md` | Analysis + S/M/L/XL sizing, zero code — for grooming |
+| `/ticket-pilot:standup` skill | `skills/standup/SKILL.md` | Yesterday/today/blockers from `.ticket-work/` + git |
 | `requirements-analyst` agent | `agents/requirements-analyst.md` | Ticket → engineering brief (Phase 1) |
 | `acceptance-reviewer` agent | `agents/acceptance-reviewer.md` | Diff vs. acceptance criteria (Phase 4) |
+| Guard hook | `hooks/guard.sh` | Mechanically blocks push / PR / Jira writes |
 | Jira poller | `scripts/poll-jira.sh` | Optional auto-trigger on assignment |
 | Permissions template | `templates/settings.example.json` | Allowlist for unattended runs |
 
@@ -71,7 +74,16 @@ Jira write. Adjust the build/test entries to your stack.
 
 ## Boundaries (by design)
 
-- No `git push`, no PR creation, no Jira writes — ever.
+- No `git push`, no PR creation, no Jira writes — ever. This is enforced two
+  ways: as rules in the skill, and mechanically by a `PreToolUse` hook
+  (`hooks/guard.sh`) that blocks matching Bash commands at the harness level,
+  so even a prompt-injected ticket can't talk the agent into pushing.
+  **Note:** while the plugin is enabled, this applies to *every* Claude session
+  in the project, not just pipeline runs — Claude can never push; you always
+  do. If that's too strict for a given project, disable the plugin there.
+- Interrupted runs resume: each phase logs to `.ticket-work/<KEY>/state.md`,
+  and re-running `/ticket-pilot:ticket <KEY>` continues from the last
+  completed phase.
 - Plan approval is a human gate in interactive mode.
 - Ticket text is treated as requirements for the code, not instructions to the
   agent (prompt-injection hygiene).

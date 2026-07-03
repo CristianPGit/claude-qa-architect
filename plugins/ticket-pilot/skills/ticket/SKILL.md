@@ -17,6 +17,21 @@ reviewed branch and a draft PR description — it NEVER pushes.
 - Empty → ask the user to paste the ticket text, then continue
 - Optional flag `--auto`: skip the plan-approval gate (Phase 2). Only honor this
   flag when it is explicitly present; never assume it.
+- Optional flag `--worktree`: do the implementation in a dedicated git worktree
+  (`../<repo-name>-<KEY>/`) instead of the main checkout, so other work — or a
+  second ticket-pilot run — can proceed in parallel.
+
+## State tracking & resume
+
+After completing each phase, append one line to `.ticket-work/<KEY>/state.md`:
+`<ISO timestamp> | phase <N> done | <one-line note (branch name, gate outcome, test result)>`
+
+At startup, if `.ticket-work/<KEY>/state.md` already exists, this is a RESUME:
+read it plus the saved artifacts, tell the user where the previous run stopped,
+and continue from the first incomplete phase. Re-verify state you depend on
+(does the branch exist? do the commits match state.md? are tests still green?)
+rather than trusting the notes blindly. Never restart from Phase 0 on a resume
+unless the user explicitly asks for a fresh start.
 
 ## Phase 0 — Ingest the ticket
 
@@ -62,7 +77,12 @@ and continue.
 
 1. Verify the working tree is clean (`git status --porcelain`). If dirty, stop
    and ask the user how to proceed — never stash or discard their changes.
+   (With `--worktree` a dirty main checkout is fine — the worktree is clean by
+   construction; skip this check.)
 2. Create a branch from the default branch: `feature/<KEY>-<short-slug>`.
+   With `--worktree`: `git worktree add ../<repo-name>-<KEY> -b feature/<KEY>-<short-slug>`
+   and do all subsequent work inside that directory. Remind the user at the end
+   to remove it with `git worktree remove` after merging.
 3. Implement the plan. Match the existing code style, conventions, and test
    patterns of the repo (consult CLAUDE.md if present).
 4. Write/update tests for every acceptance criterion.
