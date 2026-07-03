@@ -29,6 +29,7 @@ Jira ticket ──▶ analyze ──▶ plan ──▶ implement ──▶ revie
 - [Auto-trigger on assignment (optional)](#auto-trigger-on-assignment-optional)
 - [Configuration](#configuration)
 - [The safety model](#the-safety-model)
+- [Using with Gemini CLI or Antigravity](#using-with-gemini-cli-or-antigravity)
 - [Troubleshooting](#troubleshooting)
 
 ---
@@ -218,6 +219,91 @@ Three layers, because instructions alone are not a boundary:
 > ⚠️ **Heads-up:** while the plugin is enabled, layer 3 applies to *every* Claude session in the project — Claude can never push; you always do. That's the point, but if it's too strict for some project, disable the plugin there.
 
 Human gates: ambiguity resolution (Phase 1), plan approval (Phase 3), and the push itself (always). Interrupted runs resume from the last completed phase via `.ticket-work/<KEY>/state.md`.
+
+---
+
+## Using with Gemini CLI or Antigravity
+
+ticket-pilot is built as a Claude Code plugin, but the `SKILL.md` format is now a
+cross-tool standard: [Gemini CLI](https://geminicli.com/docs/cli/skills/) and
+[Antigravity](https://codelabs.developers.google.com/autonomous-ai-developer-pipelines-antigravity)
+both discover skills from a shared `.agents/skills/` directory. The skills port;
+the plugin mechanics (subagents, the guard hook, `/plugin` install) do not.
+Read the [feature-parity notes](#what-you-lose-outside-claude-code) below before
+relying on it.
+
+### Gemini CLI
+
+1. **Copy the skills into your work repo** (Gemini reads `.agents/skills/` and
+   `.gemini/skills/`; the former is also read by Antigravity, Cursor, and
+   Codex CLI, so prefer it):
+
+   ```bash
+   git clone git@github.com:CristianPGit/claude-ticket-pilot.git /tmp/ticket-pilot
+   mkdir -p /path/to/work-repo/.agents/skills
+   cp -R /tmp/ticket-pilot/skills/* /path/to/work-repo/.agents/skills/
+   ```
+
+2. **Recreate the push/Jira-write block** in your work repo's
+   `.gemini/settings.json` (Gemini has no PreToolUse hooks; `excludeTools` is
+   the closest mechanism):
+
+   ```json
+   {
+     "excludeTools": [
+       "run_shell_command(git push)",
+       "run_shell_command(gh pr create)",
+       "run_shell_command(gh pr merge)",
+       "run_shell_command(jira issue edit)",
+       "run_shell_command(jira issue move)",
+       "run_shell_command(jira issue comment)"
+     ]
+   }
+   ```
+
+3. **Invoke by intent, not slash command** — Gemini activates skills by matching
+   your request against the skill description:
+
+   ```
+   gemini
+   > work on ticket PROJ-123        # activates the ticket skill
+   > triage PROJ-456                # activates triage
+   > prep my standup                # activates standup
+   ```
+
+4. **Headless / poller**: change the launch line in `scripts/poll-jira.sh` from
+   `claude --permission-mode acceptEdits -p "..."` to
+   `gemini --approval-mode auto_edit -p "Use the ticket skill on $key at autonomy level 3"`.
+
+### Antigravity
+
+1. **Copy the skills** into `<project-root>/.agents/skills/` (same `cp` as above —
+   if you already did it for Gemini, you're done; they share the directory).
+2. **Optionally register the pipeline as a slash command**: copy
+   `skills/ticket/SKILL.md` to `.agents/workflows/ticket.md` — files in
+   `.agents/workflows/` become commands in Antigravity's chat interface.
+3. **Recreate the push block** with Antigravity's terminal **deny list**
+   (Settings → agent terminal permissions): add `git push`, `gh pr create`,
+   `gh pr merge`, and the `jira issue` write subcommands.
+4. **Scheduling**: skip `poll-jira.sh` — Antigravity's manager runs scheduled
+   tasks and parallel local agents natively; point a scheduled task at the
+   ticket skill instead.
+
+### What you lose outside Claude Code
+
+| Capability | Claude Code | Gemini CLI / Antigravity |
+|---|---|---|
+| No-push / no-Jira-write boundary | **enforced** by a PreToolUse hook, injection-resistant | advisory — `excludeTools`/deny lists are prefix filters, documented as not a security boundary |
+| Review panel (Phase 4) | 3 specialized agents **in parallel** | sequential self-review; the `agents/*.md` prompts must be inlined or adapted to each tool's persona format |
+| `requirements-analyst` etc. as isolated subagents | native | adapt to Antigravity `agents.md` personas / inline the prompts |
+| Install & updates | `/plugin marketplace update` | re-copy files (or script it) |
+| Resume via `state.md` | instructed, works the same | instructed, works the same ✔︎ |
+
+The pipeline prose, phases, artifacts (`.ticket-work/`), and human gates work
+identically everywhere — they're just instructions. What changes is how hard
+the guarantees are. If the enforced no-push boundary is why you can defend this
+setup at work, treat the other tools as read-only companions (`triage`,
+`inbox`, `standup`) and keep the implementing pipeline on Claude Code.
 
 ---
 
