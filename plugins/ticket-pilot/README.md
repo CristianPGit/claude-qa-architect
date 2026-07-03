@@ -7,12 +7,17 @@ You point it at a ticket. It reads the requirements, asks about ambiguities, wri
 It **never pushes, never opens PRs, never writes to Jira** — and not just as a promise: a harness-level hook mechanically blocks those commands, even if a malicious ticket tries to prompt-inject its way past the rules. The last mile is always yours.
 
 ```
-Jira ticket ──▶ analyze ──▶ plan ──▶ implement ──▶ review ──▶ QA ──▶ local branch
-                   │          │                                          │
-                   ▼          ▼                                          ▼
-             asks you     waits for                                  YOU review,
-            about gaps   your approval                              push, open PR
+Jira ticket ──▶ analyze ──▶ plan ──▶ implement ──▶ review panel ──▶ QA ──▶ local branch
+                   │          │                    3 reviewers in         │
+                   ▼          ▼                    parallel + tech-       ▼
+             asks you     waits for                lead arbitration   YOU review,
+            about gaps   your approval                               push, open PR
+                   ▲                                                      │
+                   │              pipeline memory (.ticket-work/)         ▼
+                   └──────────── lessons from /retro after merge ◀── PR merged
 ```
+
+Every ticket makes the next one smarter: after a PR merges, `/retro` compares what the pipeline produced with what actually shipped and feeds the lessons into a persistent, repo-local pipeline memory that all future runs read.
 
 ---
 
@@ -32,6 +37,7 @@ Jira ticket ──▶ analyze ──▶ plan ──▶ implement ──▶ revie
 - [The safety model](#the-safety-model)
 - [Using with Gemini CLI or Antigravity](#using-with-gemini-cli-or-antigravity)
 - [Troubleshooting](#troubleshooting)
+- [Roadmap](#roadmap)
 
 ---
 
@@ -333,6 +339,53 @@ setup at work, treat the other tools as read-only companions (`triage`,
 **Headless run produced nothing** — check `~/.ticket-pilot/run-<KEY>.log`. Most common cause: a Phase 1 ambiguity that needed a human; run interactively to answer it, and it resumes where it stopped.
 
 ---
+
+## Roadmap
+
+ticket-pilot today is a **structured agentic workflow**: the six-phase topology
+is fixed, the intelligence lives inside each phase. That's deliberate —
+unattended code changes need reliability more than creativity. The roadmap
+below moves it up the agency ladder one earned step at a time.
+
+**Guiding rule: evidence before features.** Nothing below ships until real
+tickets through the current pipeline show where it actually falls short —
+`memory.md` and the retros are the prioritization signal, not intuition.
+
+### v0.5 — deeper ground truth
+- [ ] **Runtime verification**: after tests pass, start the service and
+  exercise the changed endpoint for real — request in, response out, logs
+  checked. Catches the bug class tests miss when the pipeline wrote both the
+  code and the tests.
+- [ ] **Review convergence loop**: fix → re-review → fix until the panel is
+  clean, bounded at 3 rounds (today: one arbitrated pass plus at most one
+  re-review).
+
+### v0.6 — adaptive topology
+- [ ] **Ticket-type dispatch**: classify the ticket at Phase 0 (hotfix /
+  feature / schema migration / chore) and select a pipeline variant — skip
+  the analyst for trivial bugs, add a migration-safety phase for schema
+  changes. First step toward the workflow choosing its own shape.
+
+### v0.7 — queue-level agency
+- [ ] **Overnight queue agent**: replace the one-ticket poller with a session
+  that owns the queue — triages everything assigned, picks what's safe at
+  level 3, works tickets in parallel worktrees, and writes a morning report
+  with branches ranked by confidence.
+
+### Experimental / needs data first
+- [ ] **Best-of-N implementations**: for L/XL tickets, 2–3 independent
+  implementations in separate worktrees, judge panel picks the winner.
+  Opt-in per ticket (≈3× cost).
+- [ ] **Self-tuning**: `/retro` proposing edits to the skill prompts
+  themselves on repeat failures (today it stops at proposing CLAUDE.md and
+  config edits). Deliberately last — self-modifying instructions need a
+  track record to tune against.
+
+### Not planned — by design
+- ❌ `git push` / PR creation — the human ships, always.
+- ❌ Jira write-back — the pipeline stays invisible to company systems.
+- ❌ Full end-to-end autonomy — the ceilings above are governance, not
+  missing features.
 
 ## Acknowledgments
 
