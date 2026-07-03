@@ -91,7 +91,7 @@ Inside any Claude Code session:
 /plugin install ticket-pilot@cristian-tools
 ```
 
-> The repo is private, so this works for accounts with access (git auth is used for the clone). Updating later: `/plugin marketplace update cristian-tools`.
+> Updating later: `/plugin marketplace update cristian-tools`.
 
 ### 3. Pre-approve your build & test commands (recommended)
 
