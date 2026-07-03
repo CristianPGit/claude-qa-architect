@@ -1,10 +1,10 @@
 {
   "name": "ticket-pilot",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "Local Jira-ticket-to-reviewed-branch pipeline: analyze requirements, plan, implement, review, QA — with human gates and no auto-push.",
   "author": {
     "name": "Cristian Pandele",
-    "email": "pandelecristian11@gmail.com"
+    "email": "216735635+CristianPGit@users.noreply.github.com"
   },
   "homepage": "https://github.com/CristianPGit/claude-ticket-pilot",
   "license": "MIT",
