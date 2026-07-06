@@ -2,7 +2,9 @@
 
 A single-file, offline **testing toolbox** for QA engineers — plus a crew of AI teammates for Claude Code.
 
-Open [`index.html`](index.html) in any browser. No build step, no server, no dependencies. Everything you paste stays in your browser — nothing is sent anywhere.
+**🔗 Live site: https://cristianpgit.github.io/qa-swiss-knife/**
+
+Or open [`index.html`](index.html) locally in any browser. No build step, no server, no dependencies. Everything you paste stays in your browser — nothing is sent anywhere.
 
 ## What's inside
 
