@@ -35,6 +35,8 @@ A curated list of extensions, apps and online tools worth installing — browser
 
 AI teammates for [Claude Code](https://claude.com/claude-code). Their definitions live in [`.claude/agents/`](.claude/agents/). Copy that folder into any project (or into `~/.claude/agents/` for global use) and invoke them by name.
 
+![The Agent Crew](docs/agent-crew.png)
+
 | Agent | Role |
 |-------|------|
 | 🧭 **interpreter** | Maps project logic — what the system is *supposed* to do |
