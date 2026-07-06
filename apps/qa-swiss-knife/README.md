@@ -6,6 +6,8 @@ A single-file, offline **testing toolbox** for QA engineers — plus a crew of A
 
 Or open [`index.html`](index.html) locally in any browser. No build step, no server, no dependencies. Everything you paste stays in your browser — nothing is sent anywhere.
 
+![QA Swiss Knife screenshot](docs/screenshot.png)
+
 ## What's inside
 
 ### 🧰 Tools (in the page)
