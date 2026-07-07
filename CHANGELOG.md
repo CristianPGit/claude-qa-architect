@@ -3,6 +3,30 @@
 All notable changes to QA Architect are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.2.0] — 2026-07-07
+
+### Added
+- **Tiered QA memory.** `.qa/` is now organized into layers by write-permission and volatility,
+  adapting Anthropic's agent-memory guidance to a git-committed, team-shared store:
+  - **Runbook** (`.qa/project.md`, read-mostly) — stable stack/env facts and hard prod-safety
+    rules. New `templates/project.md`; read at Step 0 but never edited during a run.
+  - **Working policy** (`.qa/preferences.md`, read-write) — how the team likes QA done.
+  - **Audit ledger** (`.qa/calibration-log.md`, append-only) — every learned lesson recorded as
+    one attributed line (date · source PR/issue/session · section · lesson · why), so you can
+    find *when* and *why* a preference entered and roll it back. New `templates/calibration-log.md`.
+- **Out-of-band calibration ("dreaming").** `qa-calibration` now has two modes: **Capture**
+  (fast, in-the-moment — append an attributed line to the ledger, keep working) and
+  **Consolidate** (`/qa-calibrate --consolidate` — read the ledger + session notes, find macro
+  patterns, rewrite a clean `preferences.md`, mark rows `[folded]`, archive notes). Live runs
+  stay lean; memory curation happens separately.
+- Per-run scratch notes land in `.qa/sessions/<ref>.md` so parallel QA runs don't clobber the
+  shared `preferences.md` — only the consolidate pass rewrites it.
+
+### Notes
+- Deliberately **not** adopted from the source guidance: ETag/content-hash concurrency control
+  (git history + per-session file partitioning already prevent clobbering for a committed file),
+  and raw-bash free-form agent memory (the structured, team-reviewable template is intentional).
+
 ## [0.1.1] — 2026-06-25
 
 ### Changed

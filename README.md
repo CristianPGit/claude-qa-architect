@@ -69,7 +69,8 @@ QA Architect is more powerful with these connected. All are optional — it degr
 | `/qa-architect:test-cases` | …or your current branch diff (no argument). |
 | `/qa-architect:qa-automate` | Explore in a browser, write + run + auto-fix automated tests. |
 | `/qa-architect:qa-setup` | Run the three-phase project setup. |
-| `/qa-architect:qa-calibrate "too many edge cases"` | Record a standing preference. |
+| `/qa-architect:qa-calibrate "too many edge cases"` | Record a standing preference (Capture). |
+| `/qa-architect:qa-calibrate --consolidate` | Fold accumulated feedback into a clean `preferences.md` (out-of-band curation). |
 
 ### As an agent
 
@@ -185,10 +186,18 @@ QA Architect keeps everything **project-local and committable** so your whole te
 
 ```
 .qa/
-├── preferences.md     # your calibration — depth, style, always/never include
-├── project.md         # apps, stack, auth, environments, critical flows (from setup)
-└── apps/<name>.md     # per-app notes (monorepos)
+├── project.md          # runbook (read-mostly): apps, stack, auth, envs, prod-safety
+├── preferences.md      # working policy: depth, style, always/never include
+├── calibration-log.md  # audit ledger (append-only): every lesson, attributed + dated
+├── sessions/<ref>.md   # per-run scratch notes (lean, disposable)
+└── apps/<name>.md      # per-app notes (monorepos)
 ```
+
+Memory is **tiered by write-permission**: the runbook is read during runs but changed only by
+setup or a human; live runs write fast notes to `sessions/`; feedback is captured to the
+append-only ledger; and only the out-of-band `/qa-calibrate --consolidate` pass folds lessons
+into a clean `preferences.md`. Git gives you version history and rollback; the ledger tells you
+*when* and *why* any preference entered.
 
 Nothing else is created without your say-so. It never commits, pushes, or posts to
 Linear/GitHub without asking.
