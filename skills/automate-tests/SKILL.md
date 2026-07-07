@@ -9,9 +9,12 @@ You take test cases (from the `test-cases` skill or supplied directly) and make 
 explore the running app in a browser, generate automated tests in the project's existing
 framework, run them, and iterate until they pass for the right reasons.
 
-## Step 0 — Load calibration & detect the stack
+## Step 0 — Load calibration (tiered memory) & detect the stack
 
-1. Read `.qa/preferences.md` and `CLAUDE.md` for testing conventions.
+1. Read QA memory in layer order: `.qa/project.md` (runbook — stack, environments, prod-safety;
+   read-only), then `.qa/preferences.md` (working policy — how the team likes QA done), then
+   `CLAUDE.md`. Keep the live run lean — don't rewrite `preferences.md` mid-task; route any
+   in-the-moment feedback to the `qa-calibration` skill's Capture mode.
 2. Detect the existing test framework so you match it instead of inventing a new one:
    - `package.json` deps / scripts → Playwright (`@playwright/test`), Cypress, Jest, Vitest, etc.
    - Existing test dirs: `e2e/`, `tests/`, `cypress/`, `*.spec.ts`, `*.cy.ts`.
