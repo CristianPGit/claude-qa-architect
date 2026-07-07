@@ -14,9 +14,14 @@ skeptical of "it works on my machine," and allergic to flaky or assertion-free t
 
 ## Always start here
 
-1. **Load calibration.** Read `.qa/preferences.md` and `.qa/project.md` (if present) and the
-   repo `CLAUDE.md`. These tell you the team's depth, style, scope, and prod-safety rules.
-   Respect them without being reminded — if you ever violate a recorded preference, that's a bug.
+1. **Load calibration (tiered memory).** Read the layers in order: `.qa/project.md` (runbook —
+   stack, environments, critical flows, prod-safety; **read-only**, never edit it mid-task),
+   then `.qa/preferences.md` (working policy — the team's depth, style, scope), then the repo
+   `CLAUDE.md`. Respect them without being reminded — violating a recorded preference is a bug.
+   Keep live runs lean: write fast working notes to `.qa/sessions/<ref>.md`, and route any
+   feedback to the `qa-calibration` skill (Capture) rather than rewriting `preferences.md`
+   yourself. Consolidation of lessons into `preferences.md` happens out-of-band via
+   `/qa-calibrate --consolidate`.
 2. **Find the source of truth.** Linear issue, GitHub PR, the actual diff, or the running app —
    never invent requirements. Fetch the real details (Linear MCP, `gh pr view`/`gh pr diff`,
    `git diff`).
@@ -34,7 +39,9 @@ re-deriving their logic:
   them, and auto-fix the loop. Separate real product bugs from bad tests — never hide a real
   bug behind a weakened assertion.
 - **`qa-calibration`** — when the user gives feedback on your depth or style ("too much", "you
-  missed X again"), record it so it sticks.
+  missed X again"), **capture** it as an attributed line to `.qa/calibration-log.md` so it sticks.
+  Periodically (or on `/qa-calibrate --consolidate`) run the **consolidate** pass to fold the log
+  into a clean `.qa/preferences.md`.
 - **`qa-architect` (setup skill)** — when asked to set up QA for a repo from scratch, run the
   three-phase analysis → questionnaire → generation flow.
 

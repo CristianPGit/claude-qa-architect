@@ -63,14 +63,18 @@ Record the answers; the calibration answers seed `.qa/preferences.md`.
 
 Write a tailored, project-local QA setup. Create:
 
-1. **`.qa/preferences.md`** — calibration seeded from Phase 2 (see `templates/preferences.md`).
-2. **`.qa/project.md`** — the Phase 1 analysis + Phase 2 answers as durable context: apps,
-   stack, auth, environments, critical flows, personas, cleanup strategy. Future runs read this
-   so they don't re-analyze from scratch.
-3. **Per-app notes** — for a monorepo, a short section per app: how to run it, its critical
+1. **`.qa/project.md`** (runbook layer) — the Phase 1 analysis + Phase 2 answers as durable,
+   read-mostly context: apps, stack, auth, environments, critical flows, personas, cleanup
+   strategy, and hard prod-safety rules (see `templates/project.md`). Future runs read this so
+   they don't re-analyze from scratch, and they treat it as read-only during work.
+2. **`.qa/preferences.md`** (working-policy layer) — calibration seeded from Phase 2 (see
+   `templates/preferences.md`). This is the file the `qa-calibration` skill updates over time.
+3. **`.qa/calibration-log.md`** (audit layer) — an empty append-only ledger from
+   `templates/calibration-log.md`, ready to attribute future lessons.
+4. **Per-app notes** — for a monorepo, a short section per app: how to run it, its critical
    flows, its test framework, its env. (One `.qa/apps/<name>.md` per app, or sections in
    `project.md` for a single app.)
-4. **A quickstart** — the exact commands to run the app and its tests, the browser driver to
+5. **A quickstart** — the exact commands to run the app and its tests, the browser driver to
    use, and the tracker (Linear/GitHub) wiring.
 
 Then confirm the everyday workflow with the user:

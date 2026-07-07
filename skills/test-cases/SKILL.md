@@ -15,15 +15,21 @@ Be **precise, not exhaustive**. A test case the team will actually run beats ten
 Every case must be *traceable* to something concrete: a requirement, an acceptance criterion,
 a code path, a UI element, or a risk. If you can't say *why* a case exists, drop it.
 
-## Step 0 — Load calibration
+## Step 0 — Load calibration (tiered memory)
 
-Before writing anything, read the project's calibration file if it exists:
+Before writing anything, read the project's QA memory if it exists — in layer order:
 
-1. Look for `.qa/preferences.md` in the repo root (this is where the `qa-calibration` skill
-   stores standing instructions — e.g. "don't over-test trivial UI", "always include
-   accessibility", "keep it to ~8 cases", "we don't test third-party widgets").
-2. Also check the repo `CLAUDE.md` for any QA conventions.
-3. Apply those preferences silently. If none exist, use the defaults in this skill.
+1. **Runbook** — `.qa/project.md`: stable facts and hard safety rules (stack, environments,
+   critical flows, prod-safety). Read-only; never edit it during a run.
+2. **Working policy** — `.qa/preferences.md`: standing instructions on *how* the team likes QA
+   done (e.g. "keep it to ~8 cases", "always include accessibility", "we don't test third-party
+   widgets"). This is where the `qa-calibration` skill records feedback.
+3. Also check the repo `CLAUDE.md` for any QA conventions.
+4. Apply all of the above silently. If none exist, use the defaults in this skill.
+
+Keep the live run lean: don't rewrite `preferences.md` mid-task. If the user gives feedback while
+you work, hand it to the `qa-calibration` skill (Capture mode) — it appends one attributed line
+to `.qa/calibration-log.md` — and keep going.
 
 ## Step 1 — Gather the source of truth
 
