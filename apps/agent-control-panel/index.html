@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Agent Control Panel — learn.dev</title>
+<style>
+  :root {
+    --bg: #f2f4f6;
+    --surface: #fbfcfd;
+    --surface-2: #e9edf1;
+    --ink: #1c2431;
+    --ink-soft: #5a6575;
+    --line: #d4dae1;
+    --accent: #b56a2e;
+    --accent-ink: #8f4f1c;
+    --accent-soft: #f3e4d4;
+    --chip-ink: #3d4756;
+    --ok: #2f7d55;
+    --shadow: 0 1px 2px rgba(28,36,49,.06), 0 4px 14px rgba(28,36,49,.05);
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+    --display: "Avenir Next", "Avenir", "Helvetica Neue", system-ui, sans-serif;
+    --body: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #161b24;
+      --surface: #1e2530;
+      --surface-2: #262f3c;
+      --ink: #e6eaef;
+      --ink-soft: #98a3b3;
+      --line: #333e4d;
+      --accent: #d0894a;
+      --accent-ink: #e2a266;
+      --accent-soft: #3a2d20;
+      --chip-ink: #c3ccd8;
+      --ok: #58b183;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+    }
+  }
+  :root[data-theme="light"] {
+    --bg: #f2f4f6; --surface: #fbfcfd; --surface-2: #e9edf1; --ink: #1c2431;
+    --ink-soft: #5a6575; --line: #d4dae1; --accent: #b56a2e; --accent-ink: #8f4f1c;
+    --accent-soft: #f3e4d4; --chip-ink: #3d4756; --ok: #2f7d55;
+    --shadow: 0 1px 2px rgba(28,36,49,.06), 0 4px 14px rgba(28,36,49,.05);
+  }
+  :root[data-theme="dark"] {
+    --bg: #161b24; --surface: #1e2530; --surface-2: #262f3c; --ink: #e6eaef;
+    --ink-soft: #98a3b3; --line: #333e4d; --accent: #d0894a; --accent-ink: #e2a266;
+    --accent-soft: #3a2d20; --chip-ink: #c3ccd8; --ok: #58b183;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 4px 14px rgba(0,0,0,.25);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--body); font-size: 15px; line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; padding: 40px 24px 64px; }
+
+  header { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 8px 16px; margin-bottom: 8px; }
+  h1 { font-family: var(--display); font-weight: 600; font-size: 26px; letter-spacing: -.01em; margin: 0; text-wrap: balance; }
+  .ws { font-family: var(--mono); font-size: 12px; color: var(--ink-soft); }
+  .lede { color: var(--ink-soft); max-width: 62ch; margin: 0 0 32px; }
+  .lede code { font-family: var(--mono); font-size: 13px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 18px; }
+
+  .card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 10px;
+    box-shadow: var(--shadow); padding: 20px 20px 18px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .card-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .cmd-name { font-family: var(--mono); font-size: 16px; font-weight: 600; color: var(--accent-ink); }
+  .scale {
+    font-family: var(--mono); font-size: 11px; color: var(--chip-ink);
+    background: var(--surface-2); border-radius: 999px; padding: 3px 9px; white-space: nowrap;
+  }
+  .card p.desc { margin: 0; color: var(--ink-soft); font-size: 14px; }
+
+  .phases { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .phase {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .03em;
+    color: var(--chip-ink); background: var(--surface-2);
+    border: 1px solid var(--line); border-radius: 5px; padding: 3px 8px;
+  }
+  .phase.fan { border-style: dashed; }
+  .arrow { color: var(--ink-soft); font-size: 11px; }
+
+  .controls { display: flex; flex-direction: column; gap: 8px; }
+  .row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .lbl { font-size: 11px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-soft); min-width: 56px; }
+  .seg { display: flex; gap: 0; border: 1px solid var(--line); border-radius: 7px; overflow: hidden; flex-wrap: wrap; }
+  .seg button {
+    font-family: var(--mono); font-size: 12px; padding: 6px 11px; border: 0; cursor: pointer;
+    background: var(--surface); color: var(--chip-ink); border-right: 1px solid var(--line);
+  }
+  .seg button:last-child { border-right: 0; }
+  .seg button[aria-pressed="true"] { background: var(--accent-soft); color: var(--accent-ink); font-weight: 600; }
+  .seg button:focus-visible, .copy:focus-visible, textarea:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  textarea {
+    width: 100%; min-height: 64px; resize: vertical;
+    font-family: var(--body); font-size: 13px; color: var(--ink);
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 7px; padding: 8px 10px;
+  }
+  textarea::placeholder { color: var(--ink-soft); }
+
+  .cmdline {
+    display: flex; align-items: center; gap: 10px; margin-top: auto;
+    background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 8px 8px 8px 12px;
+  }
+  .cmdline code {
+    font-family: var(--mono); font-size: 12.5px; color: var(--ink);
+    flex: 1; overflow-x: auto; white-space: nowrap; scrollbar-width: thin;
+  }
+  .cmdline code::before { content: "❯ "; color: var(--accent); }
+  .copy {
+    font-family: var(--display); font-weight: 600; font-size: 13px;
+    background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+    padding: 7px 14px; cursor: pointer; white-space: nowrap;
+    transition: transform .08s ease;
+  }
+  .copy:active { transform: scale(.97); }
+  .copy.done { background: var(--ok); }
+  @media (prefers-reduced-motion: reduce) { .copy { transition: none; } }
+
+  .note { font-size: 12px; color: var(--ink-soft); margin: 0; }
+  .note code { font-family: var(--mono); font-size: 11.5px; }
+
+  footer { margin-top: 36px; border-top: 1px solid var(--line); padding-top: 18px; color: var(--ink-soft); font-size: 13px; }
+  footer h2 { font-family: var(--display); font-size: 13px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink); margin: 0 0 8px; }
+  footer ul { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 4px; }
+  footer code { font-family: var(--mono); font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 4px; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <h1>Agent Control Panel</h1>
+    <span class="ws">~/Documents/learn.dev · George AT FAT suites</span>
+  </header>
+  <p class="lede">Four repeatable workflows, one panel. Set the parameters, hit <strong>Copy</strong>, paste into Claude Code. Each command opts in to a multi-agent workflow defined in <code>.claude/workflows/</code>.</p>
+
+  <div class="grid">
+
+    <!-- AUDIT SESSIONS -->
+    <section class="card" data-card="audit">
+      <div class="card-head">
+        <span class="cmd-name">/audit-sessions</span>
+        <span class="scale" id="audit-scale">~7 agents</span>
+      </div>
+      <p class="desc">What did recent Claude sessions actually do? Per-session auditors dig out goals, outcomes, unfinished work, and lessons; a synthesizer rolls it into one report with suggested memory entries.</p>
+      <div class="phases">
+        <span class="phase">Discover</span><span class="arrow">→</span>
+        <span class="phase fan">Audit ×N</span><span class="arrow">→</span>
+        <span class="phase">Synthesize</span>
+      </div>
+      <div class="controls">
+        <div class="row">
+          <span class="lbl">Sessions</span>
+          <div class="seg" role="group" aria-label="Number of sessions">
+            <button data-n="3" aria-pressed="false">last 3</button>
+            <button data-n="5" aria-pressed="true">last 5</button>
+            <button data-n="10" aria-pressed="false">last 10</button>
+          </div>
+        </div>
+      </div>
+      <div class="cmdline"><code id="audit-cmd">/audit-sessions 5</code><button class="copy" data-for="audit-cmd">Copy</button></div>
+    </section>
+
+    <!-- BUG HUNT -->
+    <section class="card" data-card="hunt">
+      <div class="card-head">
+        <span class="cmd-name">/bug-hunt</span>
+        <span class="scale">10–25 agents</span>
+      </div>
+      <p class="desc">Five finder lenses — logic, async/race, selector fragility, flakiness, config — sweep the target in parallel, looping until a round comes back dry. Every candidate faces an adversarial refuter before it reaches the report.</p>
+      <div class="phases">
+        <span class="phase fan">Hunt ×5 lenses</span><span class="arrow">⟲</span>
+        <span class="phase fan">Verify per finding</span><span class="arrow">→</span>
+        <span class="phase">Report</span>
+      </div>
+      <div class="controls">
+        <div class="row">
+          <span class="lbl">Target</span>
+          <div class="seg" role="group" aria-label="Target directory">
+            <button data-t="search-test-scenario" aria-pressed="true">search-test-scenario</button>
+            <button data-t="search-test-scenario-cypress" aria-pressed="false">…-cypress</button>
+            <button data-t="dev" aria-pressed="false">dev</button>
+            <button data-t="demo-shop" aria-pressed="false">demo-shop</button>
+          </div>
+        </div>
+      </div>
+      <div class="cmdline"><code id="hunt-cmd">/bug-hunt search-test-scenario</code><button class="copy" data-for="hunt-cmd">Copy</button></div>
+    </section>
+
+    <!-- SPEC TO PLAN -->
+    <section class="card" data-card="spec">
+      <div class="card-head">
+        <span class="cmd-name">/spec-to-plan</span>
+        <span class="scale">~5 agents</span>
+      </div>
+      <p class="desc">Paste a spec; a mapper reads the relevant code, three designers draft competing plans (MVP-first, risk-first, testability-first), and a judge panel scores them and synthesizes the final plan.</p>
+      <div class="phases">
+        <span class="phase">Understand</span><span class="arrow">→</span>
+        <span class="phase fan">Design ×3</span><span class="arrow">→</span>
+        <span class="phase">Judge + merge</span>
+      </div>
+      <div class="controls">
+        <textarea id="spec-text" placeholder="e.g. Add a @pagination tag suite covering the transaction search results pager, including empty-state and last-page edge cases" aria-label="Spec text"></textarea>
+      </div>
+      <div class="cmdline"><code id="spec-cmd">/spec-to-plan &lt;spec&gt;</code><button class="copy" data-for="spec-cmd">Copy</button></div>
+    </section>
+
+    <!-- CODE REVIEW -->
+    <section class="card" data-card="review">
+      <div class="card-head">
+        <span class="cmd-name">/code-review</span>
+        <span class="scale" id="review-scale">built-in</span>
+      </div>
+      <p class="desc">Reviews the current working diff for correctness bugs and cleanup opportunities. <strong>ultra</strong> escalates to a multi-agent cloud review of the whole branch; <strong>--fix</strong> applies the findings afterward.</p>
+      <div class="phases">
+        <span class="phase">Diff</span><span class="arrow">→</span>
+        <span class="phase fan">Find</span><span class="arrow">→</span>
+        <span class="phase fan">Verify</span><span class="arrow">→</span>
+        <span class="phase">Findings</span>
+      </div>
+      <div class="controls">
+        <div class="row">
+          <span class="lbl">Depth</span>
+          <div class="seg" role="group" aria-label="Review depth">
+            <button data-v="/code-review" aria-pressed="true">standard</button>
+            <button data-v="/code-review high" aria-pressed="false">high</button>
+            <button data-v="/code-review ultra" aria-pressed="false">ultra ☁</button>
+            <button data-v="/code-review --fix" aria-pressed="false">+ fix</button>
+          </div>
+        </div>
+      </div>
+      <p class="note">Needs a git repo — run from <code>search-test-scenario-cypress-repo/</code> or any project with a <code>.git</code>.</p>
+      <div class="cmdline"><code id="review-cmd">/code-review</code><button class="copy" data-for="review-cmd">Copy</button></div>
+    </section>
+
+  </div>
+
+  <footer>
+    <h2>How this panel works</h2>
+    <ul>
+      <li>Commands are project skills in <code>.claude/skills/</code>; each one launches its workflow script from <code>.claude/workflows/</code> (audit-sessions.js, bug-hunt.js, spec-to-plan.js).</li>
+      <li>Workflows never write to your files — bug-hunt and audit-sessions are read-only; spec-to-plan only returns a plan. Fixes happen only when you ask.</li>
+      <li>Reports respect known constraints: generous timeouts, <code>workers: 1</code>, and no <code>webServer</code> are deliberate and never flagged.</li>
+    </ul>
+  </footer>
+</div>
+
+<script>
+(function () {
+  function bindSeg(cardSel, attr, render) {
+    var card = document.querySelector(cardSel);
+    card.querySelectorAll('.seg button').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        card.querySelectorAll('.seg button').forEach(function (b) { b.setAttribute('aria-pressed', 'false'); });
+        btn.setAttribute('aria-pressed', 'true');
+        render(btn.getAttribute(attr));
+      });
+    });
+  }
+
+  bindSeg('[data-card="audit"]', 'data-n', function (n) {
+    document.getElementById('audit-cmd').textContent = '/audit-sessions ' + n;
+    document.getElementById('audit-scale').textContent = '~' + (parseInt(n, 10) + 2) + ' agents';
+  });
+
+  bindSeg('[data-card="hunt"]', 'data-t', function (t) {
+    document.getElementById('hunt-cmd').textContent = '/bug-hunt ' + t;
+  });
+
+  bindSeg('[data-card="review"]', 'data-v', function (v) {
+    document.getElementById('review-cmd').textContent = v;
+    document.getElementById('review-scale').textContent =
+      v.indexOf('ultra') > -1 ? 'cloud · billed' : 'built-in';
+  });
+
+  var specBox = document.getElementById('spec-text');
+  specBox.addEventListener('input', function () {
+    var t = specBox.value.trim();
+    document.getElementById('spec-cmd').textContent = '/spec-to-plan ' + (t || '<spec>');
+  });
+
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var text = document.getElementById(btn.getAttribute('data-for')).textContent;
+      function done() {
+        btn.classList.add('done'); btn.textContent = 'Copied ✓';
+        setTimeout(function () { btn.classList.remove('done'); btn.textContent = 'Copy'; }, 1400);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(done, function () { fallback(text); done(); });
+      } else { fallback(text); done(); }
+      function fallback(t) {
+        var ta = document.createElement('textarea');
+        ta.value = t; ta.style.position = 'fixed'; ta.style.opacity = '0';
+        document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (e) {}
+        document.body.removeChild(ta);
+      }
+    });
+  });
+})();
+</script>
+</body>
+</html>
