@@ -1,0 +1,31 @@
+{
+  "name": "flaky-test-detector",
+  "version": "1.0.0",
+  "description": "Run your test suite N times and find flaky tests",
+  "type": "module",
+  "bin": {
+    "flaky": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "flaky",
+    "tests",
+    "playwright",
+    "cypress",
+    "jest",
+    "vitest",
+    "ci",
+    "testing"
+  ],
+  "author": "Cristian Pandele",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  }
+}
