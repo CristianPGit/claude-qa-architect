@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QA Swiss Knife — Testing Toolbox</title>
+<style>
+  :root {
+    --bg: #14161a;
+    --panel: #1d2026;
+    --panel-2: #23272f;
+    --border: #2e333c;
+    --text: #e6e8eb;
+    --muted: #9aa1ab;
+    --accent: #e0483e;
+    --accent-soft: rgba(224, 72, 62, 0.14);
+    --ok: #4cc38a;
+    --warn: #f0b429;
+    --bad: #e5534b;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    display: flex;
+    min-height: 100vh;
+  }
+  /* ---------- Sidebar ---------- */
+  nav {
+    width: 230px;
+    flex-shrink: 0;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    padding: 18px 12px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+  nav .logo {
+    font-weight: 700;
+    font-size: 17px;
+    padding: 4px 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  nav .logo .blade { color: var(--accent); }
+  nav .group {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--muted);
+    padding: 14px 10px 6px;
+  }
+  nav a {
+    display: block;
+    padding: 7px 10px;
+    border-radius: 8px;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 2px;
+  }
+  nav a:hover { background: var(--panel-2); }
+  nav a.active { background: var(--accent-soft); color: #ff9a93; }
+  /* ---------- Main ---------- */
+  main { flex: 1; padding: 28px 36px 80px; max-width: 1060px; }
+  .section { display: none; }
+  .section.active { display: block; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: var(--muted); margin: 0 0 24px; font-size: 14px; }
+  h2 { font-size: 16px; margin: 26px 0 10px; }
+  /* ---------- Controls ---------- */
+  textarea, input[type="text"], input[type="number"], select {
+    width: 100%;
+    background: var(--panel);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 12px;
+    font-family: var(--mono);
+    font-size: 13px;
+    outline: none;
+  }
+  textarea:focus, input:focus, select:focus { border-color: var(--accent); }
+  textarea { min-height: 140px; resize: vertical; }
+  .row { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; align-items: center; }
+  .row > * { flex-shrink: 0; }
+  .grow { flex: 1 !important; min-width: 200px; }
+  button {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 13px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  button:hover { border-color: var(--accent); }
+  button.primary { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 600; }
+  button.primary:hover { filter: brightness(1.1); }
+  button.copied { border-color: var(--ok); color: var(--ok); }
+  .out {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 12px;
+    font-family: var(--mono);
+    font-size: 13px;
+    white-space: pre-wrap;
+    word-break: break-word;
+    overflow-x: auto;
+    min-height: 44px;
+    margin-top: 10px;
+  }
+  .out:empty::before { content: "Output appears here…"; color: var(--muted); font-family: inherit; }
+  .err { color: var(--bad); }
+  .good { color: var(--ok); }
+  mark { background: rgba(240, 180, 41, 0.35); color: #ffd97a; border-radius: 3px; padding: 0 1px; }
+  .badge {
+    display: inline-block;
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    margin-left: 6px;
+  }
+  .badge.ok { color: var(--ok); border-color: var(--ok); }
+  .badge.bad { color: var(--bad); border-color: var(--bad); }
+  /* ---------- Cards / lists ---------- */
+  .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; }
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  .card h3 { margin: 0 0 6px; font-size: 15px; }
+  .card p { margin: 0 0 8px; font-size: 13px; color: var(--muted); line-height: 1.5; }
+  .card .snippet {
+    font-family: var(--mono);
+    font-size: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 8px 10px;
+    color: #b8c4d0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+  .item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 6px;
+  }
+  .item code {
+    font-family: var(--mono);
+    font-size: 13px;
+    flex: 1;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .item .note { color: var(--muted); font-size: 12px; }
+  .item button { padding: 4px 10px; font-size: 12px; }
+  .diff-line { font-family: var(--mono); font-size: 13px; white-space: pre-wrap; word-break: break-all; padding: 1px 8px; }
+  .diff-add { background: rgba(76, 195, 138, 0.12); color: #7ee2ae; }
+  .diff-del { background: rgba(229, 83, 75, 0.12); color: #f0928c; }
+  .diff-ctx { color: var(--muted); }
+  table { border-collapse: collapse; width: 100%; font-size: 13px; }
+  th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 12px; }
+  a.ext { color: #6cb6ff; text-decoration: none; }
+  a.ext:hover { text-decoration: underline; }
+  label { font-size: 13px; color: var(--muted); display: block; margin: 12px 0 4px; }
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin: 10px 0; }
+  footer { color: var(--muted); font-size: 12px; margin-top: 40px; border-top: 1px solid var(--border); padding-top: 14px; }
+  @media (max-width: 760px) {
+    body { flex-direction: column; }
+    nav { width: 100%; height: auto; position: static; display: flex; flex-wrap: wrap; gap: 2px; }
+    nav .group { width: 100%; }
+    main { padding: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<nav id="nav">
+  <div class="logo"><span class="blade">✚</span> QA Swiss Knife</div>
+  <div class="group">Tools</div>
+  <a href="#json">{ } JSON Formatter</a>
+  <a href="#jwt">🎫 JWT Decoder</a>
+  <a href="#encode">🔤 Encode / Decode</a>
+  <a href="#regex">🔎 Regex Tester</a>
+  <a href="#datagen">🎲 Test Data Generator</a>
+  <a href="#edgecases">💣 Edge-Case Strings</a>
+  <a href="#timestamp">🕐 Timestamp Converter</a>
+  <a href="#diff">⇄ Diff Checker</a>
+  <a href="#bugreport">🐞 Bug Report Builder</a>
+  <a href="#httpcodes">🚦 HTTP Status Codes</a>
+  <div class="group">Resources</div>
+  <a href="#arsenal">🧰 The Arsenal</a>
+  <a href="#crew">🤖 The Agent Crew</a>
+</nav>
+
+<main>
+
+<!-- ============ JSON ============ -->
+<section class="section" id="json">
+  <h1>{ } JSON Formatter</h1>
+  <p class="sub">Validate, pretty-print or minify JSON — API responses, payloads, config files.</p>
+  <textarea id="json-in" placeholder='{"paste":"your JSON here"}'></textarea>
+  <div class="row">
+    <button class="primary" onclick="jsonFormat(2)">Format</button>
+    <button onclick="jsonFormat(0)">Minify</button>
+    <button onclick="jsonValidate()">Validate only</button>
+    <button onclick="copyOut('json-out', this)">Copy output</button>
+  </div>
+  <div class="out" id="json-out"></div>
+</section>
+
+<!-- ============ JWT ============ -->
+<section class="section" id="jwt">
+  <h1>🎫 JWT Decoder</h1>
+  <p class="sub">Decode header and payload of a JSON Web Token. Fully offline — the token never leaves this page.</p>
+  <textarea id="jwt-in" placeholder="eyJhbGciOi..."></textarea>
+  <div class="row">
+    <button class="primary" onclick="jwtDecode()">Decode</button>
+  </div>
+  <div class="out" id="jwt-out"></div>
+</section>
+
+<!-- ============ Encode / Decode ============ -->
+<section class="section" id="encode">
+  <h1>🔤 Encode / Decode</h1>
+  <p class="sub">Base64, URL and HTML-entity conversions. UTF-8 safe (emoji and diacritics work).</p>
+  <textarea id="enc-in" placeholder="Text to convert…"></textarea>
+  <div class="row">
+    <button class="primary" onclick="encTool('b64e')">Base64 encode</button>
+    <button onclick="encTool('b64d')">Base64 decode</button>
+    <button onclick="encTool('urle')">URL encode</button>
+    <button onclick="encTool('urld')">URL decode</button>
+    <button onclick="encTool('htmle')">HTML escape</button>
+    <button onclick="encTool('htmld')">HTML unescape</button>
+    <button onclick="copyOut('enc-out', this)">Copy output</button>
+  </div>
+  <div class="out" id="enc-out"></div>
+</section>
+
+<!-- ============ Regex ============ -->
+<section class="section" id="regex">
+  <h1>🔎 Regex Tester</h1>
+  <p class="sub">Test JavaScript regular expressions against sample text. Matches are highlighted below.</p>
+  <div class="row">
+    <input type="text" id="rx-pattern" class="grow" placeholder="pattern, e.g. \d{4}-\d{2}-\d{2}">
+    <input type="text" id="rx-flags" value="g" style="width:90px" placeholder="flags">
+    <button class="primary" onclick="regexTest()">Test</button>
+  </div>
+  <textarea id="rx-text" placeholder="Sample text to search…"></textarea>
+  <div class="out" id="rx-out"></div>
+</section>
+
+<!-- ============ Data generator ============ -->
+<section class="section" id="datagen">
+  <h1>🎲 Test Data Generator</h1>
+  <p class="sub">Fresh fake data for forms and API payloads. IBANs have valid check digits (mod-97) but are fictional. Card numbers are the industry-standard <em>test</em> PANs.</p>
+  <div class="pill-row">
+    <button class="primary" onclick="genData('uuid')">UUID v4</button>
+    <button onclick="genData('name')">Names</button>
+    <button onclick="genData('email')">Emails</button>
+    <button onclick="genData('phone')">Phones (AT)</button>
+    <button onclick="genData('ibanAT')">IBAN (AT)</button>
+    <button onclick="genData('ibanDE')">IBAN (DE)</button>
+    <button onclick="genData('card')">Test cards</button>
+    <button onclick="genData('password')">Passwords</button>
+    <button onclick="genData('date')">Dates</button>
+  </div>
+  <div id="gen-out"></div>
+</section>
+
+<!-- ============ Edge cases ============ -->
+<section class="section" id="edgecases">
+  <h1>💣 Edge-Case Strings</h1>
+  <p class="sub">Copy-paste ammunition for boundary and negative testing. Paste these into every input field you meet.</p>
+  <div class="row">
+    <input type="number" id="long-len" value="10000" style="width:120px" min="1" max="1000000">
+    <button onclick="genLongString()">Generate long string</button>
+    <span class="note" style="color:var(--muted);font-size:12px">…for max-length checks</span>
+  </div>
+  <div id="edge-out"></div>
+</section>
+
+<!-- ============ Timestamp ============ -->
+<section class="section" id="timestamp">
+  <h1>🕐 Timestamp Converter</h1>
+  <p class="sub">Epoch ⇄ human dates. Paste an epoch (seconds or milliseconds) or any date string.</p>
+  <div class="out" id="ts-now" style="margin-bottom:14px"></div>
+  <div class="row">
+    <input type="text" id="ts-in" class="grow" placeholder="1720180800  |  2026-07-05T10:00:00Z  |  Jul 5 2026">
+    <button class="primary" onclick="tsConvert()">Convert</button>
+    <button onclick="document.getElementById('ts-in').value = Date.now(); tsConvert()">Now</button>
+  </div>
+  <div class="out" id="ts-out"></div>
+</section>
+
+<!-- ============ Diff ============ -->
+<section class="section" id="diff">
+  <h1>⇄ Diff Checker</h1>
+  <p class="sub">Line-by-line comparison — API responses, configs, expected vs actual.</p>
+  <div class="row" style="align-items:stretch">
+    <textarea id="diff-a" class="grow" placeholder="Original / expected…"></textarea>
+    <textarea id="diff-b" class="grow" placeholder="Changed / actual…"></textarea>
+  </div>
+  <div class="row">
+    <button class="primary" onclick="runDiff()">Compare</button>
+    <label style="margin:0;display:flex;align-items:center;gap:6px"><input type="checkbox" id="diff-hide-ctx" style="width:auto"> hide unchanged lines</label>
+  </div>
+  <div class="out" id="diff-out"></div>
+</section>
+
+<!-- ============ Bug report ============ -->
+<section class="section" id="bugreport">
+  <h1>🐞 Bug Report Builder</h1>
+  <p class="sub">Fill in the facts — get a ready-to-paste Markdown bug report. Environment details are auto-detected from this browser.</p>
+  <label>Title</label>
+  <input type="text" id="br-title" placeholder="Search returns no results when keyword contains umlaut">
+  <div class="row">
+    <div>
+      <label>Severity</label>
+      <select id="br-sev">
+        <option>🔴 Critical</option>
+        <option selected>🟠 Major</option>
+        <option>🟡 Minor</option>
+        <option>🟢 Trivial</option>
+      </select>
+    </div>
+    <div class="grow">
+      <label>Environment (auto-detected, edit freely)</label>
+      <input type="text" id="br-env">
+    </div>
+  </div>
+  <label>Steps to reproduce (one per line)</label>
+  <textarea id="br-steps" placeholder="Log in as test user&#10;Open transaction search&#10;Type 'Übernahme' in keyword field"></textarea>
+  <label>Expected result</label>
+  <input type="text" id="br-expected" placeholder="Matching transactions are listed">
+  <label>Actual result</label>
+  <input type="text" id="br-actual" placeholder="Empty state is shown; console logs a 500 from /api/search">
+  <div class="row">
+    <button class="primary" onclick="buildBugReport()">Generate report</button>
+    <button onclick="copyOut('br-out', this)">Copy Markdown</button>
+  </div>
+  <div class="out" id="br-out"></div>
+</section>
+
+<!-- ============ HTTP codes ============ -->
+<section class="section" id="httpcodes">
+  <h1>🚦 HTTP Status Codes</h1>
+  <p class="sub">Quick reference with a QA slant — what each code usually means when you see it in the network tab.</p>
+  <div class="row">
+    <input type="text" id="http-filter" class="grow" placeholder="Filter: 4, 404, timeout, auth…" oninput="renderHttpCodes()">
+  </div>
+  <div id="http-out"></div>
+</section>
+
+<!-- ============ Arsenal ============ -->
+<section class="section" id="arsenal">
+  <h1>🧰 The Arsenal</h1>
+  <p class="sub">Curated tools, extensions and apps worth having installed. Everything here is free or has a solid free tier.</p>
+  <div id="arsenal-out"></div>
+</section>
+
+<!-- ============ Crew ============ -->
+<section class="section" id="crew">
+  <h1>🤖 The Agent Crew</h1>
+  <p class="sub">AI teammates for Claude Code. Their definitions live in <code>.claude/agents/</code> in this repo — copy that folder into any project and they become available there. Invoke them by name, or let the Orchestrator dispatch them.</p>
+  <div class="cards" id="crew-out"></div>
+  <h2>How to use</h2>
+  <div class="card">
+    <p>1. Copy <code>.claude/agents/</code> into your project (or into <code>~/.claude/agents/</code> to have them everywhere).</p>
+    <p>2. In Claude Code, ask for an agent by name:</p>
+    <div class="snippet">Use the hunter agent to black-box test the search API.
+
+Use the orchestrator: full quality pass on this feature —
+map it, hunt bugs, review the fixes, and write the regression tests.</div>
+  </div>
+</section>
+
+<footer>
+  QA Swiss Knife — a single-file, offline toolbox. Nothing you paste here leaves your browser.
+</footer>
+
+</main>
+
+<script>
+/* ================= Router ================= */
+function route() {
+  const hash = location.hash.replace('#', '') || 'json';
+  document.querySelectorAll('.section').forEach(s => s.classList.toggle('active', s.id === hash));
+  document.querySelectorAll('nav a').forEach(a => a.classList.toggle('active', a.getAttribute('href') === '#' + hash));
+}
+window.addEventListener('hashchange', route);
+
+/* ================= Helpers ================= */
+const $ = id => document.getElementById(id);
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+function copyText(text, btn) {
+  navigator.clipboard.writeText(text).then(() => {
+    if (!btn) return;
+    const old = btn.textContent;
+    btn.textContent = '✓ copied';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = old; btn.classList.remove('copied'); }, 1200);
+  });
+}
+function copyOut(id, btn) { copyText($(id).textContent, btn); }
+function addItem(container, text, note) {
+  const div = document.createElement('div');
+  div.className = 'item';
+  const code = document.createElement('code');
+  code.textContent = text;
+  div.appendChild(code);
+  if (note) {
+    const n = document.createElement('span');
+    n.className = 'note';
+    n.textContent = note;
+    div.appendChild(n);
+  }
+  const btn = document.createElement('button');
+  btn.textContent = 'copy';
+  btn.onclick = () => copyText(text, btn);
+  div.appendChild(btn);
+  container.appendChild(div);
+}
+
+/* ================= JSON ================= */
+function jsonFormat(indent) {
+  const out = $('json-out');
+  try {
+    const parsed = JSON.parse($('json-in').value);
+    out.textContent = indent ? JSON.stringify(parsed, null, indent) : JSON.stringify(parsed);
+  } catch (e) {
+    out.innerHTML = '<span class="err">✗ ' + esc(e.message) + '</span>';
+  }
+}
+function jsonValidate() {
+  const out = $('json-out');
+  try {
+    const v = JSON.parse($('json-in').value);
+    const kind = Array.isArray(v) ? 'array (' + v.length + ' items)' : typeof v === 'object' && v !== null ? 'object (' + Object.keys(v).length + ' keys)' : typeof v;
+    out.innerHTML = '<span class="good">✓ Valid JSON — ' + esc(kind) + '</span>';
+  } catch (e) {
+    out.innerHTML = '<span class="err">✗ ' + esc(e.message) + '</span>';
+  }
+}
+
+/* ================= JWT ================= */
+function b64urlDecode(s) {
+  s = s.replace(/-/g, '+').replace(/_/g, '/');
+  while (s.length % 4) s += '=';
+  const bin = atob(s);
+  const bytes = Uint8Array.from(bin, c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+function jwtDecode() {
+  const out = $('jwt-out');
+  const token = $('jwt-in').value.trim();
+  const parts = token.split('.');
+  if (parts.length !== 3) {
+    out.innerHTML = '<span class="err">✗ Not a JWT — expected 3 dot-separated parts, got ' + parts.length + '</span>';
+    return;
+  }
+  try {
+    const header = JSON.parse(b64urlDecode(parts[0]));
+    const payload = JSON.parse(b64urlDecode(parts[1]));
+    let html = '<strong>Header</strong>\n' + esc(JSON.stringify(header, null, 2));
+    html += '\n\n<strong>Payload</strong>\n' + esc(JSON.stringify(payload, null, 2));
+    const claims = [];
+    for (const k of ['iat', 'nbf', 'exp']) {
+      if (typeof payload[k] === 'number') claims.push(k + ' → ' + new Date(payload[k] * 1000).toISOString());
+    }
+    if (claims.length) html += '\n\n<strong>Time claims</strong>\n' + esc(claims.join('\n'));
+    if (typeof payload.exp === 'number') {
+      const expired = payload.exp * 1000 < Date.now();
+      html += expired
+        ? '\n\n<span class="err">✗ Token is EXPIRED</span>'
+        : '\n\n<span class="good">✓ Token is still valid (expires ' + esc(new Date(payload.exp * 1000).toLocaleString()) + ')</span>';
+    }
+    html += '\n\n<span style="color:var(--muted)">Signature not verified — this tool only decodes.</span>';
+    out.innerHTML = html;
+  } catch (e) {
+    out.innerHTML = '<span class="err">✗ Could not decode: ' + esc(e.message) + '</span>';
+  }
+}
+
+/* ================= Encode / decode ================= */
+function encTool(mode) {
+  const out = $('enc-out');
+  const s = $('enc-in').value;
+  try {
+    let r;
+    switch (mode) {
+      case 'b64e': r = btoa(String.fromCharCode(...new TextEncoder().encode(s))); break;
+      case 'b64d': r = new TextDecoder().decode(Uint8Array.from(atob(s.trim()), c => c.charCodeAt(0))); break;
+      case 'urle': r = encodeURIComponent(s); break;
+      case 'urld': r = decodeURIComponent(s.replace(/\+/g, '%20')); break;
+      case 'htmle': r = esc(s).replace(/"/g, '&quot;').replace(/'/g, '&#39;'); break;
+      case 'htmld': { const d = document.createElement('textarea'); d.innerHTML = s; r = d.value; break; }
+    }
+    out.textContent = r;
+  } catch (e) {
+    out.innerHTML = '<span class="err">✗ ' + esc(e.message) + '</span>';
+  }
+}
+
+/* ================= Regex ================= */
+function regexTest() {
+  const out = $('rx-out');
+  const pattern = $('rx-pattern').value;
+  const flags = $('rx-flags').value;
+  const text = $('rx-text').value;
+  if (!pattern) { out.innerHTML = '<span class="err">Enter a pattern first.</span>'; return; }
+  let re;
+  try {
+    re = new RegExp(pattern, flags.includes('g') ? flags : flags + 'g');
+  } catch (e) {
+    out.innerHTML = '<span class="err">✗ ' + esc(e.message) + '</span>';
+    return;
+  }
+  const matches = [...text.matchAll(re)];
+  if (!matches.length) { out.innerHTML = '<span class="err">0 matches.</span>'; return; }
+  let html = '', last = 0;
+  const limit = flags.includes('g') ? matches.length : 1;
+  for (let i = 0; i < limit; i++) {
+    const m = matches[i];
+    html += esc(text.slice(last, m.index)) + '<mark>' + esc(m[0] === '' ? '∅' : m[0]) + '</mark>';
+    last = m.index + m[0].length;
+    if (m[0] === '') last++; // avoid infinite empty-match loop in display
+  }
+  html += esc(text.slice(last));
+  let info = '<span class="good">✓ ' + limit + ' match' + (limit === 1 ? '' : 'es') + '</span>';
+  if (matches[0].length > 1 || matches[0].groups) {
+    info += '\n\n<strong>First match groups</strong>\n';
+    const m = matches[0];
+    for (let g = 1; g < m.length; g++) info += esc('$' + g + ' = ' + (m[g] === undefined ? 'undefined' : m[g])) + '\n';
+    if (m.groups) for (const [k, v] of Object.entries(m.groups)) info += esc(k + ' = ' + (v === undefined ? 'undefined' : v)) + '\n';
+  }
+  out.innerHTML = info + '\n\n<strong>Highlighted</strong>\n' + html;
+}
+
+/* ================= Data generator ================= */
+const FIRST = ['Anna', 'Lukas', 'Maria', 'David', 'Sofia', 'Jonas', 'Laura', 'Felix', 'Elena', 'Paul', 'Nina', 'Tobias', 'Julia', 'Max', 'Lea'];
+const LAST = ['Gruber', 'Huber', 'Bauer', 'Wagner', 'Müller', 'Pichler', 'Steiner', 'Moser', 'Mayer', 'Hofer', 'Leitner', 'Berger', 'Fuchs', 'Eder', 'Fischer'];
+function rnd(n) { return Math.floor(Math.random() * n); }
+function digits(n) { let s = ''; for (let i = 0; i < n; i++) s += rnd(10); return s; }
+function ibanChecksum(country, bban) {
+  const rearranged = bban + country + '00';
+  const numeric = rearranged.toUpperCase().replace(/[A-Z]/g, c => String(c.charCodeAt(0) - 55));
+  const mod = BigInt(numeric) % 97n;
+  return String(98n - mod).padStart(2, '0');
+}
+function makeIban(country, bbanLen) {
+  const bban = digits(bbanLen);
+  return country + ibanChecksum(country, bban) + bban;
+}
+function genData(kind) {
+  const out = $('gen-out');
+  out.innerHTML = '';
+  if (kind === 'card') {
+    addItem(out, '4111 1111 1111 1111', 'Visa (test)');
+    addItem(out, '4000 0000 0000 0002', 'Visa — declined (test)');
+    addItem(out, '5555 5555 5555 4444', 'Mastercard (test)');
+    addItem(out, '2223 0031 2200 3222', 'Mastercard 2-series (test)');
+    addItem(out, '3782 822463 10005', 'Amex (test)');
+    addItem(out, '6011 1111 1111 1117', 'Discover (test)');
+    return;
+  }
+  for (let i = 0; i < 5; i++) {
+    const first = FIRST[rnd(FIRST.length)], last = LAST[rnd(LAST.length)];
+    switch (kind) {
+      case 'uuid': addItem(out, crypto.randomUUID()); break;
+      case 'name': addItem(out, first + ' ' + last); break;
+      case 'email': addItem(out, (first + '.' + last).toLowerCase().replace(/ü/g, 'ue').replace(/[^a-z.]/g, '') + '+qa' + digits(4) + '@example.com'); break;
+      case 'phone': addItem(out, '+43 6' + digits(2) + ' ' + digits(7)); break;
+      case 'ibanAT': addItem(out, makeIban('AT', 16), 'valid checksum, fictional'); break;
+      case 'ibanDE': addItem(out, makeIban('DE', 18), 'valid checksum, fictional'); break;
+      case 'password': {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789!@#$%&*';
+        let p = '';
+        const arr = crypto.getRandomValues(new Uint32Array(16));
+        for (const v of arr) p += chars[v % chars.length];
+        addItem(out, p);
+        break;
+      }
+      case 'date': {
+        const offset = (rnd(2) ? 1 : -1) * rnd(730) * 86400000;
+        addItem(out, new Date(Date.now() + offset).toISOString().slice(0, 10), offset >= 0 ? 'future' : 'past');
+        break;
+      }
+    }
+  }
+}
+
+/* ================= Edge cases ================= */
+const EDGE = {
+  'Boundaries & numbers': [
+    ['', 'empty string'],
+    [' ', 'single space'],
+    ['0', ''], ['-1', ''], ['1.7976931348623157e308', 'max double'],
+    ['9999999999999999999999', 'overflows int64'],
+    ['0.1', 'floating point'], ['1e-7', ''],
+    ['NaN', ''], ['null', 'the word, as a string'], ['undefined', ''], ['true', ''],
+  ],
+  'Unicode & i18n': [
+    ['Iñtërnâtiônàlizætiøn', 'diacritics'],
+    ['Übergrößenträger', 'German umlauts + ß'],
+    ['Ștefan-Andrei Țărănuș', 'Romanian diacritics'],
+    ['田中太郎', 'CJK'],
+    ['مرحبا بالعالم', 'right-to-left'],
+    ['🐛🔥💥🎉', 'emoji'],
+    ['👨‍👩‍👧‍👦', 'ZWJ family — one glyph, many code points'],
+    ['a​b', 'hidden zero-width space between a and b'],
+    ['Ω≈ç√∫˜µ≤', 'symbol soup'],
+  ],
+  'Injection probes': [
+    ['<script>alert(1)<\/script>', 'XSS'],
+    ['"><img src=x onerror=alert(1)>', 'XSS attr-breakout'],
+    ["' OR '1'='1", 'SQLi'],
+    ["Robert'); DROP TABLE Students;--", 'little Bobby Tables'],
+    ['{{7*7}}', 'template injection'],
+    ['${7*7}', 'template literal'],
+    ['../../../../etc/passwd', 'path traversal'],
+    ['%00', 'null byte'],
+    ['=1+2', 'CSV formula injection'],
+  ],
+  'Format & whitespace': [
+    ['  leading and trailing  ', 'spaces kept in quotes'],
+    ['line1\nline2', 'embedded newline'],
+    ['tab\there', 'embedded tab'],
+    ['O\'Brien-Müller', 'legit name that breaks naive escaping'],
+    ['Null', 'a real surname'],
+    ['user+tag@sub.example.co.uk', 'valid but unusual email'],
+    ['"quoted"@example.com', 'technically valid email'],
+    ['+43 (0) 664 / 123 45 67', 'phone with noise'],
+  ],
+};
+function renderEdgeCases() {
+  const out = $('edge-out');
+  for (const [cat, items] of Object.entries(EDGE)) {
+    const h = document.createElement('h2');
+    h.textContent = cat;
+    out.appendChild(h);
+    for (const [text, note] of items) {
+      addItem(out, text, note || undefined);
+    }
+  }
+}
+function genLongString() {
+  const len = Math.min(1000000, Math.max(1, parseInt($('long-len').value) || 10000));
+  copyText('A'.repeat(len), null);
+  const existing = $('edge-out').querySelector('.long-msg');
+  if (existing) existing.remove();
+  const msg = document.createElement('div');
+  msg.className = 'out long-msg';
+  msg.innerHTML = '<span class="good">✓ ' + len.toLocaleString() + '-char string copied to clipboard.</span>';
+  $('edge-out').prepend(msg);
+}
+
+/* ================= Timestamp ================= */
+function tsRender(d) {
+  if (isNaN(d.getTime())) return '<span class="err">✗ Could not parse that as a date or epoch.</span>';
+  const diff = d.getTime() - Date.now();
+  const abs = Math.abs(diff);
+  const units = [[86400000 * 365, 'year'], [86400000 * 30, 'month'], [86400000, 'day'], [3600000, 'hour'], [60000, 'minute'], [1000, 'second']];
+  let rel = 'now';
+  for (const [ms, name] of units) {
+    if (abs >= ms) { const v = Math.round(abs / ms); rel = v + ' ' + name + (v === 1 ? '' : 's') + (diff < 0 ? ' ago' : ' from now'); break; }
+  }
+  return [
+    'ISO / UTC     ' + d.toISOString(),
+    'Local         ' + d.toLocaleString(undefined, { timeZoneName: 'short' }),
+    'Epoch (s)     ' + Math.floor(d.getTime() / 1000),
+    'Epoch (ms)    ' + d.getTime(),
+    'Relative      ' + rel,
+    'Weekday       ' + d.toLocaleDateString(undefined, { weekday: 'long' }),
+  ].map(esc).join('\n');
+}
+function tsConvert() {
+  const raw = $('ts-in').value.trim();
+  let d;
+  if (/^-?\d+$/.test(raw)) {
+    const n = parseInt(raw, 10);
+    d = new Date(raw.replace('-', '').length >= 12 ? n : n * 1000);
+  } else {
+    d = new Date(raw);
+  }
+  $('ts-out').innerHTML = tsRender(d);
+}
+function tickNow() {
+  const now = new Date();
+  $('ts-now').textContent = 'Now:  epoch ' + Math.floor(now.getTime() / 1000) + '  ·  ' + now.toISOString();
+}
+setInterval(tickNow, 1000);
+
+/* ================= Diff ================= */
+function runDiff() {
+  const A = $('diff-a').value.split('\n');
+  const B = $('diff-b').value.split('\n');
+  const out = $('diff-out');
+  if (A.length * B.length > 4000000) {
+    out.innerHTML = '<span class="err">Inputs too large for line diff (limit ~2000×2000 lines).</span>';
+    return;
+  }
+  const n = A.length, m = B.length;
+  const dp = Array.from({ length: n + 1 }, () => new Uint16Array(m + 1));
+  for (let i = n - 1; i >= 0; i--)
+    for (let j = m - 1; j >= 0; j--)
+      dp[i][j] = A[i] === B[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
+  const rows = [];
+  let i = 0, j = 0;
+  while (i < n && j < m) {
+    if (A[i] === B[j]) { rows.push([' ', A[i]]); i++; j++; }
+    else if (dp[i + 1][j] >= dp[i][j + 1]) { rows.push(['-', A[i]]); i++; }
+    else { rows.push(['+', B[j]]); j++; }
+  }
+  while (i < n) rows.push(['-', A[i++]]);
+  while (j < m) rows.push(['+', B[j++]]);
+  const hideCtx = $('diff-hide-ctx').checked;
+  const added = rows.filter(r => r[0] === '+').length;
+  const removed = rows.filter(r => r[0] === '-').length;
+  let html = '<span class="good">+' + added + '</span> / <span class="err">−' + removed + '</span> lines\n\n';
+  html += rows
+    .filter(r => !hideCtx || r[0] !== ' ')
+    .map(([op, line]) => {
+      const cls = op === '+' ? 'diff-add' : op === '-' ? 'diff-del' : 'diff-ctx';
+      return '<div class="diff-line ' + cls + '">' + esc(op + ' ' + line) + '</div>';
+    })
+    .join('');
+  out.innerHTML = added + removed === 0 ? '<span class="good">✓ Identical.</span>' : html;
+}
+
+/* ================= Bug report ================= */
+function detectEnv() {
+  const ua = navigator.userAgent;
+  let browser = 'Unknown browser';
+  const rules = [[/Edg\/([\d.]+)/, 'Edge'], [/Firefox\/([\d.]+)/, 'Firefox'], [/Chrome\/([\d.]+)/, 'Chrome'], [/Version\/([\d.]+).*Safari/, 'Safari']];
+  for (const [re, name] of rules) {
+    const m = ua.match(re);
+    if (m) { browser = name + ' ' + m[1].split('.')[0]; break; }
+  }
+  const os = /Mac/.test(ua) ? 'macOS' : /Windows/.test(ua) ? 'Windows' : /Linux/.test(ua) ? 'Linux' : /iPhone|iPad/.test(ua) ? 'iOS' : /Android/.test(ua) ? 'Android' : 'Unknown OS';
+  return browser + ' · ' + os + ' · ' + window.innerWidth + '×' + window.innerHeight + ' · ' + Intl.DateTimeFormat().resolvedOptions().timeZone;
+}
+function buildBugReport() {
+  const steps = $('br-steps').value.split('\n').filter(s => s.trim()).map((s, i) => (i + 1) + '. ' + s.trim()).join('\n');
+  const md = [
+    '## 🐞 ' + ($('br-title').value.trim() || '(untitled bug)'),
+    '',
+    '| Field | Value |',
+    '|---|---|',
+    '| Severity | ' + $('br-sev').value + ' |',
+    '| Environment | ' + $('br-env').value + ' |',
+    '| Date | ' + new Date().toISOString().slice(0, 16).replace('T', ' ') + ' |',
+    '',
+    '**Steps to reproduce**',
+    steps || '1. …',
+    '',
+    '**Expected:** ' + ($('br-expected').value.trim() || '…'),
+    '',
+    '**Actual:** ' + ($('br-actual').value.trim() || '…'),
+    '',
+    '**Attachments:** _screenshot / HAR / console log here_',
+  ].join('\n');
+  $('br-out').textContent = md;
+}
+
+/* ================= HTTP codes ================= */
+const HTTP = [
+  [200, 'OK', 'Success. Still check the body — plenty of APIs return 200 with an error inside.', '2xx'],
+  [201, 'Created', 'Resource created. Response should contain or link to the new resource.', '2xx'],
+  [204, 'No Content', 'Success, empty body. Common on DELETE. A body here is a bug.', '2xx'],
+  [206, 'Partial Content', 'Range request — downloads, video streaming.', '2xx'],
+  [301, 'Moved Permanently', 'Permanent redirect. Browsers cache this aggressively — clear cache when retesting.', '3xx'],
+  [302, 'Found', 'Temporary redirect. Watch for redirect loops.', '3xx'],
+  [304, 'Not Modified', 'Served from cache via ETag/If-Modified-Since. Force-reload to bypass.', '3xx'],
+  [307, 'Temporary Redirect', 'Like 302 but method and body must not change.', '3xx'],
+  [400, 'Bad Request', 'Malformed input. Good target for negative testing — is the error message helpful?', '4xx'],
+  [401, 'Unauthorized', 'Not authenticated — missing or expired token/session. auth', '4xx'],
+  [403, 'Forbidden', 'Authenticated but not allowed. Test role boundaries here. auth', '4xx'],
+  [404, 'Not Found', 'Missing resource. Also used to hide resources from unauthorized users.', '4xx'],
+  [405, 'Method Not Allowed', 'Wrong verb (e.g. GET on a POST-only endpoint).', '4xx'],
+  [409, 'Conflict', 'State conflict — duplicate create, stale update. Test concurrent edits.', '4xx'],
+  [415, 'Unsupported Media Type', 'Wrong/missing Content-Type header.', '4xx'],
+  [422, 'Unprocessable Entity', 'Valid syntax, invalid semantics — classic validation-error code.', '4xx'],
+  [429, 'Too Many Requests', 'Rate limited. Check Retry-After header. Load tests trigger this.', '4xx'],
+  [500, 'Internal Server Error', 'Unhandled server exception. Always a bug — file it with the request payload.', '5xx'],
+  [502, 'Bad Gateway', 'Upstream service failed behind a proxy/load balancer.', '5xx'],
+  [503, 'Service Unavailable', 'Down or overloaded — deployments, maintenance windows.', '5xx'],
+  [504, 'Gateway Timeout', 'Upstream too slow. Slow test environments produce these a lot. timeout', '5xx'],
+];
+function renderHttpCodes() {
+  const q = $('http-filter').value.trim().toLowerCase();
+  const rows = HTTP.filter(([code, name, note]) =>
+    !q || String(code).startsWith(q) || (code + ' ' + name + ' ' + note).toLowerCase().includes(q)
+  );
+  const colors = { '2xx': 'var(--ok)', '3xx': '#6cb6ff', '4xx': 'var(--warn)', '5xx': 'var(--bad)' };
+  $('http-out').innerHTML = '<table><tr><th>Code</th><th>Name</th><th>QA notes</th></tr>' +
+    rows.map(([code, name, note, cat]) =>
+      '<tr><td style="color:' + colors[cat] + ';font-family:var(--mono);font-weight:600">' + code + '</td><td>' + esc(name) + '</td><td style="color:var(--muted)">' + esc(note.replace(/ (auth|timeout)$/, '')) + '</td></tr>'
+    ).join('') + '</table>';
+}
+
+/* ================= Arsenal ================= */
+const ARSENAL = {
+  'Browser extensions': [
+    ['Bug Magnet', 'https://bugmagnet.org/', 'Right-click any input → inject edge-case values. The extension version of this page.'],
+    ['SelectorsHub', 'https://selectorshub.com/', 'Build and verify XPath/CSS selectors — essential for Playwright/Cypress work.'],
+    ['axe DevTools', 'https://www.deque.com/axe/devtools/', 'Accessibility audits in the browser devtools.'],
+    ['WAVE', 'https://wave.webaim.org/extension/', 'Visual accessibility overlay — quick a11y smoke checks.'],
+    ['JSON Formatter', 'https://github.com/callumlocke/json-formatter', 'Pretty-prints raw JSON responses in browser tabs.'],
+    ['ModHeader', 'https://modheader.com/', 'Inject/override request headers — test auth, feature flags, locales.'],
+    ['Cookie-Editor', 'https://cookie-editor.com/', 'Inspect, edit, export cookies — session testing.'],
+    ['Requestly', 'https://requestly.com/', 'Redirect, mock and modify network requests without a proxy.'],
+  ],
+  'API & network': [
+    ['Bruno', 'https://www.usebruno.com/', 'Offline, git-friendly API client — collections live in your repo as plain files.'],
+    ['Postman', 'https://www.postman.com/', 'The standard API client; Newman runs collections in CI.'],
+    ['httpie', 'https://httpie.io/', 'Human-friendly curl. `http POST api.example.com/search q=test`'],
+    ['jq', 'https://jqlang.github.io/jq/', 'JSON processor for the terminal — slice API responses in pipelines.'],
+    ['mitmproxy', 'https://mitmproxy.org/', 'Free intercepting proxy — inspect and rewrite traffic, incl. mobile.'],
+    ['Proxyman', 'https://proxyman.io/', 'Native macOS HTTP debugging proxy, nicer UX than Charles.'],
+    ['webhook.site', 'https://webhook.site/', 'Instant endpoint to inspect what your app actually sends.'],
+    ['ngrok', 'https://ngrok.com/', 'Expose localhost to the internet — test webhooks and mobile against local builds.'],
+  ],
+  'Test automation': [
+    ['Playwright', 'https://playwright.dev/', 'Cross-browser E2E automation. Trace viewer + codegen are killer features.'],
+    ['Cypress', 'https://www.cypress.io/', 'E2E with time-travel debugging in a real browser.'],
+    ['playwright-bdd', 'https://vitalets.github.io/playwright-bdd/', 'Gherkin feature files compiled to Playwright specs.'],
+    ['k6', 'https://k6.io/', 'Load testing in JavaScript — scriptable, CI-friendly.'],
+    ['Maestro', 'https://maestro.mobile.dev/', 'Simple YAML-based mobile UI testing (iOS/Android).'],
+    ['Allure Report', 'https://allurereport.org/', 'Rich test reports across frameworks.'],
+  ],
+  'Security & quality': [
+    ['OWASP ZAP', 'https://www.zaproxy.org/', 'Free web security scanner — passive scan while you do manual testing.'],
+    ['Lighthouse', 'https://developer.chrome.com/docs/lighthouse', 'Performance/a11y/SEO audits, built into Chrome devtools.'],
+    ['Big List of Naughty Strings', 'https://github.com/minimaxir/big-list-of-naughty-strings', 'The full-size version of the Edge-Case Strings tab.'],
+    ['Fake Filler', 'https://fakefiller.com/', 'One click fills entire forms with fake data.'],
+  ],
+  'Online references': [
+    ['regex101', 'https://regex101.com/', 'Regex playground with explanation engine — deeper than the tab here.'],
+    ['crontab.guru', 'https://crontab.guru/', 'Cron expression translator.'],
+    ['Can I use', 'https://caniuse.com/', 'Browser feature support tables.'],
+    ['httpstat.us', 'https://httpstat.us/', 'Fake endpoints returning any status code — e.g. httpstat.us/503?sleep=5000.'],
+    ['JSONPlaceholder', 'https://jsonplaceholder.typicode.com/', 'Free fake REST API for prototyping tests.'],
+  ],
+};
+function renderArsenal() {
+  const out = $('arsenal-out');
+  let html = '';
+  for (const [cat, items] of Object.entries(ARSENAL)) {
+    html += '<h2>' + esc(cat) + '</h2><div class="cards">';
+    for (const [name, url, desc] of items) {
+      html += '<div class="card"><h3><a class="ext" href="' + url + '" target="_blank" rel="noopener">' + esc(name) + ' ↗</a></h3><p>' + esc(desc) + '</p></div>';
+    }
+    html += '</div>';
+  }
+  out.innerHTML = html;
+}
+
+/* ================= Crew ================= */
+const CREW = [
+  ['🧭', 'The Interpreter', 'Understands the project logic. Maps features, business rules and data flow; explains what the system is supposed to do before anyone tests it. The crew\'s source of truth.', 'Use the interpreter to map how transaction search works end to end.'],
+  ['🎯', 'The Hunter', 'Finds bugs black-box style — probes APIs with hostile inputs, drives the browser, chases edge cases. Doesn\'t read the source first: it tests what the user actually gets.', 'Use the hunter on the login flow — try to break it.'],
+  ['🔍', 'The Reviewer', 'Skeptical code review. Double-checks everything, hunts contradictions: docs vs code, test name vs assertion, error message vs behavior. Trusts nothing without evidence.', 'Have the reviewer check this PR for contradictions.'],
+  ['🔧', 'The Fixer', 'Fixes confirmed bugs with the smallest possible diff, then proves the fix by re-running the failing scenario. Never fixes what it can\'t reproduce.', 'Fixer: resolve the flaky timeout in the search spec.'],
+  ['🎼', 'The Orchestrator', 'Manages the crew. Breaks big quality goals into missions, dispatches the right agent for each, and builds the automation (Playwright/Cypress suites, CI flows) that keeps regressions out.', 'Orchestrator: full quality pass on the payments feature.'],
+  ['✍️', 'The Scribe', 'Writes the paperwork nobody else wants to: test cases as compact emoji tables, reproducible bug reports, release notes, coverage docs. Turns the Hunter\'s chaos into tickets.', 'Scribe: turn today\'s findings into bug tickets.'],
+  ['💣', 'The Saboteur', 'Professional pessimist. Designs negative tests, race conditions, interrupted flows, weird locales, slow networks. Asks "what if the user does the worst possible thing at the worst possible time?"', 'Saboteur: design destructive scenarios for checkout.'],
+  ['🚦', 'The Gatekeeper', 'Release readiness. Weighs open bugs, coverage gaps and risk per area, then gives an honest go/no-go with reasons. The one who says "not yet" when everyone wants to ship.', 'Gatekeeper: are we ready to release 2.4?'],
+  ['🕰️', 'The Historian', 'Forensics on flaky tests and regressions. Digs through git history, CI runs and old reports to answer "when did this break, and what changed?"', 'Historian: why did the smoke suite start failing last Tuesday?'],
+];
+function renderCrew() {
+  $('crew-out').innerHTML = CREW.map(([emoji, name, desc, example]) =>
+    '<div class="card"><h3>' + emoji + ' ' + esc(name) + '</h3><p>' + esc(desc) + '</p><div class="snippet">' + esc(example) + '</div></div>'
+  ).join('');
+}
+
+/* ================= Init ================= */
+renderEdgeCases();
+renderHttpCodes();
+renderArsenal();
+renderCrew();
+tickNow();
+$('br-env').value = detectEnv();
+route();
+</script>
+</body>
+</html>
