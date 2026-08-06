@@ -1,0 +1,36 @@
+{
+  "name": "qa-architect",
+  "owner": {
+    "name": "Cristian Pandele",
+    "email": "216735635+CristianPGit@users.noreply.github.com",
+    "url": "https://github.com/CristianPGit"
+  },
+  "metadata": {
+    "description": "Claude QA Architect — Claude Code plugins for AI-assisted QA and ticket-to-branch delivery.",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "qa-architect",
+      "source": "./plugins/qa-architect",
+      "description": "Generate Happy/Sad/Edge-case test cases from Linear tasks & GitHub PRs, drive a real browser, and write + auto-fix automated tests. Learns your QA calibration over time.",
+      "version": "0.2.0",
+      "author": {
+        "name": "Cristian Pandele",
+        "url": "https://github.com/CristianPGit"
+      },
+      "keywords": ["qa", "testing", "linear", "github", "playwright", "e2e"]
+    },
+    {
+      "name": "ticket-pilot",
+      "source": "./plugins/ticket-pilot",
+      "description": "Jira ticket → analyzed requirements → approved plan → implemented branch → reviewed & QA'd diff. Human gates at plan approval and before push.",
+      "version": "0.4.0",
+      "author": {
+        "name": "Cristian Pandele",
+        "url": "https://github.com/CristianPGit"
+      },
+      "keywords": ["jira", "automation", "workflow", "code-review", "backend"]
+    }
+  ]
+}

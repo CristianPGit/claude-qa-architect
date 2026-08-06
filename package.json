@@ -1,0 +1,37 @@
+{
+  "name": "claude-qa-architect",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An AI-assisted QA toolchain: Claude Code plugins, CLI tools, browser tools and a reference E2E suite.",
+  "author": {
+    "name": "Cristian Pandele",
+    "url": "https://github.com/CristianPGit"
+  },
+  "license": "MIT",
+  "homepage": "https://github.com/CristianPGit/claude-qa-architect",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CristianPGit/claude-qa-architect.git"
+  },
+  "workspaces": [
+    "packages/*",
+    "e2e/george-search"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "clean": "rm -rf packages/*/dist",
+    "flaky": "node packages/flaky-test-detector/dist/cli.js",
+    "self-heal": "node packages/self-healing-tests/dist/cli.js",
+    "vreg": "node packages/visual-regression-cli/dist/cli.js",
+    "test:e2e": "npm run test:e2e --workspace e2e/george-search",
+    "test:smoke": "npm run test:smoke --workspace e2e/george-search"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -188,14 +188,14 @@
         <div class="row">
           <span class="lbl">Target</span>
           <div class="seg" role="group" aria-label="Target directory">
-            <button data-t="search-test-scenario" aria-pressed="true">search-test-scenario</button>
-            <button data-t="search-test-scenario-cypress" aria-pressed="false">…-cypress</button>
-            <button data-t="dev" aria-pressed="false">dev</button>
-            <button data-t="demo-shop" aria-pressed="false">demo-shop</button>
+            <button data-t="e2e/george-search" aria-pressed="true">e2e/george-search</button>
+            <button data-t="packages/flaky-test-detector" aria-pressed="false">flaky-detector</button>
+            <button data-t="packages/self-healing-tests" aria-pressed="false">self-healing</button>
+            <button data-t="apps/qa-swiss-knife" aria-pressed="false">swiss-knife</button>
           </div>
         </div>
       </div>
-      <div class="cmdline"><code id="hunt-cmd">/bug-hunt search-test-scenario</code><button class="copy" data-for="hunt-cmd">Copy</button></div>
+      <div class="cmdline"><code id="hunt-cmd">/bug-hunt e2e/george-search</code><button class="copy" data-for="hunt-cmd">Copy</button></div>
     </section>
 
     <!-- SPEC TO PLAN -->
@@ -240,7 +240,7 @@
           </div>
         </div>
       </div>
-      <p class="note">Needs a git repo — run from <code>search-test-scenario-cypress-repo/</code> or any project with a <code>.git</code>.</p>
+      <p class="note">Needs a git repo — run from the repo root or any project with a <code>.git</code>.</p>
       <div class="cmdline"><code id="review-cmd">/code-review</code><button class="copy" data-for="review-cmd">Copy</button></div>
     </section>
 

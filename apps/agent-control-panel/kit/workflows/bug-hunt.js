@@ -11,8 +11,11 @@ export const meta = {
 // args: { target?: string }  — repo-relative directory to hunt in
 // args may arrive JSON-stringified; normalize before use
 const a = typeof args === 'string' ? JSON.parse(args) : (args || {})
-const target = a.target || 'search-test-scenario'
-const root = `/Users/cristianpandele/Documents/learn.dev/${target}`
+const target = a.target || 'e2e/george-search'
+// EDIT ME — workflow scripts get no filesystem or env access, so this path must be a
+// literal. Point it at your checkout of this repo.
+const REPO_ROOT = '/absolute/path/to/claude-qa-architect'
+const root = `${REPO_ROOT}/${target}`
 
 const LENSES = [
   { key: 'logic', prompt: 'logic and correctness bugs: wrong assertions, inverted conditions, off-by-one, unhandled nulls, swallowed errors' },

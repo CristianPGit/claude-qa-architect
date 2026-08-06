@@ -74,7 +74,7 @@ npm run report:allure:open   # Re-open an existing report
 ## Project Structure
 
 ```
-search-test-scenario/
+e2e/george-search/
 ├── features/                        # Gherkin feature files
 │   ├── login.feature                #   @login @smoke
 │   ├── search.feature               #   @search — core search scenarios

@@ -1,23 +1,12 @@
+# Suite-local artifacts (the rest is covered by the root .gitignore)
 
-# Environment / secrets
-.env
-
-# Markdown
-*.md
-
-# Generated BDD specs
+# Generated BDD specs (bddgen output)
 /.features-gen/
 
-# Allure reports
-/allure-results/
-/allure-report/
-
-# Playwright
-node_modules/
+# Playwright caches & stored auth state
+/.playwright/
 /.playwright-cli/
-/test-results/
-/playwright-report/
-/blob-report/
+/.playwright-mcp/
 /playwright/.cache/
 /playwright/.auth/
 /.auth/

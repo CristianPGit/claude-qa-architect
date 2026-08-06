@@ -35,15 +35,25 @@ $ flaky -n 10 -- npx playwright test
 
 ## Install
 
-```bash
-npm install -g flaky-test-detector
-```
-
-Or run directly:
+Part of the [Claude QA Architect](https://github.com/CristianPGit/claude-qa-architect) monorepo — build it once and the
+`flaky` CLI is available:
 
 ```bash
-npx flaky-test-detector -n 10 -- npx playwright test
+git clone https://github.com/CristianPGit/claude-qa-architect.git
+cd claude-qa-architect
+npm install
+npm run build
+node packages/flaky-test-detector/dist/cli.js -n 10 -- npx playwright test
 ```
+
+To get a global `flaky` command, link the workspace:
+
+```bash
+npm link -w flaky-test-detector
+```
+
+> Not published to npm. The `flaky-test-detector` name on the public registry belongs to an
+> unrelated project — don't `npm install` it expecting this tool.
 
 ## Usage
 

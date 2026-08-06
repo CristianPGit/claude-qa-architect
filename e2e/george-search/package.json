@@ -1,8 +1,7 @@
 {
-  "name": "search-test-scenario",
+  "name": "george-search-e2e",
   "version": "1.0.0",
-  "description": "search-test-scenario",
-  "main": "index.js",
+  "description": "Reference Playwright + BDD suite against the George AT FAT banking app",
   "scripts": {
     "test:generate": "bddgen",
     "test:e2e": "bddgen && playwright test",
@@ -18,21 +17,26 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/CristianPGit/search-test-scenario.git"
+    "url": "git+https://github.com/CristianPGit/claude-qa-architect.git",
+    "directory": "e2e/george-search"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "playwright",
+    "playwright-bdd",
+    "cucumber",
+    "e2e",
+    "allure"
+  ],
+  "author": "Cristian Pandele",
+  "license": "MIT",
   "type": "commonjs",
-  "bugs": {
-    "url": "https://github.com/CristianPGit/search-test-scenario/issues"
-  },
-  "homepage": "https://github.com/CristianPGit/search-test-scenario#readme",
+  "homepage": "https://github.com/CristianPGit/claude-qa-architect/tree/main/e2e/george-search",
   "devDependencies": {
-    "@playwright/test": "^1.59.1",
+    "@playwright/test": "1.59.1",
     "@types/node": "^25.6.0",
     "allure-commandline": "^2.38.1",
     "allure-playwright": "^3.7.1",
-    "playwright-bdd": "^8.5.0"
-  }
+    "playwright-bdd": "8.5.0"
+  },
+  "private": true
 }

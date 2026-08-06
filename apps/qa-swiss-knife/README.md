@@ -33,7 +33,7 @@ A curated list of extensions, apps and online tools worth installing — browser
 
 ### 🤖 The Agent Crew
 
-AI teammates for [Claude Code](https://claude.com/claude-code). Their definitions live in [`.claude/agents/`](.claude/agents/). Copy that folder into any project (or into `~/.claude/agents/` for global use) and invoke them by name.
+AI teammates for [Claude Code](https://claude.com/claude-code). Their definitions live in [`.claude/agents/`](../../.claude/agents/) at the repo root. Copy that folder into any project (or into `~/.claude/agents/` for global use) and invoke them by name.
 
 ![The Agent Crew](docs/agent-crew.png)
 
@@ -56,7 +56,7 @@ Beyond the five you asked for, the crew adds the **scribe** (paperwork), **sabot
 Copy the agents into a project:
 
 ```bash
-cp -r qa-swiss-knife/.claude/agents/ your-project/.claude/agents/
+cp -r claude-qa-architect/.claude/agents/ your-project/.claude/agents/
 ```
 
 Then in Claude Code:
@@ -78,7 +78,7 @@ It's a static file. Any of these work:
 
 ## Contributing
 
-Add a tool by dropping a `<section>` and a render/handler function into `index.html` (it's deliberately one file). Add an agent by adding a Markdown file under `.claude/agents/`.
+Add a tool by dropping a `<section>` and a render/handler function into `index.html` (it's deliberately one file). Add an agent by adding a Markdown file under the repo-root `.claude/agents/`.
 
 ## License
 

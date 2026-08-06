@@ -10,7 +10,8 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/cli.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "playwright",
@@ -23,10 +24,16 @@
   "author": "Cristian Pandele",
   "license": "MIT",
   "dependencies": {
-    "playwright": "^1.52.0"
+    "playwright": "1.59.1"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.7.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CristianPGit/claude-qa-architect.git",
+    "directory": "packages/self-healing-tests"
+  },
+  "homepage": "https://github.com/CristianPGit/claude-qa-architect/tree/main/packages/self-healing-tests"
 }

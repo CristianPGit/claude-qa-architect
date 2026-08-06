@@ -96,11 +96,11 @@ Every run leaves an audit trail in `.ticket-work/<KEY>/` (gitignored): the raw t
 Inside any Claude Code session:
 
 ```
-/plugin marketplace add CristianPGit/claude-ticket-pilot
-/plugin install ticket-pilot@cristian-tools
+/plugin marketplace add CristianPGit/claude-qa-architect
+/plugin install ticket-pilot@qa-architect
 ```
 
-> Updating later: `/plugin marketplace update cristian-tools`.
+> Updating later: `/plugin marketplace update qa-architect`.
 
 ### 3. Pre-approve your build & test commands (recommended)
 
@@ -258,9 +258,9 @@ relying on it.
    Codex CLI, so prefer it):
 
    ```bash
-   git clone git@github.com:CristianPGit/claude-ticket-pilot.git /tmp/ticket-pilot
+   git clone git@github.com:CristianPGit/claude-qa-architect.git /tmp/claude-qa-architect
    mkdir -p /path/to/work-repo/.agents/skills
-   cp -R /tmp/ticket-pilot/skills/* /path/to/work-repo/.agents/skills/
+   cp -R /tmp/claude-qa-architect/plugins/ticket-pilot/skills/* /path/to/work-repo/.agents/skills/
    ```
 
 2. **Recreate the push/Jira-write block** in your work repo's
