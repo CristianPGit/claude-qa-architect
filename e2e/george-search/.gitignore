@@ -1,0 +1,23 @@
+
+# Environment / secrets
+.env
+
+# Markdown
+*.md
+
+# Generated BDD specs
+/.features-gen/
+
+# Allure reports
+/allure-results/
+/allure-report/
+
+# Playwright
+node_modules/
+/.playwright-cli/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/.auth/

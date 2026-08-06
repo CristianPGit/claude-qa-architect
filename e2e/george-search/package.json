@@ -1,0 +1,38 @@
+{
+  "name": "search-test-scenario",
+  "version": "1.0.0",
+  "description": "search-test-scenario",
+  "main": "index.js",
+  "scripts": {
+    "test:generate": "bddgen",
+    "test:e2e": "bddgen && playwright test",
+    "test:login": "bddgen && playwright test --grep @login",
+    "test:search": "bddgen && playwright test --grep @search",
+    "test:edge-case": "bddgen && playwright test --grep @edge-case",
+    "test:smoke": "bddgen && playwright test --grep @smoke",
+    "test:tag": "bddgen && playwright test --grep",
+    "test:ui": "bddgen && playwright test --ui",
+    "test:codegen": "playwright codegen $GEORGE_BASE_URL",
+    "report:allure": "allure generate allure-results --clean -o allure-report && allure open allure-report",
+    "report:allure:open": "allure open allure-report"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CristianPGit/search-test-scenario.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/CristianPGit/search-test-scenario/issues"
+  },
+  "homepage": "https://github.com/CristianPGit/search-test-scenario#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0",
+    "allure-commandline": "^2.38.1",
+    "allure-playwright": "^3.7.1",
+    "playwright-bdd": "^8.5.0"
+  }
+}
