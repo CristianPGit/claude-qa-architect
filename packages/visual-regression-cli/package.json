@@ -1,0 +1,51 @@
+{
+  "name": "visual-regression-cli",
+  "version": "1.0.0",
+  "description": "Visual regression testing for Playwright — snapshot, diff, approve workflow with HTML reports",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "bin": {
+    "vreg": "./dist/cli.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "playwright",
+    "visual-regression",
+    "screenshot",
+    "snapshot",
+    "diff",
+    "testing",
+    "percy",
+    "chromatic"
+  ],
+  "author": "Cristian Pandele",
+  "license": "MIT",
+  "peerDependencies": {
+    "playwright": "^1.40.0"
+  },
+  "dependencies": {
+    "pixelmatch": "^7.1.0",
+    "pngjs": "^7.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/pixelmatch": "^5.2.6",
+    "@types/pngjs": "^6.0.5",
+    "playwright": "^1.52.0",
+    "typescript": "^5.7.0"
+  }
+}
