@@ -10,7 +10,8 @@
     "build": "tsc",
     "dev": "tsc --watch",
     "start": "node dist/cli.js",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "flaky",
@@ -27,5 +28,11 @@
   "devDependencies": {
     "@types/node": "^22.0.0",
     "typescript": "^5.7.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CristianPGit/claude-qa-architect.git",
+    "directory": "packages/flaky-test-detector"
+  },
+  "homepage": "https://github.com/CristianPGit/claude-qa-architect/tree/main/packages/flaky-test-detector"
 }

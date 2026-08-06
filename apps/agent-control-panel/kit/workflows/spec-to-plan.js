@@ -15,7 +15,10 @@ const a = typeof args === 'string' ? JSON.parse(args) : (args || {})
 const spec = a.spec
 if (!spec) return { error: 'No spec provided. Pass args: { spec: "..." }' }
 const target = a.target || '.'
-const root = `/Users/cristianpandele/Documents/learn.dev/${target}`
+// EDIT ME — workflow scripts get no filesystem or env access, so this path must be a
+// literal. Point it at your checkout of this repo.
+const REPO_ROOT = '/absolute/path/to/claude-qa-architect'
+const root = `${REPO_ROOT}/${target}`
 
 phase('Understand')
 const CONTEXT_SCHEMA = {

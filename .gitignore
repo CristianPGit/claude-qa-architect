@@ -1,0 +1,46 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+build/
+*.tgz
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Tool artifacts (packages/*)
+.flaky-results/
+.heal-reports/
+.visual-regression/current/
+.visual-regression/diff/
+.visual-regression/report.html
+
+# QA Architect working memory
+.qa/runs/
+
+# Test & report artifacts
+test-results/
+playwright-report/
+blob-report/
+allure-results/
+allure-report/
+coverage/
+cypress/screenshots/
+cypress/videos/
+
+# ticket-pilot scratch
+.ticket-work/
+
+# Logs
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+.claude/settings.local.json

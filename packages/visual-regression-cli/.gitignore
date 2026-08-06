@@ -1,6 +1,0 @@
-node_modules/
-dist/
-*.tgz
-.visual-regression/current/
-.visual-regression/diff/
-.visual-regression/report.html

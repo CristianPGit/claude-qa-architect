@@ -20,7 +20,8 @@
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "prepublishOnly": "npm run build"
+    "prepublishOnly": "npm run build",
+    "typecheck": "tsc --noEmit"
   },
   "keywords": [
     "playwright",
@@ -35,7 +36,7 @@
   "author": "Cristian Pandele",
   "license": "MIT",
   "peerDependencies": {
-    "playwright": "^1.40.0"
+    "playwright": ">=1.52.0 <1.60.0"
   },
   "dependencies": {
     "pixelmatch": "^7.1.0",
@@ -45,7 +46,13 @@
     "@types/node": "^22.0.0",
     "@types/pixelmatch": "^5.2.6",
     "@types/pngjs": "^6.0.5",
-    "playwright": "^1.52.0",
+    "playwright": "1.59.1",
     "typescript": "^5.7.0"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CristianPGit/claude-qa-architect.git",
+    "directory": "packages/visual-regression-cli"
+  },
+  "homepage": "https://github.com/CristianPGit/claude-qa-architect/tree/main/packages/visual-regression-cli"
 }

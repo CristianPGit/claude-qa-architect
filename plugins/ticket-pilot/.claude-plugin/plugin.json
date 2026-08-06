@@ -6,7 +6,14 @@
     "name": "Cristian Pandele",
     "email": "216735635+CristianPGit@users.noreply.github.com"
   },
-  "homepage": "https://github.com/CristianPGit/claude-ticket-pilot",
+  "homepage": "https://github.com/CristianPGit/claude-qa-architect/tree/main/plugins/ticket-pilot",
   "license": "MIT",
-  "keywords": ["jira", "automation", "workflow", "code-review", "backend"]
+  "keywords": [
+    "jira",
+    "automation",
+    "workflow",
+    "code-review",
+    "backend"
+  ],
+  "repository": "https://github.com/CristianPGit/claude-qa-architect"
 }

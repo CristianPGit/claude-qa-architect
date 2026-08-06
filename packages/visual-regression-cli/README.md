@@ -17,9 +17,25 @@ Playwright has `toHaveScreenshot()` built in, but the reporting is buried in the
 
 ## Install
 
+Part of the [Claude QA Architect](https://github.com/CristianPGit/claude-qa-architect) monorepo — build it once and the
+`vreg` CLI plus the `visualCheck` helper are available:
+
 ```bash
-npm install -D visual-regression-cli playwright
+git clone https://github.com/CristianPGit/claude-qa-architect.git
+cd claude-qa-architect
+npm install
+npm run build
+node packages/visual-regression-cli/dist/cli.js --help
 ```
+
+To use it from another project, install it from the checkout:
+
+```bash
+npm install -D /path/to/claude-qa-architect/packages/visual-regression-cli playwright
+```
+
+> Not published to npm. The `visual-regression-cli` name on the public registry is an unrelated
+> placeholder package — don't `npm install` it expecting this tool.
 
 ## Quick start
 

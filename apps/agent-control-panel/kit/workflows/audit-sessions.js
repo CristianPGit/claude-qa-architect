@@ -13,7 +13,9 @@ export const meta = {
 // args may arrive JSON-stringified; normalize before use
 const a = typeof args === 'string' ? JSON.parse(args) : (args || {})
 const count = a.count || 5
-const dir = '/Users/cristianpandele/.claude/projects/-Users-cristianpandele-Documents-learn-dev'
+// EDIT ME — workflow scripts get no filesystem or env access, so this path must be a
+// literal. Point it at your Claude Code session-transcript directory.
+const dir = '/absolute/path/to/.claude/projects/<your-project-dir>'
 
 phase('Discover')
 const LIST_SCHEMA = {

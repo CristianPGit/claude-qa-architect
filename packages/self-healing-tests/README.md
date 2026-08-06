@@ -62,15 +62,24 @@ This tool does that loop for you.
 
 ## Install
 
-```bash
-npm install -g self-healing-tests
-```
-
-Or run directly:
+Part of the [Claude QA Architect](https://github.com/CristianPGit/claude-qa-architect) monorepo — build it once and the
+`self-heal` CLI is available:
 
 ```bash
-npx self-healing-tests -- npx playwright test
+git clone https://github.com/CristianPGit/claude-qa-architect.git
+cd claude-qa-architect
+npm install
+npm run build
+node packages/self-healing-tests/dist/cli.js -- npx playwright test
 ```
+
+To get a global `self-heal` command, link the workspace:
+
+```bash
+npm link -w self-healing-tests
+```
+
+> Not published to npm.
 
 ## Usage
 

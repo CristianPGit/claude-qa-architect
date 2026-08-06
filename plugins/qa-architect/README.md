@@ -207,10 +207,9 @@ Linear/GitHub without asking.
 ## 🧩 What's inside the plugin
 
 ```
-claude-qa-architect/
+plugins/qa-architect/
 ├── .claude-plugin/
-│   ├── plugin.json          # plugin manifest
-│   └── marketplace.json     # marketplace listing
+│   └── plugin.json          # plugin manifest (listed by the root marketplace.json)
 ├── .mcp.json                # bundles Linear + chrome-devtools + Playwright MCP servers
 ├── agents/
 │   └── qa-architect.md      # the autonomous QA agent

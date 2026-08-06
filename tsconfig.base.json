@@ -1,0 +1,14 @@
+{
+  "$comment": "Shared compiler options for packages/*. Path-relative options (rootDir, outDir, include, exclude) must stay in each package's tsconfig.json — TypeScript resolves them relative to the file that declares them, not the file that extends it.",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "declaration": true,
+    "sourceMap": true
+  }
+}
