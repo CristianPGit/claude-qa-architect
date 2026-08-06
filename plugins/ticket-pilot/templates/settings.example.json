@@ -1,0 +1,40 @@
+{
+  "//": "Copy the pieces you want into your work repo's .claude/settings.json (or settings.local.json to keep it out of git). Pre-approving build/test/read-only-git commands lets the pipeline run without permission stalls; push stays unapproved on purpose.",
+  "permissions": {
+    "allow": [
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(git checkout:*)",
+      "Bash(git switch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git worktree:*)",
+      "Bash(jira issue view:*)",
+      "Bash(jira issue list:*)",
+      "Bash(jira me:*)",
+      "Bash(npm test:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run lint:*)",
+      "Bash(mvn test:*)",
+      "Bash(mvn verify:*)",
+      "Bash(./gradlew test:*)",
+      "Bash(./gradlew build:*)",
+      "Bash(make test:*)",
+      "Bash(pytest:*)",
+      "Bash(go test:*)"
+    ],
+    "deny": [
+      "Bash(git push:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(jira issue edit:*)",
+      "Bash(jira issue move:*)",
+      "Bash(jira issue comment:*)",
+      "Read(.env)",
+      "Read(.env.*)",
+      "Read(**/secrets/**)"
+    ]
+  }
+}
