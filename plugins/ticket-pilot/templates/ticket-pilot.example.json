@@ -1,0 +1,11 @@
+{
+  "//": "Copy to your work repo root as .ticket-pilot.json — every key is optional; flags on the skill invocation always override these defaults.",
+  "level": 1,
+  "tdd": false,
+  "security_audit": true,
+  "worktree": false,
+  "default_branch": "main",
+  "build_command": "npm run build",
+  "test_command": "npm test",
+  "full_test_command": "npm run test:all"
+}
