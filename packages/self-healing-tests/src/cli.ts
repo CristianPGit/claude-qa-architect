@@ -4,6 +4,7 @@ import { parseArgs } from "node:util";
 import { writeFileSync } from "node:fs";
 import { parsePlaywrightErrors, runAndCapture } from "./error-parser.js";
 import { healFailures } from "./healer.js";
+import { DEFAULT_MODEL } from "./ai-healer.js";
 import { applyPatches } from "./patcher.js";
 import { formatTable, formatJson, formatMarkdown } from "./formatter.js";
 import type { CliOptions, HealReport } from "./types.js";
@@ -21,6 +22,9 @@ OPTIONS
   --verify            Re-run tests after patching to confirm fixes (default: false)
   --max-retries <n>   Max heal+verify cycles (default: 1)
   --base-url <url>    Base URL if not detected from errors
+  --ai                Ask Claude for a role-based locator when heuristics are unsure
+                      (needs ANTHROPIC_API_KEY or an \`ant auth login\` profile)
+  --model <id>        Claude model for --ai (default: ${DEFAULT_MODEL})
   -f, --format        Output: table, json, markdown (default: table)
   -o, --output        Write report to file
   -h, --help          Show this help
@@ -34,6 +38,9 @@ HOW IT WORKS
      - data-testid, aria-label, placeholder, role, text content
      - Fuzzy class matching (handles CSS module hash changes)
      - Structural similarity
+     - With --ai: Claude reads the page's aria snapshot and proposes a
+       getByRole/getByLabel/... locator, accepted only if it resolves to
+       exactly the element Claude pointed at
   5. Patches your test/page-object files with the best match
   6. Optionally re-runs to verify the fix
 
@@ -41,6 +48,7 @@ EXAMPLES
   self-heal -- npx playwright test
   self-heal --dry-run -- npx playwright test --project=chromium
   self-heal --verify -f markdown -o report.md -- npm run test:e2e
+  self-heal --ai --dry-run -f markdown -o heal.md -- npx playwright test
 `;
 
 function parseCliArgs(): CliOptions {
@@ -50,6 +58,8 @@ function parseCliArgs(): CliOptions {
       verify: { type: "boolean", default: false },
       "max-retries": { type: "string", default: "1" },
       "base-url": { type: "string" },
+      ai: { type: "boolean", default: false },
+      model: { type: "string", default: DEFAULT_MODEL },
       format: { type: "string", short: "f", default: "table" },
       output: { type: "string", short: "o" },
       help: { type: "boolean", short: "h", default: false },
@@ -84,6 +94,8 @@ function parseCliArgs(): CliOptions {
     format: (values.format ?? "table") as CliOptions["format"],
     output: values.output,
     baseUrl: values["base-url"],
+    ai: values.ai ?? false,
+    model: values.model ?? DEFAULT_MODEL,
   };
 }
 
@@ -96,6 +108,7 @@ async function main(): Promise<void> {
   console.log(`  Dry run:     ${opts.dryRun}`);
   console.log(`  Verify:      ${opts.verify}`);
   console.log(`  Max retries: ${opts.maxRetries}`);
+  console.log(`  AI healer:   ${opts.ai ? opts.model : "off"}`);
   console.log("");
 
   let attempt = 0;
@@ -130,7 +143,10 @@ async function main(): Promise<void> {
     console.log("");
 
     console.log("  [3/4] Healing selectors (inspecting live DOM)...");
-    const results = await healFailures(failures, opts.baseUrl);
+    const results = await healFailures(failures, {
+      baseUrl: opts.baseUrl,
+      ai: opts.ai ? { model: opts.model } : undefined,
+    });
     allResults = [...allResults, ...results];
 
     const healable = results.filter((r) => r.chosen);

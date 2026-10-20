@@ -95,6 +95,8 @@ self-heal [options] -- <playwright test command>
 | `--verify` | `false` | Re-run tests after patching to confirm |
 | `--max-retries <n>` | `1` | Max heal+verify cycles |
 | `--base-url <url>` | _(auto)_ | Page URL if not detected from errors |
+| `--ai` | `false` | Ask Claude for a locator when no heuristic candidate reaches 90% |
+| `--model <id>` | `claude-opus-5-5` | Claude model used by `--ai` |
 | `-f, --format` | `table` | Output: `table`, `json`, `markdown` |
 | `-o, --output` | stdout | Write report to file |
 
@@ -115,7 +117,30 @@ self-heal --dry-run -f markdown -o heal-report.md -- npx playwright test
 
 # Provide base URL when tests don't include it in errors
 self-heal --base-url https://myapp.com -- npx playwright test
+
+# Let Claude propose role-based locators, review the diff before applying
+self-heal --ai --dry-run -f markdown -o heal-report.md -- npx playwright test
 ```
+
+### AI healing (`--ai`)
+
+The heuristics guess from the broken selector's text, which fails exactly where it hurts most: a
+hashed class like `keywordContainer--YGQKcpvu input` fuzzy-matches the container `<div>`, not the
+input inside it. With `--ai`, any failure whose best heuristic candidate is below 90% goes to
+Claude:
+
+1. The healer captures the page's aria snapshot in Playwright's `ai` mode, where every element
+   carries a ref (`textbox "Search keyword" [ref=e4]`).
+2. Claude receives the broken selector, the error and the snapshot, and returns a structured
+   suggestion: a `getByRole` / `getByLabel` / `getByPlaceholder` / `getByText` / `getByTestId`
+   locator, the ref of the element it chose, a confidence and a one-line rationale.
+3. The suggestion is accepted **only** if the locator matches exactly one element and that element
+   is the one behind the ref. A plausible locator that lands on a different element is discarded,
+   so a red test never turns into a wrongly green one.
+
+The rationale is printed in the report (`Why:`). Credentials come from `ANTHROPIC_API_KEY` or an
+`ant auth login` profile; without them `--ai` logs the error and falls back to heuristics. Requests
+opt into server-side refusal fallbacks (`fallbacks: "default"`).
 
 ## How It Works
 
@@ -156,6 +181,7 @@ self-heal --base-url https://myapp.com -- npx playwright test
 | `text-match` | 80% | Element has visible text content |
 | `structural-match` | 70% | Tag + nearby attributes match |
 | `class-fuzzy-match` | 60% | Class name fragment matches (for CSS module hashes) |
+| `ai-aria-match` | model's, max 95% | `--ai` only, and only after the ref check passes |
 
 ## CI Integration
 
@@ -168,7 +194,7 @@ self-heal --base-url https://myapp.com -- npx playwright test
 
 - name: Heal broken selectors
   if: steps.tests.outcome == 'failure'
-  run: npx self-healing-tests --verify -- npx playwright test
+  run: npx self-heal --verify -- npx playwright test
 
 - name: Commit fixes
   if: steps.tests.outcome == 'failure'
