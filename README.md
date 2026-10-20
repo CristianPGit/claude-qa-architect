@@ -127,6 +127,15 @@ Per-tag runs and Allure reports: see [`e2e/george-search/README.md`](e2e/george-
 npm run test:webmcp    # WebMCP contract suite: local, no credentials
 ```
 
+### CI
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every push and PR: typecheck and
+build of every workspace, an offline agent-eval run, the WebMCP contract suite on Chromium and
+Firefox, and on PRs a test-impact summary for the George suite.
+[`george-smoke.yml`](.github/workflows/george-smoke.yml) runs `@smoke` against George FAT on
+demand, and on weekday mornings once the repository variable `GEORGE_SMOKE_ENABLED` is `true`.
+It needs the `GEORGE_*` repository secrets.
+
 ### The agent crew
 
 Nine QA specialists in [`.claude/agents/`](.claude/agents) — interpreter, hunter, saboteur, reviewer,

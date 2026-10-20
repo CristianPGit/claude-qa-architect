@@ -4,6 +4,7 @@
   "description": "Reference Playwright + BDD suite against the George AT FAT banking app",
   "scripts": {
     "test:generate": "bddgen",
+    "typecheck": "tsc --noEmit -p .",
     "test:e2e": "bddgen && playwright test",
     "test:login": "bddgen && playwright test --grep @login",
     "test:search": "bddgen && playwright test --grep @search",

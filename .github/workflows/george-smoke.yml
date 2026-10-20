@@ -1,0 +1,43 @@
+name: George FAT smoke
+
+# Runs the @smoke scenarios against the remote George FAT environment.
+# Needs repository secrets GEORGE_BASE_URL, GEORGE_USERNAME, GEORGE_PASSWORD (and GEORGE_OTP if
+# used). The schedule only fires once the repository variable GEORGE_SMOKE_ENABLED is "true", so a
+# broken FAT login doesn't produce a red run every morning; manual runs always work.
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * 1-5"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: george-fat # one shared test account: never two runs at once
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    if: github.event_name == 'workflow_dispatch' || vars.GEORGE_SMOKE_ENABLED == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GEORGE_BASE_URL: ${{ secrets.GEORGE_BASE_URL }}
+      GEORGE_USERNAME: ${{ secrets.GEORGE_USERNAME }}
+      GEORGE_PASSWORD: ${{ secrets.GEORGE_PASSWORD }}
+      GEORGE_OTP: ${{ secrets.GEORGE_OTP }}
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:smoke
+
+      # No report/trace upload on purpose: this repository is public, and artifacts of public
+      # repositories are downloadable by any GitHub user. George traces contain the test account's
+      # screens. Rerun locally with `npm run test:smoke` to debug.

@@ -144,6 +144,14 @@ Nine QA specialists (interpreter, hunter, saboteur, reviewer, fixer, scribe, gat
 orchestrator), available across the whole monorepo. They came from qa-swiss-knife and are documented
 in `apps/qa-swiss-knife/README.md`.
 
+## CI
+
+`.github/workflows/ci.yml` gates every push/PR: `npm run typecheck` (all workspaces, both e2e
+suites included), `npm run build`, an offline agent-eval run and the WebMCP suite.
+`george-smoke.yml` is the only workflow that touches George FAT: manual, or scheduled behind the
+`GEORGE_SMOKE_ENABLED` repository variable, with `concurrency: george-fat` for the shared account.
+It deliberately uploads no artifacts — the repo is public and George traces show account data.
+
 ## Conventions
 
 - **QA output format:** compact table, one row per case, emoji for type/priority, brief scenario
