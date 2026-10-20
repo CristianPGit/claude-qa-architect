@@ -26,6 +26,7 @@
     "self-heal": "node packages/self-healing-tests/dist/cli.js",
     "vreg": "node packages/visual-regression-cli/dist/cli.js",
     "eval": "node packages/agent-eval/dist/cli.js",
+    "impact": "node packages/test-impact/dist/cli.js -c e2e/search-suite/test-impact.json",
     "test:e2e": "npm run test:e2e --workspace e2e/search-suite",
     "test:smoke": "npm run test:smoke --workspace e2e/search-suite",
     "test:webmcp": "npm test --workspace e2e/webmcp-contract"
