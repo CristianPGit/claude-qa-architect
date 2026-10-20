@@ -24,6 +24,11 @@ Also check:
 - Scope creep: changes in the diff that no criterion asked for (flag, don't judge).
 - Silent regressions: existing behavior the diff changes that the ticket did
   not authorize (search for other callers/consumers of changed functions).
+- Regression scope: if the repo has a `test-impact.json` (rules for the
+  `test-impact` CLI from claude-qa-architect), run
+  `test-impact -c <path>/test-impact.json -b <base> -f markdown` and include
+  which tags/features the diff puts at risk. Every file it reports as
+  *unmapped* is a regression risk nobody has classified — list it.
 
 Return exactly this structure:
 
