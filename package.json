@@ -15,7 +15,8 @@
   },
   "workspaces": [
     "packages/*",
-    "e2e/george-search"
+    "e2e/george-search",
+    "e2e/webmcp-contract"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
@@ -26,7 +27,8 @@
     "vreg": "node packages/visual-regression-cli/dist/cli.js",
     "eval": "node packages/agent-eval/dist/cli.js",
     "test:e2e": "npm run test:e2e --workspace e2e/george-search",
-    "test:smoke": "npm run test:smoke --workspace e2e/george-search"
+    "test:smoke": "npm run test:smoke --workspace e2e/george-search",
+    "test:webmcp": "npm test --workspace e2e/webmcp-contract"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

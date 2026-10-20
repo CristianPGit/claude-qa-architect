@@ -14,6 +14,7 @@ in different ways:
 | `packages/*` | TypeScript CLIs, npm workspaces | `tsc` → `dist/` |
 | `apps/*` | Single-file static sites | none — open `index.html` |
 | `e2e/george-search` | Playwright + BDD test suite | `bddgen` then `playwright test` |
+| `e2e/webmcp-contract` | WebMCP contract tests, local demo site | `playwright test` (starts its own server) |
 
 Run npm commands from the repo root — it is an npm-workspaces monorepo with one hoisted
 `node_modules`. Use `-w <workspace>` to target one package.
@@ -33,6 +34,7 @@ npm run eval      -- packages/agent-eval/examples/command.eval.json
 
 npm run test:e2e           # George search suite, all features
 npm run test:smoke         # @smoke only
+npm run test:webmcp        # WebMCP contract suite (local, no credentials)
 ```
 
 Suite-specific runs (from `e2e/george-search/`):
@@ -110,6 +112,14 @@ Constraints, do not "optimize" these away:
 - **Two-step login** — username → Next → password → Submit, with deliberate pauses. The OTP field
   exists but is unused.
 - **No local dev server** — every suite runs against the remote FAT environment.
+
+### `e2e/webmcp-contract` — WebMCP contract suite
+
+Tests the tools a page registers for AI agents via WebMCP (`page.webmcp`, Playwright 1.64+).
+WebMCP is experimental: Chromium needs `--enable-features=WebMCP`, Firefox two `dom.modelcontext.*`
+prefs (both set in the config), and Chromium exposes it on `document.modelContext`, not
+`navigator`. WebKit has no support. `tests/webmcp-lint.ts` is a reusable tool linter with no
+dependency on the demo site.
 
 ### `apps/*` — the static sites
 

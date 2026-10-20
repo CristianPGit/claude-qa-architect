@@ -37,6 +37,7 @@ Each piece covers one stage of the loop — and they hand off to each other.
 | 🩹 **Maintain** | *The selectors broke again* | [`self-healing-tests`](packages/self-healing-tests) |
 | 👁️ **Verify** | *Did the UI change on purpose?* | [`visual-regression-cli`](packages/visual-regression-cli) |
 | 🧠 **Evaluate AI** | *Does the agent / MCP server behave, every time?* | [`agent-eval`](packages/agent-eval) |
+| 🔌 **Agent-ready web** | *Are the tools my site exposes to agents correct?* | [`e2e/webmcp-contract`](e2e/webmcp-contract) |
 | 🧰 **Daily work** | *Decode this JWT / build this bug report* | [`qa-swiss-knife`](apps/qa-swiss-knife) |
 | 🤖 **Orchestrate** | *Run a whole quality pass* | [`agent-control-panel`](apps/agent-control-panel) + [`.claude/agents/`](.claude/agents) |
 
@@ -60,6 +61,7 @@ claude-qa-architect/
 │   ├── qa-swiss-knife/       offline QA toolbox (JSON, JWT, regex, test data, …)
 │   └── agent-control-panel/  clickable panel that composes multi-agent slash commands
 ├── e2e/george-search/        reference Playwright + BDD suite (George AT FAT banking app)
+├── e2e/webmcp-contract/      WebMCP contract tests against a local demo site
 └── docs/                     notes and guides
 ```
 
@@ -117,6 +119,10 @@ npm run test:smoke     # @smoke only
 ```
 
 Per-tag runs and Allure reports: see [`e2e/george-search/README.md`](e2e/george-search/README.md).
+
+```bash
+npm run test:webmcp    # WebMCP contract suite: local, no credentials
+```
 
 ### The agent crew
 

@@ -2,6 +2,7 @@ import { spawnSync } from "node:child_process";
 import type Anthropic from "@anthropic-ai/sdk";
 import { Client } from "@modelcontextprotocol/sdk/client/index.js";
 import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+import { chromium, firefox, type Browser, type Page } from "playwright";
 import { claude, FALLBACKS } from "./claude.js";
 import type { Target, ToolCall, Transcript } from "./types.js";
 
@@ -22,7 +23,44 @@ export async function createRunner(target: Target): Promise<Runner> {
       return claudeRunner(target);
     case "mcp":
       return mcpRunner(target);
+    case "webmcp":
+      return webMcpRunner(target);
   }
+}
+
+export interface ToolInfo {
+  name: string;
+  description: string;
+  params: string[];
+}
+
+/** The tools an mcp / webmcp target offers, for `--list-tools`. Needs no Claude credentials. */
+export async function listTargetTools(target: Target): Promise<ToolInfo[]> {
+  const info = (name: string, description: string | undefined, schema: unknown): ToolInfo => ({
+    name,
+    description: description ?? "",
+    params: Object.keys(((schema as { properties?: object } | undefined)?.properties ?? {}) as object),
+  });
+
+  if (target.type === "mcp") {
+    const client = await connectMcp(target);
+    try {
+      return (await client.listTools()).tools.map((t) => info(t.name, t.description, t.inputSchema));
+    } finally {
+      await client.close();
+    }
+  }
+  if (target.type === "webmcp") {
+    const browser = await launchWebMcp(target.browser);
+    try {
+      const page = await browser.newPage();
+      await page.goto(target.url);
+      return (await page.webmcp.tools()).map((t) => info(t.name, t.description, t.inputSchema));
+    } finally {
+      await browser.close();
+    }
+  }
+  throw new Error(`--list-tools needs an mcp or webmcp target, got ${target.type}`);
 }
 
 function commandRunner(target: Extract<Target, { type: "command" }>): Runner {
@@ -90,6 +128,47 @@ async function mcpRunner(target: Extract<Target, { type: "mcp" }>): Promise<Runn
       });
     },
     close: () => mcp.close(),
+  };
+}
+
+/** WebMCP is experimental: Chromium needs a feature flag, Firefox two prefs. */
+function launchWebMcp(browser: "chromium" | "firefox"): Promise<Browser> {
+  return browser === "firefox"
+    ? firefox.launch({
+        firefoxUserPrefs: { "dom.modelcontext.enabled": true, "dom.modelcontext.testing.enabled": true },
+      })
+    : chromium.launch({ args: ["--enable-features=WebMCP"] });
+}
+
+async function webMcpRunner(target: Extract<Target, { type: "webmcp" }>): Promise<Runner> {
+  const browser = await launchWebMcp(target.browser);
+  return {
+    async run(input) {
+      // A fresh context per trial: tools that change page state must not leak into the next trial.
+      const context = await browser.newContext();
+      try {
+        const page: Page = await context.newPage();
+        await page.goto(target.url);
+        const tools: BetaTool[] = (await page.webmcp.tools()).map((t) => ({
+          name: t.name,
+          description: t.description,
+          input_schema: (t.inputSchema ?? { type: "object", properties: {} }) as BetaTool["input_schema"],
+        }));
+        return await agentLoop({
+          model: target.model,
+          system: target.system,
+          input,
+          tools,
+          maxTurns: target.execute ? target.maxTurns : 1,
+          execute: target.execute
+            ? async (call) => JSON.stringify(await page.webmcp.callTool(call.name, call.input as never))
+            : undefined,
+        });
+      } finally {
+        await context.close();
+      }
+    },
+    close: () => browser.close(),
   };
 }
 

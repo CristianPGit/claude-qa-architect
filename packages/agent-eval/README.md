@@ -33,7 +33,7 @@ agent-eval [options] <eval.json> [more.json ...]
 |---|---|---|
 | `-n, --trials <n>` | from file | Override trials per task |
 | `--min-pass-rate <0..1>` | `1` | Per-task pass rate needed for exit code 0, so it can gate CI |
-| `--list-tools` | | MCP targets: connect, print the server's tools, exit (no credentials needed) |
+| `--list-tools` | | `mcp` / `webmcp` targets: connect, print the tools, exit (no credentials needed) |
 | `-f, --format` | `table` | `table`, `markdown` (PR comments), `json` |
 | `-o, --output` | stdout | Write the report to a file |
 
@@ -66,8 +66,9 @@ A trial passes only if **every** grader on the task passes.
 | `command` | Any program. The task input goes to stdin and stdout is graded | Your own agent, a script, an API wrapper |
 | `claude` | One Claude call with an optional `system` prompt | Prompt and system-prompt regressions |
 | `mcp` | An MCP server over stdio. Claude gets its tools and the task input | **Do agents understand your MCP server?** Tool selection and arguments |
+| `webmcp` | A web page's [WebMCP](../../e2e/webmcp-contract) tools, in a fresh browser context per trial (`browser`: `chromium` or `firefox`) | **Do agents use your website's tools correctly?** |
 
-For `mcp`, tool calls are **recorded, not executed**, unless `"execute": true`. That makes it safe
+For `mcp` and `webmcp`, tool calls are **recorded, not executed**, unless `"execute": true`. That makes it safe
 to point at servers with side effects. With execution on, results are fed back to Claude for up
 to `maxTurns` (default 8). Set `model` and `system` per target; the default model is
 `claude-opus-5-5`.
@@ -93,6 +94,9 @@ correctness of free text), and write rubrics as concrete, checkable requirements
 - [`examples/playwright-mcp.eval.json`](examples/playwright-mcp.eval.json) checks whether Claude
   picks the right Playwright MCP tool for plain-English browser requests, and answers general
   questions without tools.
+- [`examples/webmcp.eval.json`](examples/webmcp.eval.json) checks whether Claude uses the demo
+  bank's WebMCP tools correctly, including looking up an id before writing a note and declining an
+  unsupported transfer. Start the site first: `npm run serve -w e2e/webmcp-contract`.
 
 ```
   AGENT EVAL: coin-flip-agent  (target: command, 8 trial(s) per task)

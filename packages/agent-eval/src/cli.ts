@@ -3,7 +3,7 @@
 import { parseArgs } from "node:util";
 import { readFileSync, writeFileSync } from "node:fs";
 import { runEval } from "./runner.js";
-import { connectMcp } from "./targets.js";
+import { listTargetTools } from "./targets.js";
 import { failedGate, formatJson, formatMarkdown, formatTable } from "./report.js";
 import { EvalFileSchema, type EvalFile, type EvalReport } from "./types.js";
 
@@ -16,7 +16,7 @@ USAGE
 OPTIONS
   -n, --trials <n>         Override trials per task from the eval file
   --min-pass-rate <0..1>   Per-task pass rate required for exit code 0 (default: 1)
-  --list-tools             MCP targets only: connect, print the server's tools, exit
+  --list-tools             mcp / webmcp targets: connect, print the tools, exit
                            (no Claude credentials needed — use it to write graders)
   -f, --format             Output: table, markdown, json (default: table)
   -o, --output             Write report to file
@@ -35,7 +35,8 @@ EVAL FILE (JSON)
     ]
   }
 
-  Targets:  command (stdin -> stdout), claude (prompt), mcp (stdio server + Claude)
+  Targets:  command (stdin -> stdout), claude (prompt), mcp (stdio server + Claude),
+            webmcp (a page's WebMCP tools + Claude)
   Graders:  contains, not-contains, regex, tool-called, tool-not-called,
             max-tool-calls, llm-rubric
 
@@ -55,23 +56,17 @@ function load(path: string, trials?: number): EvalFile {
 }
 
 async function listTools(evalFile: EvalFile): Promise<void> {
-  if (evalFile.target.type !== "mcp") {
-    console.error(`${evalFile.name}: --list-tools needs an mcp target, got ${evalFile.target.type}`);
+  if (evalFile.target.type !== "mcp" && evalFile.target.type !== "webmcp") {
+    console.error(`${evalFile.name}: --list-tools needs an mcp or webmcp target, got ${evalFile.target.type}`);
     process.exit(2);
   }
-  const client = await connectMcp(evalFile.target);
-  try {
-    const { tools } = await client.listTools();
-    console.log(`\n  ${evalFile.name}: ${tools.length} tool(s)\n`);
-    for (const t of tools) {
-      const params = Object.keys((t.inputSchema.properties ?? {}) as object).join(", ");
-      console.log(`  ${t.name}(${params})`);
-      if (t.description) console.log(`      ${t.description.split("\n")[0].slice(0, 110)}`);
-    }
-    console.log("");
-  } finally {
-    await client.close();
+  const tools = await listTargetTools(evalFile.target);
+  console.log(`\n  ${evalFile.name}: ${tools.length} tool(s)\n`);
+  for (const t of tools) {
+    console.log(`  ${t.name}(${t.params.join(", ")})`);
+    if (t.description) console.log(`      ${t.description.split("\n")[0].slice(0, 110)}`);
   }
+  console.log("");
 }
 
 async function main(): Promise<void> {
