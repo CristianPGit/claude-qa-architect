@@ -3,6 +3,15 @@
 All notable changes to QA Architect are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.0] — 2026-10-21
+
+### Added
+- **`bdd-test-agents` skill and `/qa-bdd-agents` command.** Runs Playwright's planner → generator
+  → healer test agents against a playwright-bdd suite and redirects their output into Gherkin
+  features, reusable step definitions and Page Object methods, since `bddgen` overwrites
+  generated specs. Human gate on the plan; healer fixes go to the POM/steps, never to
+  `.features-gen/`.
+
 ## [0.2.0] — 2026-07-07
 
 ### Added
