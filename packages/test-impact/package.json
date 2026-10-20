@@ -1,0 +1,36 @@
+{
+  "name": "test-impact",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Risk-based test selection: map a git diff to the tags and features worth running, with a safe full-run fallback",
+  "type": "module",
+  "bin": {
+    "test-impact": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "test-selection",
+    "test-impact-analysis",
+    "risk-based-testing",
+    "playwright",
+    "bdd",
+    "ci"
+  ],
+  "author": "Cristian Pandele",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CristianPGit/claude-qa-architect.git",
+    "directory": "packages/test-impact"
+  },
+  "homepage": "https://github.com/CristianPGit/claude-qa-architect/tree/main/packages/test-impact",
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3"
+  }
+}

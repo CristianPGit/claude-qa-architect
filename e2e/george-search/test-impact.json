@@ -1,0 +1,44 @@
+{
+  "$comment": "Maps changes to the tags worth re-running. Globs are relative to this file. A tag of \"*\" forces a full run. Used by `npm run impact`.",
+  "always": ["@smoke"],
+  "ignore": ["**/*.md", ".env.example", "test-impact.json", "e2e/agents/**", "playwright.agents.config.ts"],
+  "features": "features/**/*.feature",
+  "rules": [
+    {
+      "name": "runner, config and dependencies",
+      "paths": ["playwright.config.ts", "package.json", "tsconfig.json", "../../package-lock.json"],
+      "tags": ["*"],
+      "risk": "high"
+    },
+    {
+      "name": "shared auth fixture",
+      "paths": ["e2e/steps/fixtures.ts", "e2e/pages/fixtures.ts"],
+      "tags": ["*"],
+      "risk": "high"
+    },
+    {
+      "name": "page object (login + search)",
+      "paths": ["e2e/pages/george.page.ts"],
+      "tags": ["@login", "@search"],
+      "risk": "high"
+    },
+    {
+      "name": "login steps",
+      "paths": ["e2e/steps/login.steps.ts"],
+      "tags": ["@login"],
+      "risk": "medium"
+    },
+    {
+      "name": "search steps",
+      "paths": ["e2e/steps/search.steps.ts"],
+      "tags": ["@search"],
+      "risk": "medium"
+    },
+    {
+      "name": "legacy specs (not run by the BDD config)",
+      "paths": ["e2e/*.spec.ts"],
+      "tags": ["@smoke"],
+      "risk": "low"
+    }
+  ]
+}
