@@ -31,7 +31,7 @@ SELECTION
      is exactly where a narrow selection would miss a bug.
 
 EXAMPLES
-  test-impact -c e2e/george-search/test-impact.json
+  test-impact -c e2e/my-suite/test-impact.json
   test-impact -f grep                      # just the pattern, for scripts
   test-impact --committed-only --run -- npx playwright test --project=chromium
 `;

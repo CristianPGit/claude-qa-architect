@@ -2,7 +2,7 @@
 
 **One toolchain for AI-assisted quality engineering.** Claude Code plugins that turn tickets into
 test cases and branches, CLI tools that hunt flakiness and heal broken selectors, offline browser
-tools for the daily grind, and a real E2E suite to prove it all works.
+tools for the daily grind, and evals and contract tests for the AI side of the stack.
 
 Eight projects that grew up separately and kept reaching for each other. This is them in one place.
 
@@ -32,7 +32,7 @@ Each piece covers one stage of the loop — and they hand off to each other.
 |---|---|---|
 | 📥 **Intake** | *What does this ticket actually require?* | [`ticket-pilot`](plugins/ticket-pilot) |
 | 🧪 **Design** | *What are the Happy / Sad / Edge cases?* | [`qa-architect`](plugins/qa-architect) |
-| ⚙️ **Automate** | *Turn those cases into running tests* | [`qa-architect`](plugins/qa-architect) → [`e2e/george-search`](e2e/george-search) |
+| ⚙️ **Automate** | *Turn those cases into running tests* | [`qa-architect`](plugins/qa-architect) |
 | 🎯 **Select** | *Which tests can this diff break?* | [`test-impact`](packages/test-impact) |
 | 🔁 **Stabilize** | *Which tests lie to me?* | [`flaky-test-detector`](packages/flaky-test-detector) |
 | 🩹 **Maintain** | *The selectors broke again* | [`self-healing-tests`](packages/self-healing-tests) |
@@ -62,7 +62,6 @@ claude-qa-architect/
 ├── apps/                     zero-build static sites
 │   ├── qa-swiss-knife/       offline QA toolbox (JSON, JWT, regex, test data, …)
 │   └── agent-control-panel/  clickable panel that composes multi-agent slash commands
-├── e2e/george-search/        reference Playwright + BDD suite (George AT FAT banking app)
 ├── e2e/webmcp-contract/      WebMCP contract tests against a local demo site
 └── docs/                     notes and guides
 ```
@@ -93,7 +92,7 @@ npm run flaky      -- -n 10 -- npx playwright test
 npm run self-heal  -- --ai -- npx playwright test
 npm run vreg       -- --help
 npm run eval       -- packages/agent-eval/examples/command.eval.json
-npm run impact                       # which George tests does this branch put at risk?
+npm run impact     -- -c <suite>/test-impact.json   # which tests does this branch put at risk?
 ```
 
 Prefer bare `flaky` / `self-heal` / `vreg` / `agent-eval` / `test-impact` commands? `npm link -w <package-name>`.
@@ -115,26 +114,15 @@ open apps/agent-control-panel/index.html
 ### The E2E suite
 
 ```bash
-cp e2e/george-search/.env.example e2e/george-search/.env   # fill in credentials
-npx playwright install
-npm run test:e2e       # every feature
-npm run test:smoke     # @smoke only
-```
-
-Per-tag runs and Allure reports: see [`e2e/george-search/README.md`](e2e/george-search/README.md).
-
-```bash
+npx playwright install chromium firefox
 npm run test:webmcp    # WebMCP contract suite: local, no credentials
 ```
 
 ### CI
 
 [`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every push and PR: typecheck and
-build of every workspace, an offline agent-eval run, the WebMCP contract suite on Chromium and
-Firefox, and on PRs a test-impact summary for the George suite.
-[`george-smoke.yml`](.github/workflows/george-smoke.yml) runs `@smoke` against George FAT on
-demand, and on weekday mornings once the repository variable `GEORGE_SMOKE_ENABLED` is `true`.
-It needs the `GEORGE_*` repository secrets.
+build of every workspace, an offline agent-eval run, and the WebMCP contract suite on Chromium
+and Firefox.
 
 ### The agent crew
 
@@ -156,9 +144,9 @@ cp -r .claude/agents/ your-project/.claude/agents/
 | `npm run build` | Build every package that has a build script |
 | `npm run typecheck` | `tsc --noEmit` across all packages |
 | `npm run clean` | Remove `packages/*/dist` |
-| `npm run test:e2e` | Run the George search suite |
+| `npm run test:webmcp` | Run the WebMCP contract suite |
 
-The three CLI packages share [`tsconfig.base.json`](tsconfig.base.json). The static apps and the
+The CLI packages share [`tsconfig.base.json`](tsconfig.base.json). The static apps and the
 plugins have no build step — they are the deliverable.
 
 ## History
@@ -170,7 +158,6 @@ were merged in alongside it. Every commit from all eight projects is reachable:
 ```bash
 # the seven merged-in projects — plain path log works
 git log -- packages/flaky-test-detector/src/analyzer.ts
-git log -- e2e/george-search/e2e/pages/george.page.ts
 git blame plugins/ticket-pilot/skills/ticket/SKILL.md
 
 # qa-architect itself moved, so follow the rename
@@ -180,7 +167,8 @@ git log --follow -- plugins/qa-architect/skills/test-cases/SKILL.md
 Merged in from their own repositories: `claude-ticket-pilot`, `flaky-test-detector`,
 `self-healing-tests`, `visual-regression-cli`, `qa-swiss-knife`, `claude-agent-control-panel`,
 and `search-test-scenario`. Those standalone repositories have since been retired — this is the
-only place the code lives now, and the only place it gets updated.
+only place the code lives now, and the only place it gets updated. The `search-test-scenario` suite
+(George AT FAT, `e2e/george-search/`) was later removed; its history is still in git.
 
 ## License
 

@@ -15,7 +15,6 @@
   },
   "workspaces": [
     "packages/*",
-    "e2e/george-search",
     "e2e/webmcp-contract"
   ],
   "scripts": {
@@ -26,10 +25,8 @@
     "self-heal": "node packages/self-healing-tests/dist/cli.js",
     "vreg": "node packages/visual-regression-cli/dist/cli.js",
     "eval": "node packages/agent-eval/dist/cli.js",
-    "impact": "node packages/test-impact/dist/cli.js -c e2e/george-search/test-impact.json",
-    "test:e2e": "npm run test:e2e --workspace e2e/george-search",
-    "test:smoke": "npm run test:smoke --workspace e2e/george-search",
-    "test:webmcp": "npm test --workspace e2e/webmcp-contract"
+    "test:webmcp": "npm test --workspace e2e/webmcp-contract",
+    "impact": "node packages/test-impact/dist/cli.js"
   },
   "devDependencies": {
     "@types/node": "^22.0.0",

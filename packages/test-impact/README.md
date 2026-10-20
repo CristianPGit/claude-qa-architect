@@ -15,7 +15,7 @@ Not published to npm (the name is taken by an unrelated package). From the monor
 
 ```bash
 npm install && npm run build
-npm run impact                       # George suite rules, vs origin/main
+npm run impact -- -c path/to/suite/test-impact.json     # vs origin/main
 ```
 
 ## Usage
@@ -34,7 +34,7 @@ test-impact [options] --run -- <command>  # run <command> with --grep for the se
 | `--run` | | Run the command after `--`, adding `--grep '<pattern>'` unless it's a full run |
 
 ```bash
-npm run impact -- --committed-only --run -- npx playwright test --project=chromium
+npm run impact -- -c path/to/suite/test-impact.json --committed-only --run -- npx playwright test
 ```
 
 ## How it selects
@@ -75,15 +75,17 @@ Files outside the suite that no rule mentions are reported and otherwise ignored
   "unmapped": "all",
   "rules": [
     { "name": "config & deps", "paths": ["playwright.config.ts", "package.json", "../../package-lock.json"], "tags": ["*"], "risk": "high" },
-    { "name": "page object", "paths": ["e2e/pages/george.page.ts"], "tags": ["@login", "@search"], "risk": "high" },
+    { "name": "page object", "paths": ["e2e/pages/app.page.ts"], "tags": ["@login", "@search"], "risk": "high" },
     { "name": "search steps", "paths": ["e2e/steps/search.steps.ts"], "tags": ["@search"] }
   ]
 }
 ```
 
-See [`e2e/george-search/test-impact.json`](../../e2e/george-search/test-impact.json) for the full
-rules of the reference suite. In ticket-pilot, the `acceptance-reviewer` agent runs this tool
-when a repo has a rules file and lists the tags the diff puts at risk.
+See [`examples/bdd-suite.test-impact.json`](examples/bdd-suite.test-impact.json) for a complete
+rules file for a playwright-bdd suite (page object, step files, shared auth fixture). Copy it next
+to your suite's `playwright.config.ts` and adjust the paths. In ticket-pilot, the
+`acceptance-reviewer` agent runs this tool when a repo has a rules file and lists the tags the diff
+puts at risk.
 
 Feature names are matched as substrings, so a changed `Transaction Search` feature also selects
 `Transaction Search - Edge Cases`. Selection can over-select but never drops a feature that

@@ -29,14 +29,14 @@ $ self-heal -- npx playwright test --project=chromium
   ==============================================================================
 
   HEALED  Search panel opens and keyword input is visible
-    File:     e2e/pages/george.page.ts:42
+    File:     e2e/pages/app.page.ts:42
     Broken:   .keywordContainer--YGQKcpvu
     Fix:      getByPlaceholder('Search transactions')
     Strategy: placeholder-match (85% confidence)
     Element:  <input> "Search transactions"
 
   HEALED  Result rows contain search keyword
-    File:     e2e/pages/george.page.ts:58
+    File:     e2e/pages/app.page.ts:58
     Broken:   .resultRow--a8Kx2mNp
     Fix:      getByRole('row')
     Strategy: role-match (90% confidence)
@@ -46,10 +46,10 @@ $ self-heal -- npx playwright test --project=chromium
   Failures: 2  |  Healed: 2  |  Unhealed: 0  |  Verified: 0
 
   PATCHES:
-    + e2e/pages/george.page.ts:42
+    + e2e/pages/app.page.ts:42
       - .keywordContainer--YGQKcpvu
       + getByPlaceholder('Search transactions')
-    + e2e/pages/george.page.ts:58
+    + e2e/pages/app.page.ts:58
       - .resultRow--a8Kx2mNp
       + getByRole('row')
 ```

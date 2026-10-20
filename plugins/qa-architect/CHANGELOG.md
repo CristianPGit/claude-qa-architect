@@ -3,6 +3,12 @@
 All notable changes to QA Architect are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.3.1] — 2026-10-21
+
+### Changed
+- `bdd-test-agents` no longer points at the removed George suite; the seed test and agents config
+  are shown inline.
+
 ## [0.3.0] — 2026-10-21
 
 ### Added

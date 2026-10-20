@@ -1,5 +1,5 @@
 {
-  "$comment": "Maps changes to the tags worth re-running. Globs are relative to this file. A tag of \"*\" forces a full run. Used by `npm run impact`.",
+  "$comment": "Example rules for a playwright-bdd suite with a page object, per-area step files and a shared auth fixture. Globs are relative to this file once it sits next to the suite's playwright.config.ts. A tag of \"*\" forces a full run.",
   "always": ["@smoke"],
   "ignore": ["**/*.md", ".env.example", "test-impact.json", "e2e/agents/**", "playwright.agents.config.ts"],
   "features": "features/**/*.feature",
@@ -18,7 +18,7 @@
     },
     {
       "name": "page object (login + search)",
-      "paths": ["e2e/pages/george.page.ts"],
+      "paths": ["e2e/pages/app.page.ts"],
       "tags": ["@login", "@search"],
       "risk": "high"
     },

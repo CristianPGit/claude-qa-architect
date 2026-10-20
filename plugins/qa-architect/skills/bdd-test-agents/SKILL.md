@@ -17,15 +17,15 @@ skill keeps the agents but redirects every artifact to where it belongs:
 | Agent output | Where it goes in a BDD suite |
 |---|---|
 | Plan (Markdown) | `specs/<area>.md` — reviewed by a human, then translated to `features/<area>.feature` |
-| Generated interactions & selectors | New `GeorgePage`-style Page Object methods (selectors live **only** there) |
+| Generated interactions & selectors | New Page Object methods (selectors live **only** there) |
 | Generated assertions | `Then` step definitions calling Page Object methods |
 | Healer fixes | The Page Object / step file the stack trace points at — never `.features-gen/` |
 
 ## Step 0 — Load calibration and detect the suite
 
 1. Read `.qa/project.md`, `.qa/preferences.md` and the suite's `CLAUDE.md` (layer order as in the
-   `automate-tests` skill). Respect environment constraints — e.g. George FAT: `workers: 1`, one
-   shared account, 120s timeout, never "optimize" those away.
+   `automate-tests` skill). Respect documented environment constraints — e.g. `workers: 1` for a
+   single shared test account, or a long timeout for a slow environment — never "optimize" those away.
 2. Confirm it is a playwright-bdd suite: `playwright-bdd` in `package.json`, `defineBddConfig` in
    `playwright.config.ts`. If not, use the `automate-tests` skill instead.
 3. Inventory the existing step library — this is what you reuse first:
@@ -44,7 +44,20 @@ config. A BDD config's `testDir` is bddgen output, so the suite needs a small ag
 - `e2e/agents/seed.spec.ts` — logs in through the suite's existing auth fixture and lands on the
   start page. Nothing else.
 
-`e2e/george-search` already has both. For another suite, create them, then from the suite dir:
+```ts
+// playwright.agents.config.ts
+import { defineConfig } from '@playwright/test';
+import base from './playwright.config';
+export default defineConfig({ ...base, testDir: './e2e/agents', reporter: 'list' });
+
+// e2e/agents/seed.spec.ts — use the suite's own fixture file and start-page method
+import { test } from '../pages/fixtures';
+test('seed', async ({ app }) => {
+  await app.openStartPage();
+});
+```
+
+Create both if the suite doesn't have them, then from the suite dir:
 
 ```bash
 npx playwright test -c playwright.agents.config.ts --list      # seed must be listed
@@ -88,7 +101,7 @@ as the plan item and the seed file. It drives the browser and writes a scratch s
 
 Then refactor that scratch spec — this is the important part:
 
-1. Every selector / interaction → a named method on the Page Object (`george.page.ts`). Prefer
+1. Every selector / interaction → a named method on the Page Object. Prefer
    `getByRole` / `getByLabel` / `getByPlaceholder`; keep any unavoidable hashed CSS-module class
    in exactly one place.
 2. Every missing step → a definition in `e2e/steps/*.steps.ts` built with the suite's `Given/When/
@@ -122,7 +135,7 @@ Offer to commit; don't push without being asked.
 ## Guardrails
 
 - The agents and the healer run in a real browser against a real environment. On shared or
-  production-like environments (George FAT), confirm before any flow that mutates data.
+  production-like environments, confirm before any flow that mutates data.
 - `workers: 1` and other documented environment constraints stay untouched.
 - Selectors live only in the Page Object; steps call methods; features stay declarative.
 - `.features-gen/` and scratch specs are never committed.
