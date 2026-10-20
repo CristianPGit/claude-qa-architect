@@ -5,6 +5,7 @@
   "description": "Contract tests for the WebMCP tools a page exposes to AI agents, against a local demo site",
   "scripts": {
     "serve": "node server.mjs",
+    "typecheck": "tsc --noEmit -p .",
     "test": "playwright test",
     "test:chromium": "playwright test --project=chromium"
   },

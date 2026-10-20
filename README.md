@@ -127,6 +127,15 @@ Per-tag runs and Allure reports: see [`e2e/search-suite/README.md`](e2e/search-s
 npm run test:webmcp    # WebMCP contract suite: local, no credentials
 ```
 
+### CI
+
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml) runs on every push and PR: typecheck and
+build of every workspace, an offline agent-eval run, the WebMCP contract suite on Chromium and
+Firefox, and on PRs a test-impact summary for the search suite.
+[`remote-smoke.yml`](.github/workflows/remote-smoke.yml) runs `@smoke` against the remote test env on
+demand, and on weekday mornings once the repository variable `REMOTE_SMOKE_ENABLED` is `true`.
+It needs the `APP_*` repository secrets.
+
 ### The agent crew
 
 Nine QA specialists in [`.claude/agents/`](.claude/agents) — interpreter, hunter, saboteur, reviewer,
