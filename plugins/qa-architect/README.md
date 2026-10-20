@@ -68,6 +68,7 @@ QA Architect is more powerful with these connected. All are optional — it degr
 | `/qa-architect:test-cases 123` | …or a GitHub PR… |
 | `/qa-architect:test-cases` | …or your current branch diff (no argument). |
 | `/qa-architect:qa-automate` | Explore in a browser, write + run + auto-fix automated tests. |
+| `/qa-architect:qa-bdd-agents "search filters"` | Playwright planner → generator → healer for a playwright-bdd suite: plan, Gherkin, POM steps, heal. |
 | `/qa-architect:qa-setup` | Run the three-phase project setup. |
 | `/qa-architect:qa-calibrate "too many edge cases"` | Record a standing preference (Capture). |
 | `/qa-architect:qa-calibrate --consolidate` | Fold accumulated feedback into a clean `preferences.md` (out-of-band curation). |
@@ -216,9 +217,10 @@ plugins/qa-architect/
 ├── skills/
 │   ├── test-cases/          # generate Happy/Sad/Edge test cases
 │   ├── automate-tests/      # browser exploration + automation + auto-fix
+│   ├── bdd-test-agents/     # Playwright test agents redirected into Gherkin + POM
 │   ├── qa-calibration/      # remember feedback across sessions
 │   └── qa-architect/        # three-phase project setup orchestrator
-├── commands/                # /test-cases, /qa-automate, /qa-setup, /qa-calibrate
+├── commands/                # /test-cases, /qa-automate, /qa-bdd-agents, /qa-setup, /qa-calibrate
 └── templates/               # test-plan & preferences templates
 ```
 
