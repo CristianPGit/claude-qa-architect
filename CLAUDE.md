@@ -29,6 +29,7 @@ npm run clean              # rm -rf packages/*/dist
 npm run flaky     -- -n 10 -- npx playwright test
 npm run self-heal -- -- npx playwright test
 npm run vreg      -- --help
+npm run eval      -- packages/agent-eval/examples/command.eval.json
 
 npm run test:e2e           # search suite, all features
 npm run test:smoke         # @smoke only
@@ -51,8 +52,8 @@ npx playwright test --project=chromium --headed
 
 ### `packages/*` — the CLIs
 
-All three are ESM, `module: Node16`, and extend `tsconfig.base.json`. Each exposes one `bin`:
-`flaky`, `self-heal`, `vreg`. Keep the shared compiler options in the base config — do not
+All four are ESM, `module: Node16`, and extend `tsconfig.base.json`. Each exposes one `bin`:
+`flaky`, `self-heal`, `vreg`, `agent-eval`. Keep the shared compiler options in the base config — do not
 re-inline them per package.
 
 - **flaky-test-detector** — `runner.ts` executes the suite N times, per-framework parsers in
@@ -60,12 +61,18 @@ re-inline them per package.
   Adding a framework means adding a parser, nothing else.
 - **self-healing-tests** — `error-parser.ts` reads the failure, `healer.ts` queries the live DOM via
   Playwright for a replacement selector, `patcher.ts` rewrites the test file. Depends on `playwright`.
+  `--ai` adds `ai-healer.ts`: Claude reads the aria snapshot and proposes a locator, accepted only
+  if it resolves to the exact element (by aria ref) Claude chose.
+- **agent-eval** — evals for AI features and MCP servers. `targets.ts` runs a task (command /
+  claude / mcp), `graders.ts` scores the transcript (deterministic + `llm-rubric`), `runner.ts`
+  repeats it N times and computes pass@k / pass^k / flaky. MCP tool calls are recorded, not
+  executed, unless the eval sets `execute: true`.
 - **visual-regression-cli** — `visual-check.ts` is the in-test helper, `comparator.ts` wraps
   `pixelmatch`, `storage.ts` owns the `.visual-regression/` baseline layout. `playwright` is a
   **peer** dependency here, not a direct one.
 
-None of the three are published to npm, and two of the names (`flaky-test-detector`,
-`visual-regression-cli`) are taken on the public registry by unrelated projects. Never write
+None of the CLIs are published to npm, and three of the names (`flaky-test-detector`,
+`visual-regression-cli`, `agent-eval`) are taken on the public registry by unrelated projects. Never write
 `npm install <name>` install instructions for them.
 
 ### `plugins/*` — the Claude Code plugins

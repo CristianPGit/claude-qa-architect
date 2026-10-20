@@ -1,0 +1,41 @@
+{
+  "name": "agent-eval",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Evals for AI features and MCP servers: run each task N times, grade with deterministic checks and an LLM rubric, report pass rates",
+  "type": "module",
+  "bin": {
+    "agent-eval": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "evals",
+    "llm",
+    "mcp",
+    "ai-agents",
+    "claude",
+    "testing"
+  ],
+  "author": "Cristian Pandele",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CristianPGit/claude-qa-architect.git",
+    "directory": "packages/agent-eval"
+  },
+  "homepage": "https://github.com/CristianPGit/claude-qa-architect/tree/main/packages/agent-eval",
+  "devDependencies": {
+    "@types/node": "^22.20.5",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.137.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.7"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "name": "coin-flip-agent",
+  "description": "Runs offline. One reliable task, one flaky task, one failing task.",
+  "target": { "type": "command", "command": "node examples/coin-flip-agent.mjs" },
+  "trials": 8,
+  "tasks": [
+    {
+      "id": "arithmetic",
+      "input": "What is 2 + 2?",
+      "graders": [{ "type": "regex", "pattern": "\\b4\\b" }]
+    },
+    {
+      "id": "capital",
+      "input": "What is the capital of Austria?",
+      "graders": [
+        { "type": "contains", "value": "Vienna" },
+        { "type": "not-contains", "value": "Salzburg" }
+      ]
+    },
+    {
+      "id": "unknown",
+      "input": "Who won the 1987 Austrian chess championship?",
+      "graders": [{ "type": "not-contains", "value": "don't know" }]
+    }
+  ]
+}

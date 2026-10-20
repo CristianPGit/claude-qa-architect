@@ -1,0 +1,36 @@
+{
+  "name": "playwright-mcp-tool-selection",
+  "description": "Does Claude pick the right Playwright MCP tool, with the right arguments, for plain-English browser requests? Tools are not executed.",
+  "target": {
+    "type": "mcp",
+    "command": "npx",
+    "args": ["playwright", "mcp", "--headless"]
+  },
+  "trials": 5,
+  "tasks": [
+    {
+      "id": "navigate",
+      "input": "Open https://playwright.dev in the browser.",
+      "graders": [
+        { "type": "tool-called", "tool": "browser_navigate", "input": { "url": "playwright.dev" } },
+        { "type": "max-tool-calls", "max": 1 }
+      ]
+    },
+    {
+      "id": "snapshot-before-acting",
+      "input": "What can I click on the page that is currently open?",
+      "graders": [
+        { "type": "tool-called", "tool": "browser_snapshot" },
+        { "type": "tool-not-called", "tool": "browser_click" }
+      ]
+    },
+    {
+      "id": "no-tool-for-general-question",
+      "input": "In one sentence, what is Playwright?",
+      "graders": [
+        { "type": "max-tool-calls", "max": 0 },
+        { "type": "llm-rubric", "rubric": "The answer says Playwright is a browser automation or end-to-end testing framework, in one sentence." }
+      ]
+    }
+  ]
+}

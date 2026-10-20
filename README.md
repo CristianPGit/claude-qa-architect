@@ -36,6 +36,7 @@ Each piece covers one stage of the loop — and they hand off to each other.
 | 🔁 **Stabilize** | *Which tests lie to me?* | [`flaky-test-detector`](packages/flaky-test-detector) |
 | 🩹 **Maintain** | *The selectors broke again* | [`self-healing-tests`](packages/self-healing-tests) |
 | 👁️ **Verify** | *Did the UI change on purpose?* | [`visual-regression-cli`](packages/visual-regression-cli) |
+| 🧠 **Evaluate AI** | *Does the agent / MCP server behave, every time?* | [`agent-eval`](packages/agent-eval) |
 | 🧰 **Daily work** | *Decode this JWT / build this bug report* | [`qa-swiss-knife`](apps/qa-swiss-knife) |
 | 🤖 **Orchestrate** | *Run a whole quality pass* | [`agent-control-panel`](apps/agent-control-panel) + [`.claude/agents/`](.claude/agents) |
 
@@ -51,6 +52,7 @@ claude-qa-architect/
 │   ├── qa-architect/         AI QA engineer: test cases, browser exploration, automation
 │   └── ticket-pilot/         Jira ticket → analyzed → planned → implemented → reviewed branch
 ├── packages/                 TypeScript CLIs (npm workspaces)
+│   ├── agent-eval/           evals for AI features & MCP servers: pass@k, pass^k, flaky
 │   ├── flaky-test-detector/  run a suite N times, rank tests by flakiness
 │   ├── self-healing-tests/   fix broken Playwright selectors from the live DOM
 │   └── visual-regression-cli/snapshot · diff · approve, with HTML reports
@@ -81,16 +83,17 @@ Then `/test-cases LIN-123`, `/qa-automate`, `/ticket PROJ-456`, `/triage`, `/sta
 
 ```bash
 npm install        # installs every workspace
-npm run build      # compiles all three CLIs to dist/
+npm run build      # compiles every CLI to dist/
 
 npm run flaky      -- -n 10 -- npx playwright test
-npm run self-heal  -- -- npx playwright test
+npm run self-heal  -- --ai -- npx playwright test
 npm run vreg       -- --help
+npm run eval       -- packages/agent-eval/examples/command.eval.json
 ```
 
-Prefer bare `flaky` / `self-heal` / `vreg` commands? `npm link -w <package-name>`.
+Prefer bare `flaky` / `self-heal` / `vreg` / `agent-eval` commands? `npm link -w <package-name>`.
 
-> None of the three are published to npm. Two of those names are taken on the public registry by
+> None of the CLIs are published to npm. Three of those names are taken on the public registry by
 > unrelated projects — install from this repo, not from npm.
 
 ### The static apps
