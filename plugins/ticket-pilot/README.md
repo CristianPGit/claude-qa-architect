@@ -387,14 +387,6 @@ tickets through the current pipeline show where it actually falls short —
 - ❌ Full end-to-end autonomy — the ceilings above are governance, not
   missing features.
 
-## Acknowledgments
-
-The hierarchical review arbitration (`tech-lead` agent), persistent pipeline
-memory, and the retro learning loop are patterns adapted from
-[CrewAI](https://crewai.com/open-source)'s manager-agent process, unified
-Memory system, and training loop — reimplemented here as plain markdown
-skills instead of a Python runtime.
-
 ## License
 
 MIT — see [LICENSE](LICENSE).
