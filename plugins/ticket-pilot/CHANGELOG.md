@@ -2,8 +2,7 @@
 
 ## 0.4.0 — 2026-07-03
 
-CrewAI-inspired release: manager-style arbitration, persistent memory, and a
-learning loop (see Acknowledgments in the README).
+Manager-style arbitration, persistent memory, and a learning loop.
 
 - **`tech-lead` agent:** the Phase 4 review panel's raw reports now go to an
   arbiter that dedupes, resolves reviewer conflicts by reading the code,
