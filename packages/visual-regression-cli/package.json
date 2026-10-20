@@ -36,7 +36,7 @@
   "author": "Cristian Pandele",
   "license": "MIT",
   "peerDependencies": {
-    "playwright": ">=1.52.0 <1.60.0"
+    "playwright": ">=1.52.0 <1.65.0"
   },
   "dependencies": {
     "pixelmatch": "^7.1.0",
@@ -46,7 +46,7 @@
     "@types/node": "^22.0.0",
     "@types/pixelmatch": "^5.2.6",
     "@types/pngjs": "^6.0.5",
-    "playwright": "1.59.1",
+    "playwright": "1.64.1",
     "typescript": "^5.7.0"
   },
   "repository": {
