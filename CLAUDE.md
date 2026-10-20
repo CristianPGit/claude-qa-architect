@@ -61,7 +61,9 @@ re-inline them per package.
 
 - **flaky-test-detector** — `runner.ts` executes the suite N times, per-framework parsers in
   `src/parsers/` (playwright, cypress, jest) normalize results, `analyzer.ts` ranks by pass rate.
-  Adding a framework means adding a parser, nothing else.
+  Adding a framework means adding a parser, nothing else. Parsers also capture each failure's
+  error and file/line; `--explain` (`explain.ts`) sends a flaky test's history, errors and source
+  to Claude for a categorised diagnosis.
 - **self-healing-tests** — `error-parser.ts` reads the failure, `healer.ts` queries the live DOM via
   Playwright for a replacement selector, `patcher.ts` rewrites the test file. Depends on `playwright`.
   `--ai` adds `ai-healer.ts`: Claude reads the aria snapshot and proposes a locator, accepted only

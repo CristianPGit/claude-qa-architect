@@ -34,5 +34,9 @@
     "url": "git+https://github.com/CristianPGit/claude-qa-architect.git",
     "directory": "packages/flaky-test-detector"
   },
-  "homepage": "https://github.com/CristianPGit/claude-qa-architect/tree/main/packages/flaky-test-detector"
+  "homepage": "https://github.com/CristianPGit/claude-qa-architect/tree/main/packages/flaky-test-detector",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.137.0",
+    "zod": "^4.6.7"
+  }
 }

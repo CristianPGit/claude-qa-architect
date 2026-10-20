@@ -16,6 +16,7 @@ Investigate a regression or a flaky test and pin down when it started, what like
 1. **Establish the timeline.** Use `git log`, `git blame`, and (if available) CI history to find when the behavior changed. Bisect mentally or with `git bisect` when the range is large.
 2. **Correlate with changes.** Line up the first failure against commits, dependency bumps, config/env changes, and infra events in that window.
 3. **Flaky vs. broken.** Determine whether it fails deterministically (real regression) or intermittently (flake). For flakes, identify the source: timing/race, test order dependence, shared state, network, unmocked clock/random, environment.
+   Measure before you reason: `npm run flaky -- -n 10 -f json -o .qa/flaky.json -- <test command>` gives each test's run-by-run history, distinct errors and pass-vs-fail durations; add `--explain` for a first-pass diagnosis per flaky test (category, evidence, fix). Treat that diagnosis as a hypothesis to confirm against git history, not as the finding.
 4. **Reproduce the era.** Where useful, check out the suspected commit and confirm the behavior flips there.
 
 ## Output

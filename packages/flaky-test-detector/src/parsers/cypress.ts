@@ -21,6 +21,7 @@ interface CypressTest {
   pass: boolean;
   fail: boolean;
   duration: number;
+  err?: { message?: string };
 }
 
 export function parseCypress(data: CypressResult): TestResult[] {
@@ -50,6 +51,7 @@ function walkCypressSuite(
       suite: path.join(" > "),
       passed: test.pass,
       duration: test.duration,
+      error: test.err?.message,
     });
   }
 

@@ -1,52 +1,62 @@
-import type { RunResult, TestStats, FlakyReport } from "./types.js";
+import type { RunResult, TestStats, FlakyReport, TestResult } from "./types.js";
+
+interface Entry {
+  suite: string;
+  name: string;
+  file?: string;
+  line?: number;
+  /** Indexed by run; undefined when the test didn't report in that run. */
+  outcomes: (TestResult | undefined)[];
+}
 
 export function analyze(
   command: string,
   runs: RunResult[],
   threshold: number
 ): FlakyReport {
-  const testMap = new Map<string, { passed: number; failed: number; durations: number[] }>();
+  // Keyed by suite + name, but suite and name are kept as fields — a suite title can itself
+  // contain " > ", so the key must never be split back apart.
+  const testMap = new Map<string, Entry>();
 
-  for (const run of runs) {
-    if (run.tests.length === 0) continue;
-
+  runs.forEach((run, runIndex) => {
     for (const test of run.tests) {
-      const key = `${test.suite} > ${test.name}`;
-      const entry = testMap.get(key) ?? { passed: 0, failed: 0, durations: [] };
-
-      if (test.passed) {
-        entry.passed++;
-      } else {
-        entry.failed++;
-      }
-      entry.durations.push(test.duration);
+      const key = JSON.stringify([test.suite, test.name]);
+      const entry: Entry = testMap.get(key) ?? {
+        suite: test.suite,
+        name: test.name,
+        outcomes: new Array(runs.length).fill(undefined),
+      };
+      entry.outcomes[runIndex] = test;
+      entry.file ??= test.file;
+      entry.line ??= test.line;
       testMap.set(key, entry);
     }
-  }
+  });
 
   const tests: TestStats[] = [];
 
-  for (const [key, stats] of testMap) {
-    const [suite, ...nameParts] = key.split(" > ");
-    const name = nameParts.join(" > ");
-    const totalRuns = stats.passed + stats.failed;
-    const passRate = totalRuns > 0 ? (stats.passed / totalRuns) * 100 : 0;
-    const avgDuration =
-      stats.durations.length > 0
-        ? stats.durations.reduce((a, b) => a + b, 0) / stats.durations.length
-        : 0;
-
-    const flaky = passRate > 0 && passRate < 100;
+  for (const entry of testMap.values()) {
+    const reported = entry.outcomes.filter((o): o is TestResult => o !== undefined);
+    const passes = reported.filter((o) => o.passed);
+    const fails = reported.filter((o) => !o.passed);
+    const totalRuns = reported.length;
+    const passRate = totalRuns > 0 ? (passes.length / totalRuns) * 100 : 0;
 
     tests.push({
-      name,
-      suite,
+      name: entry.name,
+      suite: entry.suite,
       runs: totalRuns,
-      passed: stats.passed,
-      failed: stats.failed,
+      passed: passes.length,
+      failed: fails.length,
       passRate: Math.round(passRate * 100) / 100,
-      flaky,
-      avgDuration: Math.round(avgDuration),
+      flaky: passRate > 0 && passRate < 100,
+      avgDuration: avg(reported),
+      history: entry.outcomes.map((o) => (o === undefined ? "·" : o.passed ? "✓" : "✗")).join(""),
+      avgPassDuration: avg(passes),
+      avgFailDuration: avg(fails),
+      failures: countErrors(fails),
+      file: entry.file,
+      line: entry.line,
     });
   }
 
@@ -75,4 +85,24 @@ export function analyze(
       alwaysFail: tests.filter((t) => t.passRate === 0).length,
     },
   };
+}
+
+function avg(results: TestResult[]): number {
+  if (results.length === 0) return 0;
+  return Math.round(results.reduce((sum, r) => sum + r.duration, 0) / results.length);
+}
+
+const ANSI = /\u001b\[[0-9;]*m/g;
+
+/** Groups failures by their first error line, so "Timeout 5000ms exceeded" from 4 runs is one entry. */
+function countErrors(fails: TestResult[]): { error: string; count: number }[] {
+  const counts = new Map<string, { error: string; count: number }>();
+  for (const f of fails) {
+    const error = (f.error ?? "(no error message reported)").replace(ANSI, "").trim();
+    const key = error.split("\n")[0];
+    const entry = counts.get(key) ?? { error: error.slice(0, 2000), count: 0 };
+    entry.count++;
+    counts.set(key, entry);
+  }
+  return [...counts.values()].sort((a, b) => b.count - a.count);
 }

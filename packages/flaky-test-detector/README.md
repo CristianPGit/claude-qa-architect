@@ -72,6 +72,8 @@ Everything after `--` is the test command to run.
 | `-f, --format` | `table` | Output format: `table`, `json`, `markdown` |
 | `-o, --output` | stdout | Write report to a file |
 | `-p, --parser` | `auto` | Parser: `auto`, `playwright`, `cypress`, `jest`, `exit-code` |
+| `--explain` | `false` | Have Claude diagnose every flaky test (see below) |
+| `--model <id>` | `claude-opus-5-5` | Claude model for `--explain` |
 
 ### Examples
 
@@ -90,7 +92,35 @@ flaky -n 8 -- npx vitest run
 
 # Any command (exit-code only, no per-test breakdown)
 flaky -n 10 -- make test
+
+# Find the flaky tests and have Claude explain each one
+flaky -n 10 --explain -f markdown -o flaky.md -- npx playwright test
 ```
+
+### Diagnosing flakes (`--explain`)
+
+Every flaky test in the report includes evidence, with or without `--explain`:
+
+- **History**: one mark per run, in order (`✓✓✗✓✗`). Failures clustered at the start look
+  different from failures that alternate.
+- **Pass / fail duration**: failing runs that are much slower than passing ones point to waits and
+  timeouts.
+- **Distinct errors** with how many runs produced each, plus the test's file and line.
+
+With `--explain`, Claude receives that evidence and the test's source, and returns one diagnosis
+per flaky test:
+
+| Field | Values |
+|---|---|
+| category | `timing` · `test-order` · `test-data` · `environment` · `selector` · `product-race` (a real bug) · `unknown` |
+| rootCause | One paragraph, grounded in the evidence |
+| evidence | The error line, history pattern or source line it relies on |
+| fix | The smallest change, and how to confirm the diagnosis |
+| confidence | `low` · `medium` · `high` |
+
+Credentials come from `ANTHROPIC_API_KEY` or an `ant auth login` profile. Without them the run
+still completes and prints why the diagnosis was skipped. For the full "when did this start, what
+changed" investigation, hand the JSON report to the `historian` agent in `.claude/agents/`.
 
 ## Supported Frameworks
 
