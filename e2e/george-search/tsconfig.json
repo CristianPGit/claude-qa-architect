@@ -2,10 +2,10 @@
   "compilerOptions": {
     "target": "ESNext",
     "module": "CommonJS",
-    "moduleResolution": "bundler",
+    "moduleResolution": "node10",
     "strict": true,
     "esModuleInterop": true,
     "types": ["node"]
   },
-  "include": ["e2e/**/*.ts", ".features-gen/**/*.spec.js", "playwright.config.ts"]
+  "include": ["e2e/**/*.ts", ".features-gen/**/*.spec.js", "playwright.config.ts", "playwright.agents.config.ts"]
 }
