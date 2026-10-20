@@ -48,6 +48,20 @@ export const TargetSchema = z.discriminatedUnion("type", [
     execute: z.boolean().default(false),
     maxTurns: z.number().int().positive().default(8),
   }),
+  /**
+   * A web page that registers WebMCP tools (`document.modelContext.registerTool`). Each trial
+   * opens the page in a fresh browser context and offers its tools to Claude. Tool calls run in
+   * that throwaway page only when `execute` is true.
+   */
+  z.object({
+    type: z.literal("webmcp"),
+    url: z.string().url(),
+    browser: z.enum(["chromium", "firefox"]).default("chromium"),
+    model: z.string().default(DEFAULT_MODEL),
+    system: z.string().optional(),
+    execute: z.boolean().default(false),
+    maxTurns: z.number().int().positive().default(8),
+  }),
 ]);
 
 export const EvalFileSchema = z.object({

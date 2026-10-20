@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Bank — Transactions</title>
+  <style>
+    body { font: 15px/1.5 system-ui, sans-serif; max-width: 720px; margin: 2rem auto; padding: 0 1rem; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { text-align: left; padding: .4rem; border-bottom: 1px solid #ddd; }
+    td.amount { text-align: right; font-variant-numeric: tabular-nums; }
+    .note { color: #555; font-style: italic; }
+  </style>
+</head>
+<body>
+  <h1>Transactions</h1>
+  <p>Balance: <strong data-testid="balance"></strong></p>
+
+  <form role="search" id="search-form">
+    <label for="query">Search transactions</label>
+    <input id="query" name="query" type="search">
+    <button type="submit">Search</button>
+  </form>
+
+  <table aria-label="Transactions">
+    <thead><tr><th>Date</th><th>Merchant</th><th>Amount</th><th>Note</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+  <p id="empty" hidden>No transactions match your search.</p>
+
+  <script>
+    // A deliberately small app: the same functions back the UI and the WebMCP tools, so the
+    // contract tests can check that an agent and a human see the same behaviour.
+    const transactions = [
+      { id: 't1', date: '2026-10-01', merchant: 'Fashion Store Vienna', amount: -89.9 },
+      { id: 't2', date: '2026-10-03', merchant: 'Billa', amount: -42.15 },
+      { id: 't3', date: '2026-10-05', merchant: 'Salary ACME GmbH', amount: 3200 },
+      { id: 't4', date: '2026-10-09', merchant: 'Fashion Outlet Parndorf', amount: -150 },
+      { id: 't5', date: '2026-10-12', merchant: 'Wiener Linien', amount: -51 },
+    ];
+    const notes = new Map();
+    const eur = (n) => n.toLocaleString('de-AT', { style: 'currency', currency: 'EUR' });
+
+    function search(query, limit = 50) {
+      const q = query.trim().toLowerCase();
+      return transactions.filter((t) => t.merchant.toLowerCase().includes(q)).slice(0, limit);
+    }
+
+    function render(list) {
+      document.getElementById('rows').innerHTML = list.map((t) => `
+        <tr data-id="${t.id}"><td>${t.date}</td><td>${t.merchant}</td>
+        <td class="amount">${eur(t.amount)}</td><td class="note">${notes.get(t.id) ?? ''}</td></tr>`).join('');
+      document.getElementById('empty').hidden = list.length > 0;
+    }
+
+    function runSearch(query) {
+      document.getElementById('query').value = query;
+      const found = search(query);
+      render(found);
+      return found;
+    }
+
+    document.querySelector('[data-testid="balance"]').textContent = eur(transactions.reduce((s, t) => s + t.amount, 0));
+    document.getElementById('search-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      runSearch(document.getElementById('query').value);
+    });
+    render(transactions);
+
+    const text = (value) => ({ content: [{ type: 'text', text: typeof value === 'string' ? value : JSON.stringify(value) }] });
+    const error = (message) => ({ ...text(message), isError: true });
+
+    // Chromium exposes WebMCP on document, the draft spec on navigator.
+    const modelContext = document.modelContext ?? navigator.modelContext;
+    modelContext?.registerTool({
+      name: 'search_transactions',
+      description: 'Search the account transactions by merchant name (case-insensitive substring) and show the matches on the page.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          query: { type: 'string', description: 'Part of the merchant name, e.g. "fashion"' },
+          limit: { type: 'integer', minimum: 1, maximum: 50, description: 'Maximum number of results' },
+        },
+        required: ['query'],
+      },
+      annotations: { readOnlyHint: true },
+      execute: async ({ query, limit }) => {
+        if (typeof query !== 'string' || !query.trim()) return error('query must be a non-empty string');
+        const found = runSearch(query).slice(0, limit ?? 50);
+        return text({ count: found.length, transactions: found });
+      },
+    });
+    modelContext?.registerTool({
+      name: 'add_transaction_note',
+      description: 'Attach a short private note to one transaction, identified by its id from search_transactions.',
+      inputSchema: {
+        type: 'object',
+        properties: {
+          transactionId: { type: 'string', description: 'Transaction id, e.g. "t1"' },
+          note: { type: 'string', maxLength: 140, description: 'The note text, at most 140 characters' },
+        },
+        required: ['transactionId', 'note'],
+      },
+      execute: async ({ transactionId, note }) => {
+        if (!transactions.some((t) => t.id === transactionId)) return error(`unknown transaction "${transactionId}"`);
+        if (typeof note !== 'string' || !note.trim() || note.length > 140) return error('note must be 1-140 characters');
+        notes.set(transactionId, note.trim());
+        render(search(document.getElementById('query').value));
+        return text(`note added to ${transactionId}`);
+      },
+    });
+  </script>
+</body>
+</html>

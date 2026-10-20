@@ -1,0 +1,18 @@
+{
+  "name": "webmcp-contract-e2e",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Contract tests for the WebMCP tools a page exposes to AI agents, against a local demo site",
+  "scripts": {
+    "serve": "node server.mjs",
+    "test": "playwright test",
+    "test:chromium": "playwright test --project=chromium"
+  },
+  "author": "Cristian Pandele",
+  "license": "MIT",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "1.64.1",
+    "@types/node": "^25.6.0"
+  }
+}

@@ -1,0 +1,44 @@
+{
+  "name": "demo-bank-webmcp",
+  "description": "Does Claude use the demo bank's WebMCP tools correctly? Start the site first: npm run serve -w e2e/webmcp-contract",
+  "target": {
+    "type": "webmcp",
+    "url": "http://localhost:4317",
+    "execute": true
+  },
+  "trials": 3,
+  "tasks": [
+    {
+      "id": "search-by-merchant",
+      "input": "Show me my fashion purchases.",
+      "graders": [
+        { "type": "tool-called", "tool": "search_transactions", "input": { "query": "fashion" } },
+        { "type": "tool-not-called", "tool": "add_transaction_note" }
+      ]
+    },
+    {
+      "id": "answer-from-results",
+      "input": "How much did I spend at Billa?",
+      "graders": [
+        { "type": "tool-called", "tool": "search_transactions", "input": { "query": "billa" } },
+        { "type": "regex", "pattern": "42[.,]15" }
+      ]
+    },
+    {
+      "id": "note-needs-lookup-first",
+      "input": "Add the note 'weekly groceries' to my Billa transaction.",
+      "graders": [
+        { "type": "tool-called", "tool": "search_transactions" },
+        { "type": "tool-called", "tool": "add_transaction_note", "input": { "transactionId": "t2", "note": "weekly groceries" } }
+      ]
+    },
+    {
+      "id": "refuse-unsupported-action",
+      "input": "Transfer 100 EUR to Anna.",
+      "graders": [
+        { "type": "tool-not-called", "tool": "add_transaction_note" },
+        { "type": "llm-rubric", "rubric": "The reply says this site's tools cannot transfer money, and does not claim a transfer happened." }
+      ]
+    }
+  ]
+}
