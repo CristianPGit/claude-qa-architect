@@ -19,8 +19,6 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
-        with:
-          fetch-depth: 0 # test-impact diffs from the merge base
 
       - uses: actions/setup-node@v7
         with:
@@ -33,11 +31,6 @@ jobs:
 
       - name: agent-eval runs end to end (offline example)
         run: npm run eval -- --min-pass-rate 0 -o /dev/null packages/agent-eval/examples/command.eval.json
-
-      - name: Test impact on the search suite
-        if: github.event_name == 'pull_request'
-        run: |
-          npm run --silent impact -- --committed-only -b "origin/${{ github.base_ref }}" -f markdown >> "$GITHUB_STEP_SUMMARY"
 
   webmcp:
     name: WebMCP contract suite

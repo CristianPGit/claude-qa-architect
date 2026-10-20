@@ -13,7 +13,6 @@ in different ways:
 | `plugins/*` | Claude Code plugins (markdown skills, agents, commands, hooks) | none — the markdown **is** the product |
 | `packages/*` | TypeScript CLIs, npm workspaces | `tsc` → `dist/` |
 | `apps/*` | Single-file static sites | none — open `index.html` |
-| `e2e/search-suite` | Playwright + BDD test suite | `bddgen` then `playwright test` |
 | `e2e/webmcp-contract` | WebMCP contract tests, local demo site | `playwright test` (starts its own server) |
 
 Run npm commands from the repo root — it is an npm-workspaces monorepo with one hoisted
@@ -31,24 +30,9 @@ npm run flaky     -- -n 10 -- npx playwright test
 npm run self-heal -- -- npx playwright test
 npm run vreg      -- --help
 npm run eval      -- packages/agent-eval/examples/command.eval.json
-npm run impact             # test-impact with the search-suite rules, vs origin/main
+npm run impact    -- -c <suite>/test-impact.json
 
-npm run test:e2e           # search suite, all features
-npm run test:smoke         # @smoke only
 npm run test:webmcp        # WebMCP contract suite (local, no credentials)
-```
-
-Suite-specific runs (from `e2e/search-suite/`):
-
-```bash
-npm run test:login          # @login
-npm run test:search         # @search
-npm run test:edge-case      # @edge-case
-npm run test:tag -- @ui     # any tag
-npm run test:ui             # Playwright interactive UI
-npm run test:codegen        # codegen recorder
-npm run report:allure       # generate + open Allure
-npx playwright test --project=chromium --headed
 ```
 
 ## Architecture notes
@@ -69,13 +53,13 @@ re-inline them per package.
   `--ai` adds `ai-healer.ts`: Claude reads the aria snapshot and proposes a locator, accepted only
   if it resolves to the exact element (by aria ref) Claude chose.
 - **agent-eval** — evals for AI features and MCP servers. `targets.ts` runs a task (command /
-  claude / mcp), `graders.ts` scores the transcript (deterministic + `llm-rubric`), `runner.ts`
+  claude / mcp / webmcp), `graders.ts` scores the transcript (deterministic + `llm-rubric`), `runner.ts`
   repeats it N times and computes pass@k / pass^k / flaky. MCP tool calls are recorded, not
   executed, unless the eval sets `execute: true`.
 - **test-impact** — `git.ts` lists changed files from the merge base, `select.ts` maps them to tags
   through the suite's `test-impact.json` and builds a `--grep`. Unmapped changes inside the suite
-  force a full run on purpose — don't make that the exception. Update a suite's rules file when you
-  add a step file, page object or tag.
+  force a full run on purpose — don't make that the exception. Example rules for a playwright-bdd
+  suite: `examples/bdd-suite.test-impact.json`.
 - **visual-regression-cli** — `visual-check.ts` is the in-test helper, `comparator.ts` wraps
   `pixelmatch`, `storage.ts` owns the `.visual-regression/` baseline layout. `playwright` is a
   **peer** dependency here, not a direct one.
@@ -95,30 +79,6 @@ plugin version, bump it in **both** files — they are checked independently.
   `calibration-log.md` — templates in `templates/`).
 - **ticket-pilot** — a six-agent pipeline with human gates. `hooks/guard.sh` blocks `git push`, PR
   creation, and Jira writes; that guard is load-bearing, do not weaken it when editing hooks.
-
-### `e2e/search-suite` — the reference suite
-
-Targets the demo app at `https://app.example.com/`.
-
-- **BDD pipeline:** Gherkin in `features/` compiles to Playwright specs via `bddgen`
-  (playwright-bdd), output in `.features-gen/` (gitignored). Every `test:*` script runs `bddgen` first.
-- **Page Object Model:** all selectors live in `e2e/pages/app.page.ts` (`AppPage`). Step
-  definitions in `e2e/steps/` call page-object methods — never put selectors in steps.
-- **Worker-scoped auth:** `e2e/steps/fixtures.ts` logs in once per worker. Necessary because the FAT
-  environment has a single shared test account.
-- **`workers: 1`** — required; the shared account cannot handle concurrent logins.
-- **Tags:** `@login`, `@search`, `@edge-case`, `@smoke`, `@ui`, `@happy-path`, `@negative`,
-  `@data-integrity`, `@navigation`, `@debounce`.
-- The config parses `.env` manually — Playwright's auto-loading is unreliable through bddgen.
-
-Constraints, do not "optimize" these away:
-
-- **Slow environment** — 120s test timeout is deliberate. Do not reduce it.
-- **CSS module selectors** — the search input uses a hashed class (e.g. `keywordContainer--YGQKcpvu`)
-  that changes on app rebuilds. This is exactly what `self-healing-tests` exists to repair.
-- **Two-step login** — username → Next → password → Submit, with deliberate pauses. The OTP field
-  exists but is unused.
-- **No local dev server** — every suite runs against the remote FAT environment.
 
 ### `e2e/webmcp-contract` — WebMCP contract suite
 
@@ -146,11 +106,9 @@ in `apps/qa-swiss-knife/README.md`.
 
 ## CI
 
-`.github/workflows/ci.yml` gates every push/PR: `npm run typecheck` (all workspaces, both e2e
-suites included), `npm run build`, an offline agent-eval run and the WebMCP suite.
-`remote-smoke.yml` is the only workflow that touches the remote test env: manual, or scheduled behind the
-`REMOTE_SMOKE_ENABLED` repository variable, with `concurrency: remote-env` for the shared account.
-It deliberately uploads no artifacts — the repo is public and Traces show account data.
+`.github/workflows/ci.yml` gates every push/PR: `npm run typecheck` (all workspaces, the e2e
+suite included), `npm run build`, an offline agent-eval run and the WebMCP suite. No workflow
+talks to a remote test environment.
 
 ## Conventions
 
@@ -161,6 +119,5 @@ It deliberately uploads no artifacts — the repo is public and Traces show acco
   the seven sibling projects were rewritten under their new paths with
   `git filter-repo --to-subdirectory-filter` before being merged (plain `git log -- <path>` works).
   Never rewrite this history.
-- Ignore rules are consolidated in the root `.gitignore`; `e2e/search-suite/.gitignore` carries only
-  suite-local artifact paths. Do not reintroduce per-package ignore files.
+- Ignore rules are consolidated in the root `.gitignore`. Do not reintroduce per-package ignore files.
 - One `LICENSE` (MIT) at the root covers everything.

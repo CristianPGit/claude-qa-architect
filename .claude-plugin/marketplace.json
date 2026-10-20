@@ -14,7 +14,7 @@
       "name": "qa-architect",
       "source": "./plugins/qa-architect",
       "description": "Generate Happy/Sad/Edge-case test cases from Linear tasks & GitHub PRs, drive a real browser, and write + auto-fix automated tests. Learns your QA calibration over time.",
-      "version": "0.3.0",
+      "version": "0.3.1",
       "author": {
         "name": "Cristian Pandele",
         "url": "https://github.com/CristianPGit"
