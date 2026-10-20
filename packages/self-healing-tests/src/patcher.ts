@@ -46,8 +46,7 @@ export function applyPatches(
       const old = r.failure.selector;
       const replacement = r.chosen!.selector;
 
-      const escaped = escapeForRegex(old);
-      const regex = new RegExp(escaped, "g");
+      const regex = selectorPattern(old, replacement);
 
       if (regex.test(modified)) {
         if (!dryRun) {
@@ -79,6 +78,19 @@ export function applyPatches(
   }
 
   return patches;
+}
+
+const METHOD_EXPRESSION = /^(getBy\w+|locator)\(/;
+
+/**
+ * The parser reports a locator's inner selector (`#secret`), but candidates are whole
+ * method expressions (`getByRole(...)`). Swapping only the inner string would produce
+ * `locator('getByRole(...)')`, so for those replace the entire `locator('<old>')` call.
+ */
+function selectorPattern(old: string, replacement: string): RegExp {
+  const escaped = escapeForRegex(old);
+  if (!METHOD_EXPRESSION.test(replacement)) return new RegExp(escaped, "g");
+  return new RegExp(`locator\\((['"\`])${escaped}\\1\\)`, "g");
 }
 
 function escapeForRegex(str: string): string {
