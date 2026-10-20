@@ -24,6 +24,7 @@ export function formatTable(report: HealReport, patches: PatchSummary[]): string
       lines.push(`    Fix:      ${r.chosen.selector}`);
       lines.push(`    Strategy: ${r.chosen.strategy} (${Math.round(r.chosen.confidence * 100)}% confidence)`);
       lines.push(`    Element:  <${r.chosen.element.tag}> "${r.chosen.element.text.slice(0, 60)}"`);
+      if (r.chosen.rationale) lines.push(`    Why:      ${r.chosen.rationale}`);
     } else {
       lines.push("    Fix:      (no candidates found)");
     }

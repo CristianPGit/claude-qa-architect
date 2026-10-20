@@ -18,6 +18,8 @@ export interface HealCandidate {
     text: string;
     attributes: Record<string, string>;
   };
+  /** Why the AI healer picked this element; absent for heuristic candidates. */
+  rationale?: string;
 }
 
 export type HealStrategy =
@@ -28,7 +30,8 @@ export type HealStrategy =
   | "aria-label-match"
   | "structural-match"
   | "class-fuzzy-match"
-  | "id-match";
+  | "id-match"
+  | "ai-aria-match";
 
 export interface HealResult {
   failure: SelectorFailure;
@@ -57,4 +60,6 @@ export interface CliOptions {
   format: "table" | "json" | "markdown";
   output?: string;
   baseUrl?: string;
+  ai: boolean;
+  model: string;
 }

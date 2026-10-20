@@ -1,9 +1,19 @@
 import { chromium, type Page, type ElementHandle } from "playwright";
+import { aiCandidate } from "./ai-healer.js";
 import type { SelectorFailure, HealCandidate, HealResult, HealStrategy } from "./types.js";
+
+export interface HealOptions {
+  baseUrl?: string;
+  /** Ask Claude for a role-based locator when no heuristic candidate is near-certain. */
+  ai?: { model: string };
+}
+
+/** Heuristic candidates at or above this confidence are trusted without asking the AI healer. */
+const AI_THRESHOLD = 0.9;
 
 export async function healFailures(
   failures: SelectorFailure[],
-  baseUrl?: string
+  { baseUrl, ai }: HealOptions = {}
 ): Promise<HealResult[]> {
   if (failures.length === 0) return [];
 
@@ -31,6 +41,17 @@ export async function healFailures(
 
       for (const failure of group) {
         const candidates = await findCandidates(page, failure);
+        if (ai && (candidates[0]?.confidence ?? 0) < AI_THRESHOLD) {
+          try {
+            const suggestion = await aiCandidate(page, failure, ai.model);
+            if (suggestion) {
+              candidates.push(suggestion);
+              candidates.sort((a, b) => b.confidence - a.confidence);
+            }
+          } catch (err) {
+            console.error(`  AI healer failed for ${failure.selector}: ${(err as Error).message}`);
+          }
+        }
         const chosen = candidates.length > 0 ? candidates[0] : null;
         results.push({ failure, candidates, chosen, patched: false, verified: false });
       }
