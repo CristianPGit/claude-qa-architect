@@ -33,6 +33,7 @@ Each piece covers one stage of the loop — and they hand off to each other.
 | 📥 **Intake** | *What does this ticket actually require?* | [`ticket-pilot`](plugins/ticket-pilot) |
 | 🧪 **Design** | *What are the Happy / Sad / Edge cases?* | [`qa-architect`](plugins/qa-architect) |
 | ⚙️ **Automate** | *Turn those cases into running tests* | [`qa-architect`](plugins/qa-architect) → [`e2e/search-suite`](e2e/search-suite) |
+| 🎯 **Select** | *Which tests can this diff break?* | [`test-impact`](packages/test-impact) |
 | 🔁 **Stabilize** | *Which tests lie to me?* | [`flaky-test-detector`](packages/flaky-test-detector) |
 | 🩹 **Maintain** | *The selectors broke again* | [`self-healing-tests`](packages/self-healing-tests) |
 | 👁️ **Verify** | *Did the UI change on purpose?* | [`visual-regression-cli`](packages/visual-regression-cli) |
@@ -55,7 +56,8 @@ claude-qa-architect/
 ├── packages/                 TypeScript CLIs (npm workspaces)
 │   ├── agent-eval/           evals for AI features & MCP servers: pass@k, pass^k, flaky
 │   ├── flaky-test-detector/  run a suite N times, rank tests by flakiness
-│   ├── self-healing-tests/   fix broken Playwright selectors from the live DOM
+│   ├── self-healing-tests/   fix broken Playwright selectors from the live DOM (+ Claude, --ai)
+│   ├── test-impact/          risk-based test selection from the git diff
 │   └── visual-regression-cli/snapshot · diff · approve, with HTML reports
 ├── apps/                     zero-build static sites
 │   ├── qa-swiss-knife/       offline QA toolbox (JSON, JWT, regex, test data, …)
@@ -91,11 +93,12 @@ npm run flaky      -- -n 10 -- npx playwright test
 npm run self-heal  -- --ai -- npx playwright test
 npm run vreg       -- --help
 npm run eval       -- packages/agent-eval/examples/command.eval.json
+npm run impact                       # which search tests does this branch put at risk?
 ```
 
-Prefer bare `flaky` / `self-heal` / `vreg` / `agent-eval` commands? `npm link -w <package-name>`.
+Prefer bare `flaky` / `self-heal` / `vreg` / `agent-eval` / `test-impact` commands? `npm link -w <package-name>`.
 
-> None of the CLIs are published to npm. Three of those names are taken on the public registry by
+> None of the CLIs are published to npm. Four of those names are taken on the public registry by
 > unrelated projects — install from this repo, not from npm.
 
 ### The static apps
