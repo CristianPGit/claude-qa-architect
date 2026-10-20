@@ -15,6 +15,7 @@ interface JestTest {
   title: string;
   status: string;
   duration: number | null;
+  failureMessages?: string[];
 }
 
 export function parseJest(data: JestReport): TestResult[] {
@@ -27,6 +28,8 @@ export function parseJest(data: JestReport): TestResult[] {
         suite: test.ancestorTitles.join(" > ") || suite.testFilePath,
         passed: test.status === "passed",
         duration: test.duration ?? 0,
+        error: test.failureMessages?.[0],
+        file: suite.testFilePath,
       });
     }
   }

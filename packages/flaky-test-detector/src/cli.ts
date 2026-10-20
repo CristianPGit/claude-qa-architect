@@ -4,6 +4,7 @@ import { parseArgs } from "node:util";
 import { writeFileSync } from "node:fs";
 import { runSuite } from "./runner.js";
 import { analyze } from "./analyzer.js";
+import { DEFAULT_MODEL, explainFlaky } from "./explain.js";
 import { formatTable } from "./formatters/table.js";
 import { formatMarkdown } from "./formatters/markdown.js";
 import type { CliOptions, OutputFormat } from "./types.js";
@@ -22,6 +23,9 @@ OPTIONS
   -f, --format <format>     Output format: table, json, markdown (default: table)
   -o, --output <file>       Write report to file instead of stdout
   -p, --parser <parser>     Result parser: auto, playwright, cypress, jest, exit-code (default: auto)
+  --explain                 Ask Claude to diagnose each flaky test: category, root cause,
+                            evidence, fix (needs ANTHROPIC_API_KEY or an \`ant auth login\` profile)
+  --model <id>              Claude model for --explain (default: ${DEFAULT_MODEL})
   -h, --help                Show this help
   -v, --version             Show version
 
@@ -29,6 +33,7 @@ EXAMPLES
   flaky -n 10 -- npx playwright test
   flaky -n 5 -f markdown -o report.md -- npm test
   flaky -n 20 --parser jest -- npx jest --testPathPattern=api
+  flaky -n 10 --explain -f markdown -o flaky.md -- npx playwright test
 `;
 
 function parseCliArgs(): CliOptions {
@@ -39,6 +44,8 @@ function parseCliArgs(): CliOptions {
       format: { type: "string", short: "f", default: "table" },
       output: { type: "string", short: "o" },
       parser: { type: "string", short: "p", default: "auto" },
+      explain: { type: "boolean", default: false },
+      model: { type: "string", default: DEFAULT_MODEL },
       help: { type: "boolean", short: "h", default: false },
       version: { type: "boolean", short: "v", default: false },
     },
@@ -84,10 +91,12 @@ function parseCliArgs(): CliOptions {
     format,
     output: values.output,
     parser,
+    explain: values.explain ?? false,
+    model: values.model ?? DEFAULT_MODEL,
   };
 }
 
-function main(): void {
+async function main(): Promise<void> {
   const opts = parseCliArgs();
 
   console.log(`\n  Flaky Test Detector`);
@@ -105,6 +114,18 @@ function main(): void {
   console.log("\n");
 
   const report = analyze(opts.command, results, opts.threshold);
+
+  if (opts.explain && report.flakyTests.length > 0) {
+    console.log(`  Diagnosing ${report.flakyTests.length} flaky test(s) with ${opts.model}...`);
+    for (const test of report.flakyTests) {
+      try {
+        test.diagnosis = (await explainFlaky(test, opts.model)) ?? undefined;
+      } catch (err) {
+        console.error(`  Could not diagnose "${test.name}": ${(err as Error).message}`);
+      }
+    }
+    console.log("");
+  }
 
   let output: string;
   switch (opts.format) {
@@ -136,4 +157,7 @@ function progressBar(current: number, total: number): string {
   return `[${"#".repeat(filled)}${"-".repeat(empty)}]`;
 }
 
-main();
+main().catch((err) => {
+  console.error("Fatal error:", err);
+  process.exit(1);
+});

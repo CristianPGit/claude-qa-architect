@@ -25,14 +25,34 @@ export function formatMarkdown(report: FlakyReport): string {
   if (report.flakyTests.length > 0) {
     lines.push("## Flaky Tests");
     lines.push("");
-    lines.push("| Test | Suite | Pass Rate | Passed | Failed | Avg Duration |");
-    lines.push("|------|-------|-----------|--------|--------|-------------|");
+    lines.push("| Test | Suite | Pass Rate | History | Pass / fail ms | Top error |");
+    lines.push("|------|-------|-----------|---------|----------------|-----------|");
     for (const t of report.flakyTests) {
+      const top = t.failures[0]?.error.split("\n")[0].replace(/\|/g, "\\|").slice(0, 100) ?? "";
       lines.push(
-        `| ${t.name} | ${t.suite} | ${t.passRate}% | ${t.passed}/${t.runs} | ${t.failed}/${t.runs} | ${t.avgDuration}ms |`
+        `| ${t.name} | ${t.suite} | ${t.passRate}% | ${t.history} | ${t.avgPassDuration} / ${t.avgFailDuration} | ${top} |`
       );
     }
     lines.push("");
+
+    const diagnosed = report.flakyTests.filter((t) => t.diagnosis);
+    if (diagnosed.length > 0) {
+      lines.push("## Diagnosis");
+      lines.push("");
+      for (const t of diagnosed) {
+        const d = t.diagnosis!;
+        lines.push(`### ${t.name}`);
+        lines.push("");
+        lines.push(`**${d.category}** · ${d.confidence} confidence${t.file ? ` · \`${t.file}${t.line ? `:${t.line}` : ""}\`` : ""}`);
+        lines.push("");
+        lines.push(d.rootCause);
+        lines.push("");
+        for (const e of d.evidence) lines.push(`- ${e}`);
+        lines.push("");
+        lines.push(`**Fix:** ${d.fix}`);
+        lines.push("");
+      }
+    }
   }
 
   if (report.tests.length > 0) {

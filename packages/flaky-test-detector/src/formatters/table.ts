@@ -66,6 +66,16 @@ export function formatTable(report: FlakyReport): string {
     lines.push("  FLAKY TESTS:");
     for (const t of report.flakyTests) {
       lines.push(`    - ${t.suite} > ${t.name} (${t.passRate}% pass rate)`);
+      lines.push(`        History:  ${t.history}   pass ~${t.avgPassDuration}ms / fail ~${t.avgFailDuration}ms`);
+      if (t.file) lines.push(`        File:     ${t.file}${t.line ? `:${t.line}` : ""}`);
+      const top = t.failures[0];
+      if (top) lines.push(`        Error:    ${truncate(top.error.split("\n")[0], 90)} (x${top.count})`);
+      const d = t.diagnosis;
+      if (d) {
+        lines.push(`        Cause:    [${d.category}, ${d.confidence} confidence] ${d.rootCause}`);
+        for (const e of d.evidence) lines.push(`                  • ${e}`);
+        lines.push(`        Fix:      ${d.fix}`);
+      }
     }
   }
 
