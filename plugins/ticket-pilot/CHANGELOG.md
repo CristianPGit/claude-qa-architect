@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.1 — 2026-10-21
+
+- **`acceptance-reviewer` agent:** when the repo has a `test-impact.json`, runs the `test-impact`
+  CLI on the diff and lists the tags it puts at risk; unmapped files are reported as
+  unclassified regression risks.
+
 ## 0.4.0 — 2026-07-03
 
 Manager-style arbitration, persistent memory, and a learning loop.

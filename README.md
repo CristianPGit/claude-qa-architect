@@ -81,7 +81,7 @@ Both plugins ship from one marketplace:
 /plugin install ticket-pilot@qa-architect
 ```
 
-Then `/test-cases LIN-123`, `/qa-automate`, `/ticket PROJ-456`, `/triage`, `/standup`.
+Then `/test-cases LIN-123`, `/qa-automate`, `/qa-bdd-agents`, `/ticket PROJ-456`, `/triage`, `/standup`.
 
 ### The CLIs
 

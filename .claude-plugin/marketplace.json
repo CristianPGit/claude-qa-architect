@@ -14,7 +14,7 @@
       "name": "qa-architect",
       "source": "./plugins/qa-architect",
       "description": "Generate Happy/Sad/Edge-case test cases from Linear tasks & GitHub PRs, drive a real browser, and write + auto-fix automated tests. Learns your QA calibration over time.",
-      "version": "0.2.0",
+      "version": "0.3.0",
       "author": {
         "name": "Cristian Pandele",
         "url": "https://github.com/CristianPGit"
@@ -25,7 +25,7 @@
       "name": "ticket-pilot",
       "source": "./plugins/ticket-pilot",
       "description": "Jira ticket → analyzed requirements → approved plan → implemented branch → reviewed & QA'd diff. Human gates at plan approval and before push.",
-      "version": "0.4.0",
+      "version": "0.4.1",
       "author": {
         "name": "Cristian Pandele",
         "url": "https://github.com/CristianPGit"
