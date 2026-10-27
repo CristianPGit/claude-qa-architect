@@ -116,10 +116,12 @@ talks to a remote test environment.
 
 - **QA output format:** compact table, one row per case, emoji for type/priority, brief scenario
   notes — never verbose Given/When/Then blocks in chat.
-- **Git history:** this repo is the original `claude-qa-architect` continued — its history was
-  never rewritten. The plugin moved to `plugins/qa-architect/` (use `git log --follow` there), and
-  the seven sibling projects were rewritten under their new paths with
-  `git filter-repo --to-subdirectory-filter` before being merged (plain `git log -- <path>` works).
-  Never rewrite this history.
+- **Git history:** this repo is the original `claude-qa-architect` continued. The plugin moved to
+  `plugins/qa-architect/` (use `git log --follow` there), and the seven sibling projects were
+  rewritten under their new paths with `git filter-repo --to-subdirectory-filter` before being
+  merged (plain `git log -- <path>` works). On 2026-10-27 the whole history was rewritten once,
+  on the owner's explicit instruction, to purge a removed e2e suite and company test data; every
+  commit hash before that date changed. Don't rewrite it again without that same explicit
+  instruction.
 - Ignore rules are consolidated in the root `.gitignore`. Do not reintroduce per-package ignore files.
 - One `LICENSE` (MIT) at the root covers everything.
