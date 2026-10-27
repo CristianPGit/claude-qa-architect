@@ -167,8 +167,8 @@ git log --follow -- plugins/qa-architect/skills/test-cases/SKILL.md
 Merged in from their own repositories: `claude-ticket-pilot`, `flaky-test-detector`,
 `self-healing-tests`, `visual-regression-cli`, `qa-swiss-knife`, `claude-agent-control-panel`,
 and `search-test-scenario`. Those standalone repositories have since been retired — this is the
-only place the code lives now, and the only place it gets updated. The `search-test-scenario` suite
-(remote e2e, `e2e/search-suite/`) was later removed; its history is still in git.
+only place the code lives now, and the only place it gets updated. The `search-test-scenario` e2e
+suite was later removed.
 
 ## License
 

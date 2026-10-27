@@ -80,7 +80,7 @@ const done = audits.filter(Boolean)
 phase('Synthesize')
 const report = await agent(
   `Synthesize a cross-session audit report from these per-session audits of a QA engineer's Claude Code ` +
-  `workspace (E2E test suites for a banking app):\n\n${JSON.stringify(done, null, 2)}\n\n` +
+  `workspace (E2E test suites and QA tooling):\n\n${JSON.stringify(done, null, 2)}\n\n` +
   `Return markdown with: (1) a compact table — one row per session: date, goal, outcome status emoji ` +
   `(✅ done / ⚠️ partial / ❌ abandoned), unfinished count; (2) "Unfinished work" — deduplicated, ordered by ` +
   `likely importance, each with its source session; (3) "Lessons & recurring patterns" — things that came up ` +
