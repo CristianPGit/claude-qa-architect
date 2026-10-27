@@ -2,7 +2,7 @@
   "name": "claude-qa-architect",
   "version": "1.0.0",
   "private": true,
-  "description": "An AI-assisted QA toolchain: Claude Code plugins, CLI tools, browser tools and a reference E2E suite.",
+  "description": "An AI QA engineer for Claude Code (/qa) plus the QA toolbox it reaches for: flaky-test detection, self-healing selectors, visual regression, test impact and LLM/MCP evals.",
   "author": {
     "name": "Cristian Pandele",
     "url": "https://github.com/CristianPGit"
