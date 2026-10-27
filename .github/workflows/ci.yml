@@ -32,6 +32,9 @@ jobs:
       - name: agent-eval runs end to end (offline example)
         run: npm run eval -- --min-pass-rate 0 -o /dev/null packages/agent-eval/examples/command.eval.json
 
+      - name: qa-architect guard hook (offline eval)
+        run: npm run eval -- --min-pass-rate 1 packages/agent-eval/examples/qa-guard.eval.json
+
   webmcp:
     name: WebMCP contract suite
     runs-on: ubuntu-latest

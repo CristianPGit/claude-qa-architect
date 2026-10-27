@@ -1,6 +1,6 @@
 ---
 name: automate-tests
-description: Turn test cases into runnable automated tests, drive a real browser to explore and verify behavior, run the tests, and auto-fix them until they pass. Use when the user asks to "automate these tests", "write a Playwright/Cypress test", "test this in the browser", "explore the app", or "make the failing test pass". Picks chrome-devtools, playwright-cli, or agent-browser based on what's available.
+description: Turn test cases into runnable automated tests, drive a real browser to explore and verify behavior, run the tests, and auto-fix them until they pass. The execute step of the `qa` skill; use it directly for a single test-writing or test-fixing task the user scopes themselves ("write a Playwright test for this", "make this failing spec pass"). Picks chrome-devtools, playwright-cli, or agent-browser based on what's available.
 ---
 
 # Automated Testing & Browser Exploration
@@ -61,7 +61,8 @@ feed anything new back to the `test-cases` skill.
 - Use the framework's auto-waiting and web-first assertions. No arbitrary timeouts unless the
   project (e.g. a slow staging env) requires them — respect existing timeout conventions.
 - Seed/cleanup: follow the project's strategy (fixtures, API setup, test accounts). If state
-  cleanup is undefined, ask rather than leaving the suite dirty.
+  cleanup is undefined, ask rather than leaving the suite dirty — or, when invoked from the `qa`
+  skill, use the domain pack's test-data helpers and the shared `qa-library/helpers/`.
 - Keep secrets in `.env` / the project's existing config — never hardcode credentials.
 
 ## Step 4 — Run and auto-fix (the loop)

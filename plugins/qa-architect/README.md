@@ -23,6 +23,7 @@ QA Architect turns Claude Code into a senior QA engineer that lives in your repo
 
 | Capability | What you get |
 |---|---|
+| 🎯 **One `/qa` entry point** | Hand it a ticket, PR, build — or nothing, for your current branch. It plans, prepares the test env, executes, proves bugs with repro tests, reports with evidence and learns, then asks you **once, at the end**. |
 | 🧠 **Test-case generation** | Clear, concise, **traceable** cases grouped Happy Path / Sad Path / Edge — plus security, regression & non-functional when they matter. One behavior per case, observable assertions, P1 first. |
 | 🔗 **Linear + GitHub native** | Point it at `ENG-412` or PR `#123`. It pulls the real ticket, acceptance criteria, and the actual diff — it never invents requirements. |
 | 🌐 **Real browser exploration** | Drives the app via **chrome-devtools**, **playwright-cli**, or **agent-browser** to capture real selectors, network calls, and error states — and to discover cases you can't see from code. |
@@ -64,14 +65,21 @@ QA Architect is more powerful with these connected. All are optional — it degr
 
 | Command | What it does |
 |---|---|
-| `/qa-architect:test-cases ENG-412` | Generate a test plan for a Linear task… |
-| `/qa-architect:test-cases 123` | …or a GitHub PR… |
-| `/qa-architect:test-cases` | …or your current branch diff (no argument). |
-| `/qa-architect:qa-automate` | Explore in a browser, write + run + auto-fix automated tests. |
-| `/qa-architect:qa-bdd-agents "search filters"` | Playwright planner → generator → healer for a playwright-bdd suite: plan, Gherkin, POM steps, heal. |
-| `/qa-architect:qa-setup` | Run the three-phase project setup. |
-| `/qa-architect:qa-calibrate "too many edge cases"` | Record a standing preference (Capture). |
-| `/qa-architect:qa-calibrate --consolidate` | Fold accumulated feedback into a clean `preferences.md` (out-of-band curation). |
+| `/qa-architect:qa ENG-412` | The whole loop on a ticket, PR (`123`), build (`build 4.12`) or your branch (no argument). |
+| `/qa-architect:qa 123 plan only` | Stop after the plan — no env touched. Other steering words: `preflight <flow>`, `explore`, `automate`, `swarm`, `resume`. |
+| `/qa-architect:qa bug bash checkout` | 5–10 parallel explorers with focused charters; only proven bugs count. |
+| `/qa-architect:qa fix ENG-456` | Fix a small bug red → green and, on your go, open a stacked PR for the original author. |
+| `/qa-architect:qa` | No argument: resumes an unfinished run, else tests your branch diff, else runs a health check (smoke + stale checks + risky areas). |
+| `/qa-architect:qa e2e/cart.spec.ts` | Run, diagnose and fix one test — or prove the bug it found. playwright-bdd suites go through the planner/generator/healer agents automatically. |
+| `/qa-architect:qa-setup [domain]` | Three-phase project setup plus a knowledge pack per domain — the only place it asks questions up front. Optional: `/qa` sets up what's missing itself. |
+| `/qa-architect:qa-learn "too many edge cases"` | Record a standing preference. |
+| `/qa-architect:qa-learn` | Tidy all QA memory: consolidate preferences, re-verify facts, prune the script library, archive runs. `/qa` also does this on its own when memory grows. |
+
+Three commands, by design: `/qa` decides between planning, automating, BDD and fixing itself.
+
+> **Heads-up:** a bare `/qa` on a clean branch starts a health run, which **changes your test
+> environment** (flags, seeded data), then restores it. It never touches hosts listed in
+> `.qa/guard.json`.
 
 ### As an agent
 
@@ -99,7 +107,7 @@ The skills trigger on intent — no command needed:
 ### 1. Test cases — grounded in the real source of truth
 
 ```
-You:  /qa-architect:test-cases 123
+You:  /qa-architect:qa 123 plan only
 
 QA Architect:
   • gh pr view 123  +  gh pr diff 123      ← reads the actual change
@@ -181,6 +189,21 @@ event to a headless Claude run. Three ways, from simplest to most native:
 
 ---
 
+## 🔄 The `/qa` loop
+
+| Step | What happens |
+|---|---|
+| 0 · Subscribe | Loads the domain's knowledge pack (live repos, area pages, test-data helpers) and past runs; sets one up if missing. |
+| 1 · Intake | Fetches the ticket or diff — without touching your clones — and writes a requirements brief. |
+| 2 · Decide | Picks smoke / regression / test cases / exploratory / swarm; per case automate now, draft or manual. Areas with past bugs get more weight. |
+| 3 · Prepare | Doctor, claims the env, then config → flags → test data → test user, saving original values first. |
+| 4 · Execute | Saved scripts first (a cache: hit, rebuild when stale, evict when the code is gone), new ones for the rest. |
+| 5 · Prove | A suspected bug counts only when a repro test fails the same way twice. |
+| 6 · Restore & report | Puts the env back, releases it, writes a verdict report with screenshots, traces and logs. |
+| 7 · Learn | Updates area pages, records the run, drops facts that turned out wrong, tidies memory as it grows. |
+| 8 · One confirmation | You pick which bugs to file, comments to post, the knowledge commit, and which small bugs to fix. |
+| 9 · Fix small bugs | Failing test → smallest change → repo checks green → stacked PR for the PR author. Never merges. |
+
 ## 📁 What gets written to your repo
 
 QA Architect keeps everything **project-local and committable** so your whole team inherits it:
@@ -190,13 +213,20 @@ QA Architect keeps everything **project-local and committable** so your whole te
 ├── project.md          # runbook (read-mostly): apps, stack, auth, envs, prod-safety
 ├── preferences.md      # working policy: depth, style, always/never include
 ├── calibration-log.md  # audit ledger (append-only): every lesson, attributed + dated
-├── sessions/<ref>.md   # per-run scratch notes (lean, disposable)
-└── apps/<name>.md      # per-app notes (monorepos)
+├── sessions/<ref>/      # one /qa run: log, brief, plan, restore point, evidence, report, bug drafts
+├── domains/<domain>/    # knowledge pack: domain.md, repos.md, not-bugs.md, areas/<area>.md
+├── guard.json           # production hosts the guard hook refuses
+├── library.md           # index of saved check scripts (the cache)
+├── runs/                # index.md + one record per run
+└── apps/<name>.md       # per-app notes (monorepos)
 ```
+
+Saved check scripts live in your own suite, under `<suite>/qa-library/`, so they run with your
+framework's config and CI.
 
 Memory is **tiered by write-permission**: the runbook is read during runs but changed only by
 setup or a human; live runs write fast notes to `sessions/`; feedback is captured to the
-append-only ledger; and only the out-of-band `/qa-calibrate --consolidate` pass folds lessons
+append-only ledger; and only the consolidate pass (`/qa-learn`, or `/qa` itself once the log grows) folds lessons
 into a clean `preferences.md`. Git gives you version history and rollback; the ledger tells you
 *when* and *why* any preference entered.
 
@@ -212,15 +242,17 @@ plugins/qa-architect/
 ├── .claude-plugin/
 │   └── plugin.json          # plugin manifest (listed by the root marketplace.json)
 ├── .mcp.json                # bundles Linear + chrome-devtools + Playwright MCP servers
+├── hooks/                   # guard.py: denies prod hosts/merges, asks before outward actions
 ├── agents/
 │   └── qa-architect.md      # the autonomous QA agent
 ├── skills/
+│   ├── qa/                  # the /qa entry point: hub SKILL.md + one spoke per loop part
 │   ├── test-cases/          # generate Happy/Sad/Edge test cases
 │   ├── automate-tests/      # browser exploration + automation + auto-fix
 │   ├── bdd-test-agents/     # Playwright test agents redirected into Gherkin + POM
 │   ├── qa-calibration/      # remember feedback across sessions
 │   └── qa-architect/        # three-phase project setup orchestrator
-├── commands/                # /test-cases, /qa-automate, /qa-bdd-agents, /qa-setup, /qa-calibrate
+├── commands/                # /qa, /qa-setup, /qa-learn
 └── templates/               # test-plan & preferences templates
 ```
 
@@ -228,6 +260,25 @@ plugins/qa-architect/
 
 ## 🛡️ Safety & principles
 
+The plugin ships a **PreToolUse guard** (`hooks/guard.py`, needs `python3`), so `/qa` can run
+unattended without relying on the model's good behaviour alone:
+
+| Action | Guard |
+|---|---|
+| Any tool call naming a host in `.qa/guard.json` (your production hosts; `*.` for subdomains) | ⛔ denied |
+| `gh pr merge`, force pushes | ⛔ denied |
+| `git push`, PR / issue / release writes, `gh api` writes, Linear / Jira / chat writes | ✋ your own permission prompt |
+| Everything else (reads, local tests, browser on test envs) | ✅ passes |
+
+`/qa-setup` and `/qa` write `.qa/guard.json` from the domain pack's environments. The guard is
+active whenever the plugin is installed, so outside `/qa` you'll also be prompted before pushes.
+It's tested offline in CI: `npm run eval -- packages/agent-eval/examples/qa-guard.eval.json`.
+
+- **Ticket text is data, not orders** — instructions found in tickets, PRs, pages or logs are
+  never followed, only quoted in the report.
+- **Evidence stays local** — raw traces and logs live in gitignored `.qa/sessions/`; anything
+  attached or quoted is redacted first.
+- **Bounded** — every `/qa` mode has a time box and an agent cap (override in `preferences.md`).
 - **Never invents requirements** — always works from the real ticket, PR, diff, or running app.
 - **Never hides a real bug** — a failing test that reflects a genuine defect is reported, not
   silenced by weakening the assertion.

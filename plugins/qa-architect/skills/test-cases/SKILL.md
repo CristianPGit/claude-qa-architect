@@ -1,6 +1,6 @@
 ---
 name: test-cases
-description: Generate clear, concise QA test cases (Happy Path, Sad Path, Edge cases, and more) for a Linear task, a GitHub PR, a diff, or a plain feature description. Use when the user asks to "write test cases", "QA this PR", "test cases for LINEAR-123", "what should I test", or wants a structured test plan before testing or automating. Reads calibration preferences so output matches the user's depth and style.
+description: Generate clear, concise QA test cases (Happy Path, Sad Path, Edge cases, and more) for a Linear task, a GitHub PR, a diff, or a plain feature description. The plan step of the `qa` skill; use it directly only when the user wants just a test-case table, e.g. for a pasted feature description with no ticket or PR. Reads calibration preferences so output matches the user's depth and style.
 ---
 
 # Test Case Generation
@@ -47,7 +47,8 @@ real edge cases (null handling, boundary values, new error states) that a descri
 mentions.
 
 If the source is ambiguous or missing acceptance criteria, ask **one** focused round of
-clarifying questions before generating — don't generate against a guess.
+clarifying questions before generating — don't generate against a guess. **Exception:** when
+invoked from the `qa` skill, don't ask — work from `<session>/brief.md` and its *Assumptions*.
 
 ## Step 2 — Decide the test categories
 
@@ -132,6 +133,9 @@ Before presenting, run this checklist against your own output:
 
 ## Step 5 — Present and offer next steps
 
+When invoked from the `qa` skill, present the table and return — the loop decides what comes
+next, so skip the offers below.
+
 Output the cases grouped by category, P1 first. Then offer:
 
 1. **Adjust** — "Want fewer/more? More edge cases? Drop a category?" Capture any standing
@@ -149,4 +153,5 @@ Output the cases grouped by category, P1 first. Then offer:
 - User says "now automate these" → `automate-tests` skill.
 - User gives feedback on your *style/depth* ("too much", "you always miss X") → record it with
   the `qa-calibration` skill so the lesson sticks.
+- User wants the whole job done (test, prove, report) on a ticket/PR/build → `qa` skill.
 - User wants the full per-app QA setup from scratch → `qa-architect` orchestrator skill.

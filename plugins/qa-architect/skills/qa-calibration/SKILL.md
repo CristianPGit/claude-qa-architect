@@ -10,7 +10,7 @@ never slows down a live QA run:
 
 - **Capture** (default, in-the-moment) — record the lesson fast and cheap, then keep working.
 - **Consolidate** (out-of-band "dreaming") — later, fold accumulated lessons into a clean set of
-  preferences and prune contradictions. Triggered by `/qa-calibrate --consolidate`.
+  preferences and prune contradictions. Triggered by `/qa-learn`.
 
 ## The memory layers
 
@@ -52,10 +52,11 @@ Translate feedback into a concrete, testable line:
 
 ## Mode 2 — Consolidate (out-of-band "dreaming")
 
-Run when the user invokes `/qa-calibrate --consolidate`, or after a batch of QA work. This is a
+Run when the user invokes `/qa-learn`, or after a batch of QA work. This is a
 dedicated curation pass whose only goal is memory *quality* — separate from any live task:
 
-1. Read every `[new]` row in `.qa/calibration-log.md` and any `.qa/sessions/*.md` notes.
+1. Read every `[new]` row in `.qa/calibration-log.md` and any `.qa/sessions/*.md` notes (plus
+   `.qa/sessions/*/log.md` from `qa` runs).
 2. **Find macro patterns**, not just single lines — e.g. the same miss recurring across several
    PRs, or two feedback lines that contradict. Prefer the pattern over the one-off.
 3. **Rewrite `.qa/preferences.md` clean**: one concrete bullet per point, under the right section,

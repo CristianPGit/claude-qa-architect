@@ -1,0 +1,3 @@
+{
+  "blockedHosts": ["shop.example.com", "*.prod.example.com"]
+}

@@ -1,7 +1,7 @@
 {
   "name": "qa-architect",
-  "version": "0.3.1",
-  "description": "AI QA engineer for Claude Code. Generates Happy/Sad/Edge-case test cases from Linear tasks and GitHub PRs, drives a real browser to explore behavior, writes and auto-fixes automated tests, and learns your calibration over time.",
+  "version": "0.4.0",
+  "description": "AI QA engineer for Claude Code. One /qa entry point runs the whole loop on a ticket, PR or build — plan, env preflight, execute, prove bugs with repro tests, report, learn, fix small bugs as stacked PRs. Generates Happy/Sad/Edge-case test cases from Linear tasks and GitHub PRs, drives a real browser to explore behavior, writes and auto-fixes automated tests, and learns your calibration over time.",
   "author": {
     "name": "Cristian Pandele",
     "url": "https://github.com/CristianPGit"

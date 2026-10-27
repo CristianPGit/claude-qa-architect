@@ -9,7 +9,10 @@ This is the entry point that tailors QA Architect to a specific codebase. It wal
 **three phases** and ends by writing a project-local QA setup the team can use every day.
 
 Run this once per repo (or when the architecture changes meaningfully). For day-to-day work,
-the `test-cases` and `automate-tests` skills are invoked directly.
+use the `qa` skill (`/qa`), which routes to `test-cases`, `automate-tests` and the rest.
+
+When the `qa` skill calls this for a missing runbook, run Phase 1 and Phase 3 only: skip the
+Phase 2 questionnaire and record each gap as an `unverified` line instead.
 
 ---
 
@@ -79,6 +82,7 @@ Write a tailored, project-local QA setup. Create:
 
 Then confirm the everyday workflow with the user:
 
+- `/qa <ticket | PR | build>` → the whole loop: plan, prepare, test, prove, report, learn.
 - `test-cases` → generate a test plan for a task/PR.
 - `automate-tests` → explore in the browser, write + run + auto-fix automated tests.
 - `qa-calibration` → adjust depth/style any time; the lesson sticks.

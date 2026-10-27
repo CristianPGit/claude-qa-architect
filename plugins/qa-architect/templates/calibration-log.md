@@ -3,7 +3,7 @@
 > The **audit layer** of QA memory. Every lesson QA Architect learns is appended here as one
 > attributed line *before* it's folded into `preferences.md`. Never rewrite or delete rows —
 > git history plus this ledger is how you find *when* and *why* a preference entered, and roll
-> back a bad habit. The out-of-band consolidation pass (`/qa-calibrate --consolidate`) reads the
+> back a bad habit. The out-of-band consolidation pass (`/qa-learn`) reads the
 > unprocessed rows, updates `preferences.md`, and marks rows `[folded]`.
 
 Format: `- [status] YYYY-MM-DD · <source> · <section> · <lesson> — <why>`

@@ -79,6 +79,10 @@ Then **stop and show the user the plan** as a compact table (one row per scenari
 ✅ happy · ❌ negative · ⚠️ edge · 🔒 security), marking which scenarios are already covered by an
 existing `.feature`. Ask which to keep. Don't generate anything the user hasn't approved.
 
+**Exception:** when invoked from the `qa` skill, the plan was already decided there — keep the
+scenarios that map to `automate now` cases in `<session>/plan.md`, drop ones an existing
+`.feature` covers, list the rest as drafts in the report, and continue without stopping.
+
 ## Step 3 — Translate the approved plan into Gherkin
 
 Write or extend `features/<area>.feature`:

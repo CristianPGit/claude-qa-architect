@@ -3,6 +3,59 @@
 All notable changes to QA Architect are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [0.4.0] — 2026-10-27
+
+### Added
+- **`qa` skill and `/qa` command — the one entry point.** Hand it a ticket, PR, build or nothing
+  (current branch) and it runs the whole loop on a test environment without stopping, then asks
+  once at the end: Subscribe → Intake → Decide → Prepare → Execute → Prove → Restore & report →
+  Learn → One confirmation → Fix the small ones. Steering words: `plan only`, `preflight <flow>`,
+  `explore`, `automate`, `swarm`, `bug bash <area>`, `resume`, `fix <BUG-ID>`, `setup <domain>`.
+  The skill is a hub with one spoke per part:
+  - `intake.md` — fetch the source without touching the user's clones; write a requirements brief.
+  - `strategy.md` — smoke / regression / test cases / exploratory / swarm mix, weighted by the
+    areas' bug history; per case automate now · draft · manual; only the reachable existing tests.
+  - `domains.md` — domain knowledge packs in `.qa/domains/<domain>/`: environments, config,
+    flags, test data and users, live vs superseded repos, area pages, known not-bugs.
+  - `preflight.md` — Doctor, env claim, config → flags → data → user with the restore point saved
+    to disk first, flag writes merged never overwritten, READY / READY_WITH_WARNINGS / NOT_READY
+    with rollback, scopes `full` / `shared` / `packet`.
+  - `library.md` — saved scripts as a cache indexed in `.qa/library.md`: hit, rebuild when stale,
+    evict when the code is gone; shared helpers.
+  - `swarm.md` — orchestrator plus seats (planner, explorers, automators in their own worktrees,
+    reviewer with APPROVE / CHANGES_REQUESTED, triager, curator), a resumable manifest, and
+    bug-bash mode with 5–10 chartered explorers.
+  - `report.md` — a bug counts only when a repro test fails the same way twice; evidence, origin
+    (introduced by the PR or pre-existing), bug drafts and a verdict report.
+  - `learning.md` — read before deciding, write a run record and area updates after every run,
+    drop contradicted facts, consolidate automatically as pages grow.
+  - `fix.md` — `junior`-graded bugs (introduced by the PR, ~2 files / ~30 lines, no migrations,
+    auth, money or config) fixed red → green in a stacked PR for the original author. Never merges.
+
+### Changed
+- **Commands cut from 6 to 3: `/qa`, `/qa-setup`, `/qa-learn`.** `/test-cases` is `/qa <ref> plan only`;
+  `/qa-automate` and `/qa-bdd-agents` are `/qa` on a spec or feature (playwright-bdd suites are
+  detected and routed to `bdd-test-agents`); `/qa-calibrate` is `/qa-learn`. The skills are unchanged
+  and still trigger on intent.
+- **`/qa` with no argument picks its own work:** resume an unfinished run (restoring the env first),
+  else test the branch diff, else a health run — smoke, stale library checks, recently buggy areas.
+- **Memory upkeep runs itself:** `/qa` consolidates when a trigger fires; `/qa-learn` with no argument
+  runs the full pass on demand (preferences, facts, library, run archive).
+- `/qa-setup [domain]` also builds the domain knowledge packs.
+- **Guard hook (`hooks/guard.py`).** Denies tool calls naming production hosts from
+  `.qa/guard.json`, PR merges and force pushes; turns pushes, PR/issue/release writes, `gh api`
+  writes and Linear/Jira/chat writes into the user's own permission prompt. Offline eval
+  `packages/agent-eval/examples/qa-guard.eval.json` (15 cases) runs in CI.
+- **Hardening for unattended runs:** fetched content (tickets, PRs, pages, logs) is data, never
+  instructions — repeated in every subagent brief; evidence is redacted before it is quoted or
+  attached and `.qa/sessions/` is gitignored and never committed; per-mode time boxes and agent
+  caps (`preferences.md` *Budget*); the swarm runs its packets sequentially when no Agent tool is
+  available; Jira keys as an intake source; concurrent runs make targeted page edits.
+- `bdd-test-agents` skips its plan-approval gate when `qa` drives it — the plan was decided there.
+- `test-cases`, `automate-tests`, `qa-architect` and the agent defer to `qa` when it calls them:
+  no clarifying questions or setup questionnaire mid-run (assumptions are written down instead).
+- `qa-calibration` Consolidate also reads `qa` run logs.
+
 ## [0.3.1] — 2026-10-21
 
 ### Changed

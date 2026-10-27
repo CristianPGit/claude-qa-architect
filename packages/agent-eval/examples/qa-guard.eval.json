@@ -1,0 +1,161 @@
+{
+  "name": "qa-architect-guard",
+  "description": "Offline. The qa-architect PreToolUse guard denies production hosts, merges and force pushes, asks for outward actions, and lets everything else through.",
+  "target": {
+    "type": "command",
+    "command": "python3 plugins/qa-architect/hooks/guard.py"
+  },
+  "trials": 1,
+  "tasks": [
+    {
+      "id": "prod-curl",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"curl -s https://shop.example.com/api/health\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "contains",
+          "value": "\"permissionDecision\": \"deny\""
+        }
+      ]
+    },
+    {
+      "id": "prod-wildcard-subdomain",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"npx playwright test --base-url=https://eu.prod.example.com\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "contains",
+          "value": "\"permissionDecision\": \"deny\""
+        }
+      ]
+    },
+    {
+      "id": "prod-browser-navigate",
+      "input": "{\"tool_name\": \"mcp__plugin_qa-architect_playwright__browser_navigate\", \"tool_input\": {\"url\": \"https://shop.example.com/cart\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "contains",
+          "value": "\"permissionDecision\": \"deny\""
+        }
+      ]
+    },
+    {
+      "id": "staging-allowed",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"curl -s https://staging.example.com/api/health\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "not-contains",
+          "value": "permissionDecision"
+        }
+      ]
+    },
+    {
+      "id": "staging-browser-allowed",
+      "input": "{\"tool_name\": \"mcp__plugin_qa-architect_playwright__browser_navigate\", \"tool_input\": {\"url\": \"http://localhost:3000/cart\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "not-contains",
+          "value": "permissionDecision"
+        }
+      ]
+    },
+    {
+      "id": "pr-merge",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"gh pr merge 123 --squash\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "contains",
+          "value": "\"permissionDecision\": \"deny\""
+        }
+      ]
+    },
+    {
+      "id": "force-push",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"git push --force origin qa-fix/BUG-1\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "contains",
+          "value": "\"permissionDecision\": \"deny\""
+        }
+      ]
+    },
+    {
+      "id": "push-asks",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"git push -u origin qa-fix/BUG-1\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "contains",
+          "value": "\"permissionDecision\": \"ask\""
+        }
+      ]
+    },
+    {
+      "id": "pr-create-asks",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"gh pr create --base feat/coupons --title x --body y\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "contains",
+          "value": "\"permissionDecision\": \"ask\""
+        }
+      ]
+    },
+    {
+      "id": "pr-comment-asks",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"gh pr comment 123 --body-file report.md\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "contains",
+          "value": "\"permissionDecision\": \"ask\""
+        }
+      ]
+    },
+    {
+      "id": "gh-api-post-asks",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"gh api repos/o/r/issues -f title=bug\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "contains",
+          "value": "\"permissionDecision\": \"ask\""
+        }
+      ]
+    },
+    {
+      "id": "linear-write-asks",
+      "input": "{\"tool_name\": \"mcp__plugin_qa-architect_linear__save_comment\", \"tool_input\": {\"issueId\": \"ENG-1\", \"body\": \"x\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "contains",
+          "value": "\"permissionDecision\": \"ask\""
+        }
+      ]
+    },
+    {
+      "id": "linear-read-allowed",
+      "input": "{\"tool_name\": \"mcp__plugin_qa-architect_linear__get_issue\", \"tool_input\": {\"id\": \"ENG-1\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "not-contains",
+          "value": "permissionDecision"
+        }
+      ]
+    },
+    {
+      "id": "reads-allowed",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"gh pr view 123 --json title && git fetch && git diff origin/main...HEAD\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "not-contains",
+          "value": "permissionDecision"
+        }
+      ]
+    },
+    {
+      "id": "local-test-allowed",
+      "input": "{\"tool_name\": \"Bash\", \"tool_input\": {\"command\": \"npx playwright test e2e/cart.spec.ts\"}, \"cwd\": \"plugins/qa-architect/hooks/fixture\"}",
+      "graders": [
+        {
+          "type": "not-contains",
+          "value": "permissionDecision"
+        }
+      ]
+    }
+  ]
+}

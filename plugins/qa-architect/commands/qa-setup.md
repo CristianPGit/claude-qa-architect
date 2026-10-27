@@ -1,17 +1,21 @@
 ---
-description: Bootstrap QA Architect for this repo — deep codebase analysis, interactive questionnaire, and generation of a tailored QA setup.
+description: Bootstrap QA Architect for this repo — codebase analysis, a short questionnaire, the runbook and preferences — then a knowledge pack per domain. Pass a domain name to (re)build just that pack.
+argument-hint: "[domain]"
 ---
 
-Set up QA Architect for this project.
+**If `$ARGUMENTS` names a domain:** invoke the `qa` skill with `setup $ARGUMENTS` — it writes or
+refreshes `.qa/domains/$ARGUMENTS/` autonomously (see its `domains.md`).
 
-Invoke the `qa-architect` setup skill and run all three phases:
+**Otherwise:** invoke the `qa-architect` setup skill and run all three phases:
 
-1. **Deep codebase analysis** — detect apps, tech stack, auth, environments, feature flags,
-   integrations, CI/CD, and existing tests. Produce a short analysis report.
-2. **Interactive questionnaire** — ask only what analysis couldn't determine (QA target,
-   personas, critical flows, test data, cleanup strategy, risk areas, calibration). Batch the
-   questions.
-3. **QA setup generation** — write `.qa/preferences.md`, `.qa/project.md`, and per-app notes,
-   plus a quickstart for the everyday workflow.
+1. **Deep codebase analysis** — apps, stack, auth, environments, flags, integrations, CI/CD,
+   existing tests.
+2. **Questionnaire** — ask only what analysis couldn't determine, in one batch. This is the one
+   time QA Architect asks up front; `/qa` never does.
+3. **Setup generation** — `.qa/project.md`, `.qa/preferences.md`, `.qa/calibration-log.md`.
 
-Keep everything project-local and committable.
+Then, without asking, set up one domain pack per domain the analysis found (`qa` skill,
+`setup <domain>`). Keep everything project-local and uncommitted; offer one commit at the end.
+
+You don't have to run this first — `/qa` sets up what's missing on its own, just without the
+questionnaire.

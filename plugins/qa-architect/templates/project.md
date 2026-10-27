@@ -2,7 +2,7 @@
 
 > The **runbook layer** of QA memory: stable facts about *this* repo and the hard safety rules.
 > QA Architect reads this before every run but **does not edit it during normal QA work** —
-> it's written once at setup (`/qa-setup`) and changed deliberately by a human when the
+> it's written once at setup (`/qa-setup`, or by `/qa` when missing) and changed deliberately by a human when the
 > architecture or safety posture actually changes. Commit it so the whole team shares one source
 > of truth. For *how we like QA done* (depth, style, always/never), see `preferences.md` instead.
 

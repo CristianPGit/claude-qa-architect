@@ -31,6 +31,10 @@
 <!-- Safety rules. e.g. "Target staging by default; never run browser tests against prod." -->
 - Default target: <local | staging>. Never run mutating/browser tests against production.
 
+## Budget
+<!-- /qa time boxes and agent caps. e.g. "PR runs: 30 min, 2 agents; never swarm on a PR." -->
+- Defaults from the `qa` skill's strategy (PR 45 min / 2 agents, swarm 2 h / 6, bug bash 60 min / 10).
+
 ## Frameworks
 <!-- Preferred tools. e.g. "Playwright for e2e, Vitest for unit; match existing POM." -->
 - Match the project's existing test framework and Page Object patterns.

@@ -79,6 +79,8 @@ plugin version, bump it in **both** files — they are checked independently.
   `calibration-log.md` — templates in `templates/`).
 - **ticket-pilot** — a six-agent pipeline with human gates. `hooks/guard.sh` blocks `git push`, PR
   creation, and Jira writes; that guard is load-bearing, do not weaken it when editing hooks.
+- **qa-architect's** `hooks/guard.py` is equally load-bearing — `/qa` runs unattended on the
+  strength of it. Change it only together with `packages/agent-eval/examples/qa-guard.eval.json`.
 
 ### `e2e/webmcp-contract` — WebMCP contract suite
 
