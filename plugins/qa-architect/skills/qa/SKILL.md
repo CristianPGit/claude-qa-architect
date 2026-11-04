@@ -34,7 +34,8 @@ filing bugs, posting comments, committing/pushing. Never production.
 is final — report it, never route around it.
 
 **Budget.** Every run has the time box and agent cap in [`strategy.md`](strategy.md) *Budget*.
-When it runs out, stop executing, restore, and report what was and wasn't covered.
+When it runs out, stop executing, restore, and report what was and wasn't covered. Tokens are
+budgeted too: pick the cheapest mode that answers the request — [`strategy.md`](strategy.md) *Cost*.
 
 ## Intent — what the user asked for
 

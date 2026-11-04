@@ -12,7 +12,7 @@ mode; otherwise you pick.
 | **Regression** | The diff reaches existing tests. Run only those ([Reachable tests](#reachable-tests)), not the whole suite. |
 | **Test cases** | There are ACs or new behaviour — the `test-cases` skill turns the brief into the table. |
 | **Exploratory** | UI-facing change, thin ACs, or an area with bugs in recent runs. One explorer per risky area, each with a charter ([`swarm.md`](swarm.md)). |
-| **Swarm** | Release / build, or more than ~3 areas touched, or more than ~15 cases to automate. |
+| **Swarm** | Only when the words ask for it (`swarm`, `release`), or the change touches more than ~5 areas, or more than ~25 cases need automating. Otherwise stay on 1–2 agents — see [Cost](#cost). |
 | **Bug bash** | Only when asked (`bug bash <area>`). |
 
 **Risk weighting.** An area with bugs in the last 10 runs (runs index) gets one level more:
@@ -50,12 +50,29 @@ Defaults, overridable in `.qa/preferences.md` (*Budget* section):
 | plan only | 10 min | 0 |
 | a PR / ticket, no swarm | 45 min | 2 |
 | health run | 30 min | 2 |
-| swarm / release | 2 h | 6 |
-| bug bash | 60 min | 10 |
+| swarm / release | 2 h | 4 |
+| bug bash | 60 min | 6 |
 
 Also: at most 4 fix attempts per failing script, 2 review rounds per packet, 1 rebuild per stale
 check. Note the start time in `log.md`; check it after each step. Out of budget → finish the
 current check, skip to Restore, and list everything not done under *Not covered*.
+
+## Cost
+
+Tokens are the scarce budget, so spend them where judgement is needed:
+
+- **Cheapest mode that answers the request.** `plan only` and `preflight` never start agents. A
+  single ticket or PR runs inline or with at most 2 agents; swarm and bug bash only on request.
+- **Cache before agents.** A library hit is a script run, not a model call — take every hit first.
+- **Cheaper models for mechanical seats.** Per-seat models are in [`swarm.md`](swarm.md) *Seats
+  and models*; Decide and Prove stay on the session's model.
+- **Compact evidence.** Accessibility snapshots over screenshots; cap console and network output
+  to the failing lines. Screenshot only when the visual itself is the evidence.
+- **Short returns.** Agents hand back a summary (see [`swarm.md`](swarm.md) *Briefs*), not
+  transcripts. Files carry the detail, the conversation carries the pointer.
+- **Don't re-read.** Load a spoke file once per run, and read the brief and plan from the
+  session dir instead of re-deriving them.
+- If the user's usage is tight, `.qa/preferences.md` may set *Budget* lower; honour it.
 
 ## Decision block
 

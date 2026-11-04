@@ -3,6 +3,13 @@
 All notable changes to QA Architect are documented here.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+- Token cost: swarm needs an explicit ask or a much wider change (>5 areas / >25 cases); agent caps
+  lowered (swarm 6→4, bug bash 10→6); per-seat model tiers; slim subagent briefs with a 15-line
+  return cap; snapshots over screenshots; new *Cost* section in `strategy.md`.
+
 ## [0.4.0] — 2026-10-27
 
 ### Added

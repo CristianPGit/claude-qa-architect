@@ -26,6 +26,28 @@ A seat's name is stable for the whole run. Fix requests go back to the **same se
 that agent with SendMessage while it is alive; if it is gone, start a new agent with the same seat
 name, the packet brief and its review log.
 
+## Seats and models
+
+Dispatch each seat with the Agent tool's `model` override. The orchestrator keeps the session model.
+
+| Seat | Model |
+|---|---|
+| explorer, automator, reviewer | `sonnet` |
+| planner, triager, curator | `haiku` |
+
+Raise a seat one tier only after it fails the same packet twice.
+
+## Briefs
+
+Keep briefs small — they are paid for once per agent:
+
+- Pass **file paths** (`<session>/brief.md`, `plan.md`, the packet row), never pasted content.
+- Include only the domain-pack pages for the packet's area, not the whole pack.
+- Every brief ends with a return cap: *"Reply in at most 15 lines: status, files written, suspected
+  bugs with one-line steps. Put detail in your output files."*
+- Explorers: prefer accessibility snapshots over screenshots, and report only failing console and
+  network lines.
+
 ## Manifest — `<session>/swarm.md`
 
 ```markdown
@@ -50,6 +72,9 @@ transition — it is what `resume` reads.
    items, appended to the review log. Two rounds without APPROVE → `blocked`.
 6. Approved scripts are copied from the worktree into the library; worktrees removed
    (`git worktree remove`) at the end.
+
+**Fan-out.** Start with the fewest packets that cover the areas; merge small packets rather than
+spawning an agent per case.
 
 **Browsers.** Each parallel explorer needs its own session — the Playwright MCP gives each
 agent its own context; the chrome-devtools server is one shared Chrome, so at most one explorer
